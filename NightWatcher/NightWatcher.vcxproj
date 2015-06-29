@@ -70,7 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="display.cpp" />
-    <ClCompile Include="display1.cpp" />
     <ClCompile Include="night_watcher.cpp" />
   </ItemGroup>
   <ItemGroup>

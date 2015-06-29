@@ -43,9 +43,6 @@
     <ClCompile Include="display.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="display1.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
