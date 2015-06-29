@@ -221,8 +221,92 @@ namespace {
 		return status;
 	}
 
+	// *****************************************************************************
+	// @fn          WritePATable
+	// @brief       Write data to power table
+	// @param       uint8_t const & value		Value to write
+	// @return      none
+	// *****************************************************************************
+	void radio_write_single_pa_table( uint8_t const & value ) {
+		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+
+		RF1AINSTRW = 0x3E00 + value;	// PA Table single write
+
+		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		RF1AINSTRB = RF_SNOP;	// reset PA_Table pointer
+	}
+
+	// *****************************************************************************
+	// @fn          WritePATable
+	// @brief       Write to multiple locations in power table
+	// @param       unsigned char *buffer	Pointer to the table of values to be written
+	// @param       unsigned char count	Number of values to be written
+	// @return      none
+	// *****************************************************************************
+	void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const count ) {
+		volatile size_t i = 0;
+
+		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		RF1AINSTRW = 0x7E00 + buffer[i];	// PA Table burst write
+
+		for( i = 1; i < count; ++i ) {
+			RF1ADINB = buffer[i];	// Send data
+			while( !(RFDINIFG & RF1AIFCTL1) );	// Wait for TX to finish
+		}
+		i = RF1ADOUTB;	// Reset RFDOUTIFG flag which contains status byte
+
+		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		RF1AINSTRB = RF_SNOP;	// reset PA Table pointer
+	}
+
+	// *****************************************************************************
+	// @fn          WriteRfSettings
+	// @brief       Write the minimum set of RF configuration register settings
+	// @param       RF_SETTINGS *pRfSettings  Pointer to the structure that holds the rf settings
+	// @return      none
+	// *****************************************************************************
+	void radio_setup_916MHz( ) {
+		radio_write_single_reg( SYNC1, 0xFF ); // sync word, high byte
+		radio_write_single_reg( SYNC0, 0x00 ); // sync word, low byte
+		radio_write_single_reg( PKTLEN, 0xFF ); // packet length
+		radio_write_single_reg( PKTCTRL1, 0x00 ); // packet automation control
+		radio_write_single_reg( PKTCTRL0, 0x00 ); // packet automation control
+		radio_write_single_reg( ADDR, 0x00 );
+		radio_write_single_reg( CHANNR, 0x02 ); // channel number
+		radio_write_single_reg( FSCTRL1, 0x06 ); // frequency synthesizer control
+		radio_write_single_reg( FSCTRL0, 0x00 );
+		radio_write_single_reg( FREQ2, 0x23 ); // frequency control word, high byte
+		radio_write_single_reg( FREQ1, 0x40 ); // frequency control word, middle byte
+		radio_write_single_reg( FREQ0, 0x00 ); // frequency control word, low byte
+		radio_write_single_reg( MDMCFG4, 0x69 ); // modem configuration
+		radio_write_single_reg( MDMCFG3, 0x4A ); // modem configuration
+		radio_write_single_reg( MDMCFG2, 0x33 ); // modem configuration
+		radio_write_single_reg( MDMCFG1, 0x11 ); // modem configuration
+		radio_write_single_reg( MDMCFG0, 0xC5 ); // modem configuration
+		radio_write_single_reg( DEVIATN, 0x15 ); // modem deviation setting
+		radio_write_single_reg( MCSM2, 0x07 );
+		radio_write_single_reg( MCSM1, 0x30 );
+		radio_write_single_reg( MCSM0, 0x18 ); // main radio control state machine configuration
+		radio_write_single_reg( FOCCFG, 0x17 ); // frequency offset compensation configuration
+		radio_write_single_reg( BSCFG, 0x6C );
+		radio_write_single_reg( FREND1, 0x56 ); // front end tx configuration
+		radio_write_single_reg( FREND0, 0x11 ); // front end tx configuration
+		radio_write_single_reg( FSCAL3, 0xE9 ); // frequency synthesizer calibration
+		radio_write_single_reg( FSCAL2, 0x2A ); // frequency synthesizer calibration
+		radio_write_single_reg( FSCAL1, 0x00 ); // frequency synthesizer calibration
+		radio_write_single_reg( FSCAL0, 0x1F ); // frequency synthesizer calibration
+		radio_write_single_reg( TEST1, 0x31 ); // various test settings
+		radio_write_single_reg( TEST0, 0x09 ); // various test settings
+		{
+			std::array<uint8_t, 8> const pa_values = { 0x00,0x8e,0x00,0x00,0x00,0x00,0x00,0x00, };
+			radio_write_burst_pa_table( pa_values.data( ), pa_values.size( ) );
+		}
+		// 		radio_write_single_reg( PA_TABLE0, 0x00 ); // needs to be explicitly set!
+		// 		radio_write_single_reg( PA_TABLE1, 0xC0 ); // pa power setting 10 dBm
+	}
+
 	void configure_radio( ) { }
-}
+}	// namespace anonymous
 
 Radio::Radio( ) : m_rx_buffer( ) {
 	m_rx_buffer.fill( 0 );
