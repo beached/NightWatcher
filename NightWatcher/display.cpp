@@ -130,17 +130,20 @@ void clear_line( uint8_t line ) {
 //				mode		On, off or blink segments
 // @return
 // *************************************************************************************************
-static void write_lcd_mem( uint8_t * lcdmem, uint8_t bits, uint8_t bitmask, LcdDisplayModes const state ) {
-	if( state == LcdDisplayModes::SEG_ON ) {
+static void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const & state ) {
+	switch( state ) {
+	case LcdDisplayModes::SEG_ON:
 		// Clear segments before writing
 		*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
 		// Set visible segments
 		*lcdmem = (uint8_t)(*lcdmem | bits);
-	} else if( state == LcdDisplayModes::SEG_OFF ) {
+		break;
+	case LcdDisplayModes::SEG_OFF:
 		// Clear segments
 		*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-	} else if( state == LcdDisplayModes::SEG_ON_BLINK_ON ) {
+		break;
+	case LcdDisplayModes::SEG_ON_BLINK_ON:
 		// Clear visible / blink segments before writing
 		*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 		*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
@@ -148,7 +151,8 @@ static void write_lcd_mem( uint8_t * lcdmem, uint8_t bits, uint8_t bitmask, LcdD
 		// Set visible / blink segments
 		*lcdmem = (uint8_t)(*lcdmem | bits);
 		*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
-	} else if( state == LcdDisplayModes::SEG_ON_BLINK_OFF ) {
+		break;
+	case LcdDisplayModes::SEG_ON_BLINK_OFF:
 		// Clear visible segments before writing
 		*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
@@ -157,7 +161,8 @@ static void write_lcd_mem( uint8_t * lcdmem, uint8_t bits, uint8_t bitmask, LcdD
 
 		// Clear blink segments
 		*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
-	} else if( state == LcdDisplayModes::SEG_OFF_BLINK_OFF ) {
+		break;
+	case LcdDisplayModes::SEG_OFF_BLINK_OFF:
 		// Clear segments
 		*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
@@ -166,7 +171,7 @@ static void write_lcd_mem( uint8_t * lcdmem, uint8_t bits, uint8_t bitmask, LcdD
 	}
 }
 
-static char * itoa( uint32_t val, uint8_t digits, uint8_t blanks ) {
+static char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 	const size_t result_str_size = 7;
 	static std::array<char, result_str_size + 1> result_str;
 	std::fill( std::begin( result_str ), std::begin( result_str ) + result_str_size, '0' );
@@ -195,34 +200,6 @@ static char * itoa( uint32_t val, uint8_t digits, uint8_t blanks ) {
 	return result_str.data( );
 }
 
-// static char * itoa( uint32_t val, uint8_t digits, uint8_t blanks ) {
-// 	static char result_str[8];
-// 	memcpy( result_str, "00000000", 7 );
-// 	result_str[7] = '\0';
-//
-// 	// Return empty string if number of digits is invalid (valid range for digits: 1-7)
-// 	if( (digits == 0) || (digits > 7) ) {
-// 		return result_str;
-// 	}
-// 	uint8_t i = 1;
-// 	for( ; i < 8; ++i ) {
-// 		result_str[digits - i] = (uint8_t)((val % 10UL) + '0');
-// 		val /= 10;
-// 	}
-//
-// 	// Remove specified number of leading '0', always keep last one
-// 	i = 0;
-// 	while( (result_str[i] == '0') && (i < digits - 1) ) {
-// 		if( blanks ) {
-// 			// Convert only specified number of leading '0'
-// 			result_str[i] = ' ';
-// 			--blanks;
-// 		}
-// 		++i;
-// 	}
-// 	return result_str;
-// }
-
 // *************************************************************************************************
 // @fn          display_value1
 // @brief       Generic decimal display routine. Used exclusively by set_value function.
@@ -232,7 +209,7 @@ static char * itoa( uint32_t val, uint8_t digits, uint8_t blanks ) {
 //				u8 blanks			Number of leadings blanks in itoa result string
 // @return      none
 // *************************************************************************************************
-void display_value1( uint8_t segments, uint32_t value, uint8_t digits, uint8_t blanks, LcdDisplayModes const disp_mode ) {
+void display_value1( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode ) {
 	auto const str = itoa( value, digits, blanks );
 	// Display string in blink mode
 	display_chars( segments, str, disp_mode );

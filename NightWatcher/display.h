@@ -269,15 +269,15 @@ enum class LcdBitMask: uint16_t {
 // API section
 
 // Display init / clear
-extern void lcd_init( void );
-extern void clear_display( void );
-extern void clear_display_all( void );
+extern void lcd_init( );
+extern void clear_display( );
+extern void clear_display_all( );
 extern void clear_line( uint8_t line );
 
 // Blinking function
-extern void start_blink( void );
-extern void stop_blink( void );
-extern void clear_blink_mem( void );
+extern void start_blink( );
+extern void stop_blink( );
+extern void clear_blink_mem( );
 extern void set_blink_rate( uint8_t bits );
 
 // Character / symbol draw functions
@@ -286,10 +286,9 @@ extern void display_chars( uint8_t segments, char const * const str, LcdDisplayM
 extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode );
 
 // Set_value display functions
-extern void display_value1( uint8_t segments, uint32_t value, uint8_t digits, uint8_t blanks, LcdDisplayModes const disp_mode );
-extern void display_hours_12_or_24( uint8_t segments, uint32_t value, uint8_t digits, uint8_t blanks, LcdDisplayModes const disp_mode );
+extern void display_value1( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode );
 
 // Segment index helper function
 extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
 
-void display_all_off( void );
+void display_all_off( );
