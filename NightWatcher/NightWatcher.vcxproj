@@ -71,9 +71,11 @@
   <ItemGroup>
     <ClCompile Include="display.cpp" />
     <ClCompile Include="night_watcher.cpp" />
+    <ClCompile Include="radio.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h" />
+    <ClInclude Include="radio.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

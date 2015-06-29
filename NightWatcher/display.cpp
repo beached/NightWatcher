@@ -189,7 +189,7 @@ static char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 
 	// Remove specified number of leading '0', always keep last one
 	i = 0;
-	while( (result_str[i] == '0') && (i < digits - 1) ) {
+	while( (result_str[i] == '0') && (i < digits - 1u) ) {
 		if( blanks ) {
 			// Convert only specified number of leading '0'
 			result_str[i] = ' ';
