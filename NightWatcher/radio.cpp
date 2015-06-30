@@ -1,5 +1,6 @@
 #include "radio.h"
 #include <cstdint>
+
 namespace {
 	// *****************************************************************************
 	// @fn          radio_write_single_reg
@@ -9,7 +10,7 @@ namespace {
 	// @return      none
 	// *****************************************************************************
 	void radio_write_single_reg( uint8_t const & addr, uint8_t const & value ) {
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );	// Wait for the Radio to be ready for next instruction
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }	// Wait for the Radio to be ready for next instruction
 		RF1AINSTRB = addr | RF_SNGLREGWR;	// Send address + Instruction
 		RF1ADINB = value;	// Write data in
 		__no_operation( );
@@ -31,7 +32,7 @@ namespace {
 			RF1AINSTR1B = (addr | RF_STATREGRD);	// Send address + Instruction + 1 dummy byte (auto-read)
 		}
 
-		while( !(RF1AIFCTL1 & RFDOUTIFG) );
+		while( !(RF1AIFCTL1 & RFDOUTIFG) ) { /* spin */ }
 
 		data_out = RF1ADOUTB;	// Read data and clears the RFDOUTIFG
 		return data_out;
@@ -40,28 +41,15 @@ namespace {
 	std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
 #define _HAL_PMM_DISABLE_SVML_
-#define _HAL_PMM_DISABLE_SVSL_
-#define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
-
-	//****************************************************************************//
-#ifdef _HAL_PMM_DISABLE_SVML_
 #define _HAL_PMM_SVMLE SVMLE
-#else
-#define _HAL_PMM_SVMLE 0
-#endif
-#ifdef _HAL_PMM_DISABLE_SVSL_
+#define _HAL_PMM_DISABLE_SVSL_
 #define _HAL_PMM_SVSLE SVSLE
-#else
-#define _HAL_PMM_SVSLE 0
-#endif
-#ifdef _HAL_PMM_DISABLE_FULL_PERFORMANCE_
+#define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
 #define _HAL_PMM_SVSFP SVSLFP
-#else
-#define _HAL_PMM_SVSFP 0
-#endif
+	//****************************************************************************//
 
-#define PMM_STATUS_OK     0
-#define PMM_STATUS_ERROR  1
+	uint8_t const PMM_STATUS_OK = 0;
+	uint8_t const PMM_STATUS_ERROR = 1;
 
 	//****************************************************************************//
 	// Set VCore Up
@@ -83,7 +71,7 @@ namespace {
 		SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
 
 		// Wait until SVM highside is settled
-		while( (PMMIFG & SVSMHDLYIFG) == 0 );
+		while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 		// Disable full-performance mode to save energy
 		SVSMHCTL &= ~_HAL_PMM_SVSFP;
@@ -93,7 +81,7 @@ namespace {
 			SVSMHCTL = SVSMHCTL_backup;
 
 			// Wait until SVM highside is settled
-			while( (PMMIFG & SVSMHDLYIFG) == 0 );
+			while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 			// Clear all Flags
 			PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
@@ -113,7 +101,7 @@ namespace {
 		SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
 
 		// Wait until SVM low side is settled
-		while( (PMMIFG & SVSMLDLYIFG) == 0 );
+		while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 		// Clear already set flags
 		PMMIFG &= ~(SVMLVLRIFG | SVMLIFG);
@@ -123,7 +111,7 @@ namespace {
 
 		// Wait until new level reached
 		if( PMMIFG & SVMLIFG ) {
-			while( (PMMIFG & SVMLVLRIFG) == 0 );
+			while( (PMMIFG & SVMLVLRIFG) == 0 ) { /* spin */ }
 		}
 
 		// Set also SVS/SVM low side to new level
@@ -131,7 +119,7 @@ namespace {
 		SVSMLCTL |= SVSLE | (SVSLRVL0 * level);
 
 		// wait for lowside delay flags
-		while( (PMMIFG & SVSMLDLYIFG) == 0 );
+		while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 		// Disable SVS/SVM Low
 		// Disable full-performance mode to save energy
@@ -166,7 +154,7 @@ namespace {
 		SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
 
 		// Wait until SVM high side and SVM low side is settled
-		while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 );
+		while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 		// Set VCore to new level
 		PMMCTL0_L = PMMCOREV0 * level;
@@ -177,7 +165,7 @@ namespace {
 		SVSMLCTL |= SVSLE | SVSLFP | (SVSLRVL0 * level);
 
 		// Wait until SVS high side and SVS low side is settled
-		while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 );
+		while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 		// Disable full-performance mode to save energy
 		SVSMHCTL &= ~_HAL_PMM_SVSFP;
@@ -228,11 +216,11 @@ namespace {
 	// @return      none
 	// *****************************************************************************
 	void radio_write_single_pa_table( uint8_t const & value ) {
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 
 		RF1AINSTRW = 0x3E00 + value;	// PA Table single write
 
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 		RF1AINSTRB = RF_SNOP;	// reset PA_Table pointer
 	}
 
@@ -246,16 +234,16 @@ namespace {
 	void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const count ) {
 		volatile size_t i = 0;
 
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 		RF1AINSTRW = 0x7E00 + buffer[i];	// PA Table burst write
 
 		for( i = 1; i < count; ++i ) {
 			RF1ADINB = buffer[i];	// Send data
-			while( !(RFDINIFG & RF1AIFCTL1) );	// Wait for TX to finish
+			while( !(RFDINIFG & RF1AIFCTL1) ) { /* spin */ }	// Wait for TX to finish
 		}
 		i = RF1ADOUTB;	// Reset RFDOUTIFG flag which contains status byte
 
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 		RF1AINSTRB = RF_SNOP;	// reset PA Table pointer
 	}
 
@@ -298,11 +286,9 @@ namespace {
 		radio_write_single_reg( TEST1, 0x31 ); // various test settings
 		radio_write_single_reg( TEST0, 0x09 ); // various test settings
 		{
-			std::array<uint8_t, 8> const pa_values = { 0x00,0x8e,0x00,0x00,0x00,0x00,0x00,0x00, };
+			std::array<uint8_t, 8> const pa_values = { 0x00,0x8e,0x00,0x00,0x00,0x00,0x00,0x00, };	// might be C0 for indice 1 value
 			radio_write_burst_pa_table( pa_values.data( ), pa_values.size( ) );
 		}
-		// 		radio_write_single_reg( PA_TABLE0, 0x00 ); // needs to be explicitly set!
-		// 		radio_write_single_reg( PA_TABLE1, 0xC0 ); // pa power setting 10 dBm
 	}
 
 	void configure_radio( ) { }
@@ -331,7 +317,7 @@ uint8_t Radio::strobe( uint8_t const cmd ) {
 		RF1AIFCTL1 &= ~(RFSTATIFG);
 
 		// Wait for radio to be ready for next instruction
-		while( !(RF1AIFCTL1 & RFINSTRIFG) );
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 
 		if( (cmd > RF_SRES) && (cmd < RF_SNOP) ) {
 			uint8_t gdo_state = radio_read_single_reg( IOCFG2 );    // buffer IOCFG2 state
@@ -340,14 +326,14 @@ uint8_t Radio::strobe( uint8_t const cmd ) {
 			RF1AINSTRB = cmd;
 			if( (RF1AIN & 0x04) == 0x04 ) {	// chip at sleep mode
 				if( !((cmd == RF_SXOFF) || (cmd == RF_SPWD) || (cmd == RF_SWOR)) ) {
-					while( (RF1AIN & 0x04) == 0x04 );	// chip-ready ?
+					while( (RF1AIN & 0x04) == 0x04 ) { /* spin */ }	// chip-ready ?
 
 					__delay_cycles( 850 );	// Delay for ~810usec at 1.05MHz CPU clock, see erratum RF1A7
 				}
 			}
 			radio_write_single_reg( IOCFG2, gdo_state );    // restore IOCFG2 setting
 
-			while( !(RF1AIFCTL1 & RFSTATIFG) );
+			while( !(RF1AIFCTL1 & RFSTATIFG) ) { /* spin */ }
 		} else {	                    // chip active mode (SRES)
 			RF1AINSTRB = cmd;
 		}
