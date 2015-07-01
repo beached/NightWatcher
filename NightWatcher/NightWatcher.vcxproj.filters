@@ -46,12 +46,24 @@
     <ClCompile Include="radio.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="criticalsection.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="timers.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="radio.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="criticalsection.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="timers.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

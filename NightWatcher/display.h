@@ -146,6 +146,7 @@ namespace display {
 
 	// Line1 7-segment arrays
 	uint8_t const LCD_SEG_L1_3_0 = 70;
+	uint8_t const LCD_SEG_LINE1_START = 70;
 	uint8_t const LCD_SEG_L1_2_0 = 71;
 	uint8_t const LCD_SEG_L1_1_0 = 72;
 	uint8_t const LCD_SEG_L1_3_1 = 73;
@@ -154,6 +155,7 @@ namespace display {
 	// Line2 7-segment arrays
 	uint8_t const LCD_SEG_L2_5_0 = 90;
 	uint8_t const LCD_SEG_L2_4_0 = 91;
+	uint8_t const LCD_SEG_LINE2_START = 91;
 	uint8_t const LCD_SEG_L2_3_0 = 92;
 	uint8_t const LCD_SEG_L2_2_0 = 93;
 	uint8_t const LCD_SEG_L2_1_0 = 94;

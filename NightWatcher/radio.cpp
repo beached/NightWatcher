@@ -1,7 +1,14 @@
+#include "criticalsection.h"
 #include "radio.h"
 #include <cstdint>
+#include <csignal>
+#include <array>
+#include "display.h"
 
 namespace {
+	std::array<uint8_t, 256> s_rx_buffer;
+	uint8_t s_rx_buffer_tail = 0;
+
 	// *****************************************************************************
 	// @fn          radio_write_single_reg
 	// @brief       Write a single byte to a radio register
@@ -38,6 +45,27 @@ namespace {
 		return data_out;
 	}
 
+	// *****************************************************************************
+	// @fn          radio_read_burst_reg
+	// @brief       Read a sequence of bytes from register
+	// @param       uint8_t const & addr      Target radio register address
+	// @param		uint8_t * const buffer
+	// @param		uint8_t const & count count of bytes to read.  Must be <= buffer.size( )
+	// @return      none
+	// *****************************************************************************
+	template<typename ArryType>
+	void radio_read_burst_reg( uint8_t const & addr, ArryType & buffer, uint8_t const & count ) {
+		CriticalSection cs;
+		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
+
+		RF1AINSTR1B = (addr | RF_REGRD);
+
+		for( size_t i = 1; i < count; ++i ) {
+			buffer[i - 1] = RF1ADOUT1B;
+		}
+		buffer[count - 1] = RF1ADOUT0B;
+	}
+
 	std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
 #define _HAL_PMM_DISABLE_SVML_
@@ -54,7 +82,8 @@ namespace {
 	//****************************************************************************//
 	// Set VCore Up
 	//****************************************************************************//
-	uint16_t set_vcore_up( uint8_t level ) {
+	template<typename T>
+	uint16_t set_vcore_up( T level ) {
 		uint16_t PMMRIE_backup;
 		uint16_t SVSMHCTL_backup;
 
@@ -138,7 +167,8 @@ namespace {
 	//****************************************************************************//
 	// Set VCore down (Independent from the enabled Interrupts in PMMRIE)
 	//****************************************************************************//
-	uint16_t set_vcore_down( uint8_t level ) {
+	template<typename T>
+	uint16_t set_vcore_down( T level ) {
 		uint16_t PMMRIE_backup;
 
 		// Open PMM registers for write access
@@ -193,7 +223,8 @@ namespace {
 	//****************************************************************************//
 	// Set VCore
 	//****************************************************************************//
-	uint16_t set_vcore( uint16_t level ) {
+	template<typename T>
+	uint16_t set_vcore( T level ) {
 		unsigned int status = 0;
 
 		level &= PMMCOREV_3;	// Set Mask for Max. level
@@ -215,7 +246,8 @@ namespace {
 	// @param       uint8_t const & value		Value to write
 	// @return      none
 	// *****************************************************************************
-	void radio_write_single_pa_table( uint8_t const & value ) {
+	template<typename T>
+	void radio_write_single_pa_table( T const & value ) {
 		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 
 		RF1AINSTRW = 0x3E00 + value;	// PA Table single write
@@ -231,7 +263,8 @@ namespace {
 	// @param       unsigned char count	Number of values to be written
 	// @return      none
 	// *****************************************************************************
-	void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const count ) {
+	template<typename T>
+	void radio_write_burst_pa_table( uint8_t const * const buffer, T const & count ) {
 		volatile size_t i = 0;
 
 		while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
@@ -291,11 +324,21 @@ namespace {
 		}
 	}
 
-	void configure_radio( ) { }
+	void configure_radio( ) {
+		radio_setup_916MHz( );
+	}
+
+	template<typename Arry, typename ValueType>
+	void fill( Arry* arry, size_t count, ValueType && value ) {
+		for( size_t n = 0; n < count; ++n ) {
+			arry[n] = value;
+		}
+	}
 }	// namespace anonymous
 
-Radio::Radio( ) : m_rx_buffer( ) {
-	m_rx_buffer.fill( 0 );
+Radio::Radio( ) {
+	s_rx_buffer.fill( 0 );
+	s_rx_buffer_tail = 0;
 
 	// Increase PMMCOREV level to 2 in order to avoid low voltage error
 	// when the RF core is enabled
@@ -306,11 +349,11 @@ Radio::Radio( ) : m_rx_buffer( ) {
 	PMMCTL0_H = 0xA5;
 	PMMCTL0_L |= PMMHPMRE_L;
 	PMMCTL0_H = 0x00;
+
+	configure_radio( );
 }
 
-void Radio::receive_data( ) { }
-
-uint8_t Radio::strobe( uint8_t const cmd ) {
+uint8_t Radio::strobe( uint8_t const cmd ) const {
 	uint8_t status_byte = 0;
 	if( (cmd == 0xBD) || ((cmd >= RF_SRES) && (cmd <= RF_SNOP)) ) {
 		// Clear the Status read flag
@@ -342,7 +385,25 @@ uint8_t Radio::strobe( uint8_t const cmd ) {
 	return status_byte;
 }
 
-void Radio::reset_core( ) {
+void Radio::reset_core( ) const {
 	strobe( RF_SRES );	// Reset the Radio Core
 	strobe( RF_SNOP );	// Reset Radio Pointer
+}
+
+// #pragma vector=CC1101_VECTOR
+// __interrupt( CC1101_VECTOR )
+// __attribute__( (__interrupt__( CC1101_VECTOR )) )
+// void radio_isr( ) {
+void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
+	uint8_t const rf1aivec = RF1AIV;
+	s_rx_buffer_tail = 0;
+	if( RF1AIV_RFIFG9 == rf1aivec ) {
+		s_rx_buffer_tail = radio_read_single_reg( RXBYTES );
+		if( 0 < s_rx_buffer_tail && s_rx_buffer.size( ) >= s_rx_buffer_tail ) {
+			radio_read_burst_reg( RF_RXFIFORD, s_rx_buffer, s_rx_buffer_tail );
+			s_rx_buffer_tail = 0;	// TODO Remove
+		}
+	}
+
+	_bic_SR_register_on_exit( LPM3_bits );
 }

@@ -69,13 +69,17 @@
     <None Include="release.mak" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="criticalsection.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="night_watcher.cpp" />
     <ClCompile Include="radio.cpp" />
+    <ClCompile Include="timers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="criticalsection.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="radio.h" />
+    <ClInclude Include="timers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
