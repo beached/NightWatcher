@@ -2,8 +2,7 @@
 #include "radio.h"
 #include <limits>
 
-// #define TIMER1_CALLBACK_COUNT 2
-// #include "timers.h"
+#include "timers.h"
 
 namespace {
 	inline void disable_watchdog( ) {
@@ -28,19 +27,19 @@ int main( ) {
 
 	// Test Timer
 
-// 	timers::Timer1::set_callback( 0, []( ) {
-// 		auto value = s_timer_counter++;
-// 		display::clear_line( display::LINE1 );
-// 		display::display_value1( display::LCD_SEG_LINE1_START, value, 4, 4, display::LcdDisplayModes::SEG_ON_BLINK_OFF );
-// 	} );
-//
-// 	timers::Timer1::set_callback( 1, []( ) {
-// 		auto value = s_timer_counter;
-// 		display::clear_line( display::LINE2 );
-// 		display::display_value1( display::LCD_SEG_LINE2_START, value, 4, 4, display::LcdDisplayModes::SEG_ON_BLINK_OFF );
-// 	} );
-//
-// 	timers::Timer1::enable( 50000 );
+	timers::Timer0::set_callback( 0, []( ) {
+		auto value = s_timer_counter++;
+		//display::clear_line( display::LINE1 );
+		display::display_value1( display::LCD_SEG_LINE1_START, value, 4, 4, display::LcdDisplayModes::SEG_ON_BLINK_OFF );
+	} );
+
+	// 	timers::Timer1::set_callback( 1, []( ) {
+	// 		auto value = s_timer_counter;
+	// 		display::clear_line( display::LINE2 );
+	// 		display::display_value1( display::LCD_SEG_LINE2_START, value, 4, 4, display::LcdDisplayModes::SEG_ON_BLINK_OFF );
+	// 	} );
+	//
+	timers::Timer0::enable( 50000 );
 
 	__bis_SR_register( LPM0_bits + GIE );       // Enter LPM0, enable interrupts
 

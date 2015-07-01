@@ -186,6 +186,7 @@
 #define __GNUC_STDC_INLINE__ 1
 #define __DBL_DECIMAL_DIG__ 17
 #define __DEC_EVAL_METHOD__ 2
+#define TIMER0_CALLBACK_COUNT 1
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __INTMAX_MAX__ 0x7fffffffffffffffLL
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
