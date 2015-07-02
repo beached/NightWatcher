@@ -8,6 +8,7 @@
 namespace {
 	std::array<uint8_t, 256> s_rx_buffer;
 	uint8_t s_rx_buffer_tail = 0;
+	volatile bool s_new_data = false;
 
 	// *****************************************************************************
 	// @fn          radio_write_single_reg
@@ -225,7 +226,7 @@ namespace {
 	//****************************************************************************//
 	template<typename T>
 	uint16_t set_vcore( T level ) {
-		unsigned int status = 0;
+		uint16_t status = 0;
 
 		level &= PMMCOREV_3;	// Set Mask for Max. level
 		uint16_t actlevel = (PMMCTL0 & PMMCOREV_3);	// Get actual VCore
@@ -328,13 +329,36 @@ namespace {
 		radio_setup_916MHz( );
 	}
 
-	template<typename Arry, typename ValueType>
-	void fill( Arry* arry, size_t count, ValueType && value ) {
-		for( size_t n = 0; n < count; ++n ) {
-			arry[n] = value;
+	// 	template<typename Arry, typename ValueType>
+	// 	void fill( Arry* arry, size_t count, ValueType && value ) {
+	// 		for( size_t n = 0; n < count; ++n ) {
+	// 			arry[n] = value;
+	// 		}
+	// 	}
+}	// namespace anonymous
+
+void Radio::receive_loop( ) {
+	receive_loop_on = true;
+	while( receive_loop_on ) {
+		receive_on( );
+		__bis_SR_register( LPM3_bits + GIE );
+		__no_operation( );
+		if( s_new_data ) {
+			P1OUT ^= BIT0;	// Toggle LED1
 		}
 	}
-}	// namespace anonymous
+}
+
+void Radio::receive_on( ) {
+	RF1AIES |= BIT9;	// Falling edge of RFIFG9
+	RF1AIFG &= ~BIT9;	// Clear a pending interrupt
+	RF1AIE |= BIT9;	// Enable the interrupt
+
+	// Radio is in IDLE following a TX, so strobe SRX to enter Receive Mode
+	strobe( RF_SRX );	// Strobe SRX
+}
+
+volatile bool Radio::receive_loop_on = false;
 
 Radio::Radio( ) {
 	s_rx_buffer.fill( 0 );
@@ -353,7 +377,7 @@ Radio::Radio( ) {
 	configure_radio( );
 }
 
-uint8_t Radio::strobe( uint8_t const cmd ) const {
+uint8_t Radio::strobe( uint8_t const cmd ) {
 	uint8_t status_byte = 0;
 	if( (cmd == 0xBD) || ((cmd >= RF_SRES) && (cmd <= RF_SNOP)) ) {
 		// Clear the Status read flag
@@ -385,25 +409,65 @@ uint8_t Radio::strobe( uint8_t const cmd ) const {
 	return status_byte;
 }
 
-void Radio::reset_core( ) const {
+void Radio::reset_core( ) {
 	strobe( RF_SRES );	// Reset the Radio Core
 	strobe( RF_SNOP );	// Reset Radio Pointer
 }
 
-// #pragma vector=CC1101_VECTOR
-// __interrupt( CC1101_VECTOR )
-// __attribute__( (__interrupt__( CC1101_VECTOR )) )
-// void radio_isr( ) {
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
-	uint8_t const rf1aivec = RF1AIV;
-	s_rx_buffer_tail = 0;
-	if( RF1AIV_RFIFG9 == rf1aivec ) {
-		s_rx_buffer_tail = radio_read_single_reg( RXBYTES );
-		if( 0 < s_rx_buffer_tail && s_rx_buffer.size( ) >= s_rx_buffer_tail ) {
-			radio_read_burst_reg( RF_RXFIFORD, s_rx_buffer, s_rx_buffer_tail );
-			s_rx_buffer_tail = 0;	// TODO Remove
-		}
-	}
+	// 	uint8_t const rf1aivec = RF1AIV;
+	// 	s_rx_buffer_tail = 0;
+	// 	if( RF1AIV_RFIFG9 == rf1aivec ) {
+	// 		s_rx_buffer_tail = radio_read_single_reg( RXBYTES );
+	// 		if( 0 < s_rx_buffer_tail && s_rx_buffer.size( ) >= s_rx_buffer_tail ) {
+	// 			radio_read_burst_reg( RF_RXFIFORD, s_rx_buffer, s_rx_buffer_tail );
+	// 			s_rx_buffer_tail = 0;	// TODO Remove
+	// 		}
+	// 	}
+	//
+	// 	_bic_SR_register_on_exit( LPM3_bits );
+	const auto val = __even_in_range( RF1AIV, 32 );
+	switch( val ) {	// Prioritizing Radio Core Interrupt
+	case  0: break;                         // No RF core interrupt pending
+	case  2: break;                         // RFIFG0
+	case  4:                                // GDO1 = LNA_PD signal
+		RF1AIE &= ~(BIT1 + BIT9);
+		Radio::strobe( RF_SWOR );                      // Go back to sleep
+		P1OUT ^= BIT0;
+		break;
+	case  6: break;                         // RFIFG2
+	case  8: break;                         // RFIFG3
+	case 10: break;                         // RFIFG4
+	case 12: break;                         // RFIFG5
+	case 14: break;                         // RFIFG6
+	case 16: break;                         // RFIFG7
+	case 18: break;                         // RFIFG8
+	case 20:                                // RFIFG9
+		// RX end of packet
+		RF1AIE &= ~(BIT1 + BIT9);
+		s_rx_buffer_tail = radio_read_single_reg( RXBYTES );	// Read the length byte from the FIFO
+		// Make sure we don't read past end of buffer
+		s_rx_buffer_tail = s_rx_buffer_tail <= s_rx_buffer.size( ) ? s_rx_buffer_tail : s_rx_buffer.size( );
+		s_new_data = s_rx_buffer_tail > 0;
 
-	_bic_SR_register_on_exit( LPM3_bits );
+		radio_read_burst_reg( RF_RXFIFORD, s_rx_buffer, s_rx_buffer_tail );	// Read RX packet from the RX FIFO
+
+		/* Stop here to see contents of RxBuffer */
+		__no_operation( );
+		break;
+	case 22: break;                         // RFIFG10
+	case 24: break;                         // RFIFG11
+	case 26: break;                         // RFIFG12
+	case 28: break;                         // RFIFG13
+	case 30:                                // WOR_EVENT0
+		P1OUT ^= BIT0;
+		RF1AIE |= BIT9 + BIT1;
+		RF1AIFG &= ~(BIT9 + BIT1);
+		RF1AIES |= BIT9;                      // Falling edge of RFIFG9
+		RF1AIFG &= ~BIT9;                     // Clear a pending interrupt
+		RF1AIE |= BIT9;                      // Enable the interrupt
+		Radio::strobe( RF_SRX );
+		break;
+	case 32:  break;                         // RFIFG15
+	}
 }

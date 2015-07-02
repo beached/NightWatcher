@@ -239,7 +239,7 @@ namespace display {
 		}
 	}
 
-	uint8_t get_font( unsigned char const character ) {
+	uint8_t get_font( uint8_t const character ) {
 		/*
 		LCD Display has the following segment assignments
 		A
