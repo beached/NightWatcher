@@ -290,7 +290,7 @@ namespace display {
 	extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode );
 
 	// Set_value display functions
-	extern void display_value1( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode );
+	extern void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode );
 
 	// Segment index helper function
 	extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );

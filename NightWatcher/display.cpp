@@ -106,7 +106,7 @@ namespace display {
 	// *************************************************************************************************
 	// @fn          clear_line
 	// @brief       Erase segments of a given line.
-	// @param      	u8 line	LINE1, LINE2
+	// @param      	uint8_t line	LINE1, LINE2
 	// @return      none
 	// *************************************************************************************************
 	void clear_line( uint8_t line ) {
@@ -202,15 +202,15 @@ namespace display {
 	}
 
 	// *************************************************************************************************
-	// @fn          display_value1
+	// @fn          display_value
 	// @brief       Generic decimal display routine. Used exclusively by set_value function.
-	// @param       u8 segments		LCD segments where value is displayed
+	// @param       uint8_t segments		LCD segments where value is displayed
 	//				u32 value			Integer value to be displayed
-	//				u8 digits			Number of digits to convert
-	//				u8 blanks			Number of leadings blanks in itoa result string
+	//				uint8_t digits			Number of digits to convert
+	//				uint8_t blanks			Number of leadings blanks in itoa result string
 	// @return      none
 	// *************************************************************************************************
-	void display_value1( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode ) {
+	void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode ) {
 		auto const str = itoa( value, digits, blanks );
 		// Display string in blink mode
 		display_chars( segments, str, disp_mode );
@@ -219,8 +219,8 @@ namespace display {
 	// *************************************************************************************************
 	// @fn          display_symbol
 	// @brief       Switch symbol on or off on LCD.
-	// @param       u8 symbol		A valid LCD symbol (index 0..42)
-	//				u8 state		SEG_ON, SEG_OFF, SEG_BLINK
+	// @param       uint8_t symbol		A valid LCD symbol (index 0..42)
+	//				uint8_t state		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
 	void display_symbol( uint8_t symbol, LcdDisplayModes const mode ) {
@@ -350,9 +350,9 @@ namespace display {
 	// *************************************************************************************************
 	// @fn          display_char
 	// @brief       Write to 7-segment characters.
-	// @param       u8 segment		A valid LCD segment
-	//				u8 chr			Character to display
-	//				u8 mode		SEG_ON, SEG_OFF, SEG_BLINK
+	// @param       uint8_t segment		A valid LCD segment
+	//				uint8_t chr			Character to display
+	//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
 	void display_char( uint8_t segment, unsigned char chr, LcdDisplayModes const mode ) {
@@ -385,12 +385,12 @@ namespace display {
 	// *************************************************************************************************
 	// @fn          display_chars
 	// @brief       Write to consecutive 7-segment characters.
-	// @param       u8 segments	LCD segment array
-	//				u8 * str		Pointer to a string
-	//				u8 mode		SEG_ON, SEG_OFF, SEG_BLINK
+	// @param       uint8_t segments	LCD segment array
+	//				uint8_t * str		Pointer to a string
+	//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
-	void display_chars( uint8_t segments, char const * const str, LcdDisplayModes const mode ) {
+	void display_chars( uint8_t segments, char const * str, LcdDisplayModes const mode ) {
 		uint8_t length = 0;			// Write length
 		uint8_t char_start;			// Starting point for consecutive write
 
@@ -422,9 +422,9 @@ namespace display {
 		}
 
 		// Write to consecutive digits
-		for( uint8_t i = 0; i < length; i++ ) {
+		for( uint8_t i = 0; i < length && *str; i++ ) {
 			// Use single character routine to write display memory
-			display_char( char_start + i, *(str + i), mode );
+			display_char( char_start + i, *(str++), mode );
 		}
 	}
 
@@ -432,9 +432,9 @@ namespace display {
 	// @fn          switch_seg
 	// @brief       Returns index of 7-segment character. Required for display routines that can draw
 	//				information on both lines.
-	// @param       u8 line		LINE1, LINE2
-	//				u8 index1		Index of LINE1
-	//				u8 index2		Index of LINE2
+	// @param       uint8_t line		LINE1, LINE2
+	//				uint8_t index1		Index of LINE1
+	//				uint8_t index2		Index of LINE2
 	// @return      uint8
 	// *************************************************************************************************
 	uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 ) {
