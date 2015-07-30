@@ -4,10 +4,14 @@
 //std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
 void radio_setup_916MHz( ) {
+	daw::radio::radio_write_single_reg( AGCCTRL0, 0x91 );
+	daw::radio::radio_write_single_reg( AGCCTRL1, 0x40 );
+	daw::radio::radio_write_single_reg( AGCCTRL2, 0x03 );
 	daw::radio::radio_write_single_reg( CHANNR, 0x02 );       //Channel Number
 	daw::radio::radio_write_single_reg( DEVIATN, 0x15 );      //Modem Deviation Setting
 	daw::radio::radio_write_single_reg( FOCCFG, 0x17 );       //Frequency Offset Compensation Configuration
-	daw::radio::radio_write_single_reg( FREND0, 0x11 );       //Front End TX Configuration
+	daw::radio::radio_write_single_reg( FREND0, 0x11 );       //Front End TX Configuration	// DAW May be 0x12 from mmcommander
+	daw::radio::radio_write_single_reg( FREND1, 0x56 );
 	daw::radio::radio_write_single_reg( FREQ0, 0x00 );        //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( FREQ1, 0x40 );        //Frequency Control Word, Middle Byte
 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );        //Frequency Control Word, High Byte
@@ -15,6 +19,7 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( FSCAL1, 0x00 );       //Frequency Synthesizer Calibration
 	daw::radio::radio_write_single_reg( FSCAL2, 0x2A );       //Frequency Synthesizer Calibration
 	daw::radio::radio_write_single_reg( FSCAL3, 0xE9 );       //Frequency Synthesizer Calibration
+	daw::radio::radio_write_single_reg( FSCTRL0, 0x0 );      //Frequency Synthesizer Control
 	daw::radio::radio_write_single_reg( FSCTRL1, 0x06 );      //Frequency Synthesizer Control
 	daw::radio::radio_write_single_reg( IOCFG0, 0x06 );       //GDO0 Output Configuration
 	daw::radio::radio_write_single_reg( LQI, 0xFF );          //Demodulator Estimate for Link Quality
@@ -28,6 +33,9 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( PKTCTRL0, 0x00 );     //Packet Automation Control
 	daw::radio::radio_write_single_reg( PKTLEN, 0x10 );       //Packet Length
 	daw::radio::radio_write_single_reg( PKTSTATUS, 0xA0 );    //Current GDOx Status and Packet Status
+	daw::radio::radio_write_single_reg( TEST2, 0x88 );
+	daw::radio::radio_write_single_reg( TEST1, 0x31 );
+
 // 	RF1ADINW = 0xC002;   //Radio word data in register
 // 	RF1AIE = 0x200;      //Radio core interrupt enable register
 // 	RF1AIES = 0x200;     //Radio core interrupt edge select register

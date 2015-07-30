@@ -73,19 +73,19 @@ static daw::radio::RadioCore<128> radio;
 int main( ) {
 	// Setup
 	disable_watchdog( );
-	daw::radio::set_vcore( 2u );
+	daw::radio::set_vcore( 3u );
+	daw::radio::init_fll( 8500000 / 1000, 8500000 / 32768 );
 
 	display::lcd_init( );
 	display::clear_display( );
 	display::display_chars( display::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON );
 
 	radio.init_radio( radio_setup_916MHz );
-
+	__enable_interrupt( );
 	while( true ) {
 		radio.receive_on( );
-		_BIS_SR( LPM3_bits | GIE ); // Enter low power mode
+		__low_power_mode_3( );
 		__no_operation( );
-
 		display::display_chars( display::LCD_SEG_LINE2_START, "Recv", display::LcdDisplayModes::SEG_ON );
 		radio.receive_data( );
 		if( radio.has_data( ) ) {
@@ -118,7 +118,11 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	switch( __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
 	case  0: break;                         // No RF core interrupt pending
 	case  2: break;                         // RFIFG0
-	case  4: break;                         // RFIFG1
+	case  4:								// RFIFG1
+		RF1AIE &= ~(BIT1 | BIT9);
+		daw::radio::strobe( RF_SWOR );		// Go back to sleep
+		P1OUT ^= BIT0;
+		break;
 	case  6: break;                         // RFIFG2
 	case  8: break;                         // RFIFG3
 	case 10: break;                         // RFIFG4
@@ -127,16 +131,14 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	case 16: break;                         // RFIFG7
 	case 18: break;                         // RFIFG8
 	case 20:
-		__no_operation( );
-		if( !((RF1AIES & BIT9) != 0) ) {	// RX sync word received
+		RF1AIE &= ~(BIT1 | BIT9);
+		if( radio.is_receiving( ) ) {
 			radio.check_for_data( );
-			__bic_SR_register_on_exit( LPM3_bits );	// Exit low power mode after interrrupt
 			__no_operation( );
 		} else {
-			while( true ) {
-				__no_operation( ); /* spin */
-			}	// trap
+			while( true ) {/* spin */ }	// trap
 		}
+		_low_power_mode_off_on_exit( );
 		break;
 	case 22: break;                         // RFIFG10
 	case 24: break;                         // RFIFG11

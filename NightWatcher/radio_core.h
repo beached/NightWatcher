@@ -19,6 +19,8 @@ uint8_t const PMM_STATUS_ERROR = 1;
 
 namespace daw {
 	namespace radio {
+		void init_fll( uint16_t fsystem, uint16_t ratio );
+
 		//****************************************************************************//
 		// Set VCore Up
 		//****************************************************************************//
@@ -266,6 +268,10 @@ namespace daw {
 								// Radio is in IDLE following a TX, so strobe SRX to enter Receive Mode
 				strobe( RF_SRX );	// Strobe SRX
 				rf_flags.is_receiving = true;
+			}
+
+			bool is_receiving( ) const {
+				return rf_flags.is_receiving;
 			}
 
 			using config_fn_t = std::add_pointer<void( )>::type;

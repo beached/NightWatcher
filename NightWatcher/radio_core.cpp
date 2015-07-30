@@ -4,6 +4,80 @@
 
 namespace daw {
 	namespace radio {
+#ifndef st
+#define st(x)      do { x } while (__LINE__ == -1)
+#endif	// st
+
+		// Select source for MCLK and SMCLK e.g. SELECT_MCLK_SMCLK(SELM__DCOCLK + SELS__DCOCLK)
+#ifndef SELECT_MCLK_SMCLK
+#define SELECT_MCLK_SMCLK(sources) st(UCSCTL4 = (UCSCTL4 & ~(SELM_7 + SELS_7)) | (sources);)
+#endif	//SELECT_MCLK_SMCLK
+
+//====================================================================
+/**
+* Initializes FLL of the UCS
+*
+* \param fsystem  required system frequency (MCLK) in kHz
+* \param ratio    ratio between fsystem and FLLREFCLK
+*/
+		void init_fll( uint16_t fsystem, uint16_t ratio ) {
+			uint16_t d, dco_div_bits;
+			uint16_t mode = 0;
+
+			// save actual state of FLL loop control
+			uint16_t globalInterruptState = __get_SR_register( ) & SCG0;
+			__bic_SR_register( SCG0 );      // Disable FLL loop control
+
+			d = ratio;
+			dco_div_bits = FLLD__2;        // Have at least a divider of 2
+			if( fsystem > 16000 ) {
+				d >>= 1;
+				mode = 1;
+			} else {
+				fsystem <<= 1;               // fsystem = fsystem * 2
+			}
+
+			while( d > 512 ) {
+				dco_div_bits = dco_div_bits + FLLD0;  // set next higher div level
+				d >>= 1;
+			}
+
+			UCSCTL0 = 0x000;               // Set DCO to lowest Tap
+
+			UCSCTL2 &= ~(0x3FF);           // Reset FN bits
+			UCSCTL2 = dco_div_bits | (d - 1);
+
+			if( fsystem <= 630 ) {    //           fsystem < 0.63MHz
+				UCSCTL1 = DCORSEL_0;
+			} else if( fsystem < 1250 ) { // 0.63MHz < fsystem < 1.25MHz
+				UCSCTL1 = DCORSEL_1;
+			} else if( fsystem < 2500 ) {    // 1.25MHz < fsystem <  2.5MHz
+				UCSCTL1 = DCORSEL_2;
+			} else if( fsystem < 5000 ) {    // 2.5MHz  < fsystem <    5MHz
+				UCSCTL1 = DCORSEL_3;
+			} else if( fsystem < 10000 ) {   // 5MHz    < fsystem <   10MHz
+				UCSCTL1 = DCORSEL_4;
+			} else if( fsystem < 20000 ) {   // 10MHz   < fsystem <   20MHz
+				UCSCTL1 = DCORSEL_5;
+			} else if( fsystem < 40000 ) {    // 20MHz   < fsystem <   40MHz
+				UCSCTL1 = DCORSEL_6;
+			} else {
+				UCSCTL1 = DCORSEL_7;
+			}
+			/* if CC430EM does not use LFXT1 */
+			while( UCSCTL7 & (DCOFFG + XT1HFOFFG + XT2OFFG) ) {                               // check OFIFG fault flag
+				UCSCTL7 &= ~(DCOFFG + XT1LFOFFG + XT1HFOFFG + XT2OFFG);     // Clear OSC flaut Flags
+				SFRIFG1 &= ~OFIFG;                                    // Clear OFIFG fault flag
+			}
+
+			if( mode == 1 ) {                          		  // fsystem > 16000
+				SELECT_MCLK_SMCLK( SELM__DCOCLK + SELS__DCOCLK );       // select DCOCLK
+			} else {
+				SELECT_MCLK_SMCLK( SELM__DCOCLKDIV + SELS__DCOCLKDIV ); // selcet DCODIVCLK
+			}
+			__bis_SR_register( globalInterruptState );                // restore previous state
+		} // End of fll_init()
+
 		uint8_t strobe( uint8_t const cmd ) {
 			uint8_t status_byte = 0;
 			if( (cmd == 0xBD) || ((cmd >= RF_SRES) && (cmd <= RF_SNOP)) ) {
