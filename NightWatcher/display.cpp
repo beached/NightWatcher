@@ -284,7 +284,7 @@ namespace display {
 		case 'A': return SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
 		case 'b':
 		case 'B': return SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-		case 'c': return SEG_C | SEG_D | SEG_E | SEG_G;
+		case 'c': return SEG_D | SEG_E | SEG_G;
 		case 'C': return SEG_A | SEG_D | SEG_E | SEG_F;
 		case 'd':
 		case 'D': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_G;

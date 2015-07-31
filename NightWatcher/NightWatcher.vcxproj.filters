@@ -84,5 +84,11 @@
     <ClInclude Include="memset.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="reg_base.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="registers.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

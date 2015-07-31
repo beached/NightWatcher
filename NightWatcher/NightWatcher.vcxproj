@@ -90,6 +90,8 @@
     <ClInclude Include="memset.h" />
     <ClInclude Include="radio_medtronic.h" />
     <ClInclude Include="radio_core.h" />
+    <ClInclude Include="registers.h" />
+    <ClInclude Include="reg_base.h" />
     <ClInclude Include="timers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

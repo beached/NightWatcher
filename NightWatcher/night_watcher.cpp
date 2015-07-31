@@ -4,7 +4,7 @@
 #include <limits>
 #include <cc430f6137.h>
 #include "timers.h"
-
+#include "registers.h"
 const uint8_t RX_TIMER_PERIOD = 85;
 
 namespace {
@@ -12,39 +12,29 @@ namespace {
 		WDTCTL = WDTPW | WDTHOLD;
 	}
 
-	// 	inline void enter_low_power_mode( ) {
-	// 		__bis_SR_register( LPM3_bits | GIE );
-	// 		__no_operation( );
-	// 	}
-	//
-	// 	inline void exit_low_power_mode( ) {
-	// 		__bic_SR_register_on_exit( LPM3_bits );
-	// 		__no_operation( );
-	// 	}
+	//====================================================================
+	/**
+	* Startup routine for 32kHz Cristal on LFXT1
+	*
+	*/
+	void LFXT_Start( uint16_t xtdrive ) {
+		UCSCTL6_L |= XT1DRIVE1_L + XT1DRIVE0_L; // Highest drive setting for XT1 startup
 
-		//====================================================================
-		/**
-		* Startup routine for 32kHz Cristal on LFXT1
-		*
-		*/
-		// 	void LFXT_Start( uint16_t xtdrive ) {
-		// 		UCSCTL6_L |= XT1DRIVE1_L + XT1DRIVE0_L; // Highest drive setting for XT1 startup
-		//
-		// 		while( SFRIFG1 & OFIFG ) {   // check OFIFG fault flag
-		// 			UCSCTL7 &= ~(DCOFFG + XT1LFOFFG + XT1HFOFFG + XT2OFFG); // Clear OSC flaut Flags fault flags
-		// 			SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
-		// 		}
-		// 		UCSCTL6 = (UCSCTL6 & ~(XT1DRIVE_3)) | (xtdrive); // set Drive mode
-		// 	}
+		while( SFRIFG1 & OFIFG ) {   // check OFIFG fault flag
+			UCSCTL7 &= ~(DCOFFG + XT1LFOFFG + XT1HFOFFG + XT2OFFG); // Clear OSC flaut Flags fault flags
+			SFRIFG1 &= ~OFIFG;        // Clear OFIFG fault flag
+		}
+		UCSCTL6 = (UCSCTL6 & ~(XT1DRIVE_3)) | (xtdrive); // set Drive mode
+	}
 
-			// 	void init_timer( ) {
-			// 		P5SEL |= 0x03;                            // Set xtal pins
-			// 		LFXT_Start( XT1DRIVE_0 );
-			//
-			// 		TA0CCR1 = RX_TIMER_PERIOD;               // x cycles * 1/32768 = y us
-			// 		TA0CCTL1 = CCIE;                          // Enable interrupts
-			// 		TA0CTL = TASSEL__ACLK + TACLR;          // ACLK source
-			// 	}
+	void init_timer( ) {
+		P5SEL |= 0x03;                            // Set xtal pins
+		LFXT_Start( XT1DRIVE_0 );
+
+		TA0CCR1 = RX_TIMER_PERIOD;               // x cycles * 1/32768 = y us
+		TA0CCTL1 = CCIE;                          // Enable interrupts
+		TA0CTL = TASSEL__ACLK + TACLR;          // ACLK source
+	}
 }
 
 void toggle_net_activity( ) {
@@ -79,12 +69,12 @@ int main( ) {
 	display::lcd_init( );
 	display::clear_display( );
 	display::display_chars( display::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON );
-
+	//init_timer( );
 	radio.init_radio( radio_setup_916MHz );
 	__enable_interrupt( );
 	while( true ) {
 		radio.receive_on( );
-		__low_power_mode_3( );
+		__low_power_mode_2( );
 		__no_operation( );
 		display::display_chars( display::LCD_SEG_LINE2_START, "Recv", display::LcdDisplayModes::SEG_ON );
 		radio.receive_data( );
@@ -100,9 +90,12 @@ int main( ) {
 // 	case 2:
 // 		TA0CCR1 += RX_TIMER_PERIOD;                  // 16 cycles * 1/32768 = ~500 us
 // 		//rx_packet_handler( );
-//
-// 		if( radio.new_data ) {
-// 			exit_low_power_mode( );
+// 		if( radio.is_receiving( ) ) {
+// 			radio.check_for_data( );
+// 			__no_operation( );
+// 		}
+// 		if( radio.has_data( ) ) {
+// 			_low_power_mode_off_on_exit( );
 // 		}
 // 		break;
 // 	case 4:  break;                         // CCR2 not used
