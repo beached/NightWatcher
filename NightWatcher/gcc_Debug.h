@@ -76,7 +76,7 @@
 #define __UINT20_MAX__ 0xfffffUL
 //VS2005-2012 treats all files as C++, while VS2013+ can treat C files correctly.
 #if _MSC_VER < 1800 || defined(__cplusplus)
-#define __cplusplus 201103L
+#define __cplusplus 201300L
 #endif
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 0x7fffffffL

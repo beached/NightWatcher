@@ -1,7 +1,9 @@
 #include "radio_medtronic.h"
 #include "radio_core.h"
+#include <cstdint>
+#include <array>
 
-//std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
 void radio_setup_916MHz( ) {
 	// 	daw::radio::radio_write_single_reg( AGCCTRL0, 0x91 );
@@ -62,9 +64,12 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( PKTCTRL1, 0x00 );     //Packet Automation Control
 	daw::radio::radio_write_single_reg( PKTCTRL0, 0x01 );     //Packet Automation Control
 	daw::radio::radio_write_single_reg( FSCTRL1, 0x06 );      //Frequency Synthesizer Control
+// 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );        //Frequency Control Word, High Byte
+// 	daw::radio::radio_write_single_reg( FREQ1, 0x40 );        //Frequency Control Word, Middle Byte
+// 	daw::radio::radio_write_single_reg( FREQ0, 0x00 );        //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );        //Frequency Control Word, High Byte
-	daw::radio::radio_write_single_reg( FREQ1, 0x40 );        //Frequency Control Word, Middle Byte
-	daw::radio::radio_write_single_reg( FREQ0, 0x00 );        //Frequency Control Word, Low Byte
+	daw::radio::radio_write_single_reg( FREQ1, 0x3E );        //Frequency Control Word, Middle Byte
+	daw::radio::radio_write_single_reg( FREQ0, 0xD4 );        //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( MDMCFG4, 0xC9 );      //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG3, 0x4A );      //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG2, 0x32 );      //Modem Configuration
@@ -102,5 +107,174 @@ void radio_setup_916MHz( ) {
 	{
 		std::array<uint8_t, 8> const pa_values = { 0x00,0x00,0x52,0x00,0x00,0x00,0x00,0x00, };
 		daw::radio::radio_write_burst_pa_table( pa_values.data( ), pa_values.size( ) );
+	}
+}
+
+namespace {
+	auto const crc_table = []( ) {
+		uint8_t const polynomial = 0x9b;
+		uint8_t const msbit = 0x80;
+
+		std::array<uint8_t, 256> result;
+		result[0] = 0;
+		uint8_t tmp = msbit;
+
+		for( size_t i = 1; i < result.size( ); i *= 2 ) {
+			auto const p2 = (tmp & msbit) ? polynomial : 0;
+			tmp = (tmp << 1) ^ p2;
+			for( size_t j = 0; j < i; ++j ) {
+				result[i + j] = result[j] ^ tmp;
+			}
+		}
+		return result;
+	}();
+
+	struct Packet {
+		size_t data_start_idx;
+		uint8_t length;
+		uint8_t rssi;
+		uint8_t packet_number;
+
+		Packet( ) : data_start_idx( 0 ), length( 0 ), rssi( 0 ), packet_number( 0 ) { }
+	};
+	const uint8_t ERROR_DATA_BUFFER_OVERFLOW = 0x50;
+	const uint8_t ERROR_TOO_MANY_PACKETS = 0x51;
+	const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
+	const uint8_t MAX_PACKET_SIZE = 250;
+	const size_t MAX_PACKETS = 100;
+	const size_t BUFFER_SIZE = 1024;
+
+	size_t packet_count = 0;
+	size_t packet_head_idx = 0;
+	size_t packet_tail_idx = 0;
+
+	std::array<Packet, MAX_PACKETS> packets { };
+
+	std::array<uint8_t, BUFFER_SIZE> data_buffer { };
+
+	size_t data_buffer_bytes_used = 0;
+	uint8_t buffer_overflow_count = 0;
+
+	uint16_t symbol_input_buffer = 0;
+	uint16_t symbol_input_bit_count = 0;
+	uint16_t symbol_output_buffer = 0;
+	size_t symbol_output_bit_count = 0;
+	size_t symbol_error_count = 0;
+	uint8_t packet_number = 0;
+	uint8_t last_error = 0;
+	uint8_t packet_overflow_count = 0;
+
+	size_t buffer_write_pos = 0;
+	size_t buffer_read_pos = 0;
+
+	void drop_current_packet( ) { }
+
+	void add_decoded_byte( uint8_t const & value ) {
+		if( BUFFER_SIZE <= data_buffer_bytes_used ) {
+			++buffer_overflow_count;
+			drop_current_packet( );
+			return;
+		}
+		data_buffer[buffer_write_pos++] = value;
+		++data_buffer_bytes_used;
+		packets[packet_head_idx].length++;
+
+		if( BUFFER_SIZE <= buffer_write_pos ) {
+			buffer_write_pos = 0;
+		}
+
+		if( MAX_PACKET_SIZE <= packets[packet_head_idx].length ) {
+			drop_current_packet( );
+		}
+	}
+
+	void reset_symbol_processing_state( ) {
+		symbol_input_buffer = 0;
+		symbol_input_bit_count = 0;
+		symbol_output_buffer = 0;
+		symbol_output_bit_count = 0;
+		symbol_error_count = 0;
+	}
+
+	void finish_incoming_packet( ) {
+		uint16_t packet_crc = 0;
+
+		auto crc_read_idx = packets[packet_head_idx].data_start_idx;
+		auto crc_len = packets[packet_head_idx].length - 1;
+
+		packets[packet_head_idx].rssi = daw::radio::radio_read_single_reg( RSSI );
+		packets[packet_head_idx].packet_number = packet_number++;
+
+		uint8_t crc = 0;
+		while( crc_len-- > 0 ) {
+			crc = crc_table[(crc ^ data_buffer[crc_read_idx]) & 0xff];
+			++crc_read_idx;
+			if( data_buffer.size( ) >= crc_read_idx ) {
+				crc_read_idx = 0;
+			}
+		}
+		packet_crc = data_buffer[crc_read_idx];
+
+		reset_symbol_processing_state( );
+
+		if( MAX_PACKETS - 1 <= packet_count ) {
+			// Packet count overflow
+			last_error = ERROR_TOO_MANY_PACKETS;
+			++packet_overflow_count;
+			drop_current_packet( );
+			return;
+		}
+
+		++packet_count;
+		++packet_head_idx;
+		if( MAX_PACKETS <= packet_head_idx ) {
+			packet_head_idx = 0;
+		}
+
+		packets[packet_head_idx].data_start_idx = buffer_write_pos;
+		packets[packet_head_idx].length = 0;
+	}
+}	// namespace anonymous
+
+void receive_radio_symbol( uint8_t const & value ) {
+	uint8_t symbol = 0;
+	uint8_t output_sybmol = 0;
+
+	if( 0 == value ) {
+		if( 0 <= packets[packet_head_idx].length ) {
+			finish_incoming_packet( );
+		}
+		return;
+	}
+
+	symbol_input_buffer = (symbol_input_buffer << 8) + value;
+	symbol_input_bit_count += 8;
+
+	while( 6 <= symbol_input_bit_count ) {
+		symbol = (symbol_input_buffer >> (symbol_input_bit_count - 6) & 0b111111);
+		symbol_input_bit_count -= 6;
+		if( 0 == symbol ) {
+			continue;
+		}
+		if( radio_symbol_table.size( ) < symbol ) {
+			++symbol_error_count;
+			break;
+		}
+		symbol = radio_symbol_table[symbol];
+		if( 16 == symbol ) {
+			++symbol_error_count;
+			break;
+		}
+		symbol_output_buffer = (symbol_output_buffer << 4) + symbol;
+		symbol_output_bit_count += 4;
+	}
+	while( 8 <= symbol_output_bit_count ) {
+		output_sybmol = (symbol_output_buffer >> (symbol_output_bit_count - 8)) & 0b11111111;
+		symbol_output_bit_count -= 8;
+		add_decoded_byte( output_sybmol );
+	}
+
+	if( 0 < symbol_error_count && 0 < packets[packet_head_idx].length ) {
+		finish_incoming_packet( );
 	}
 }

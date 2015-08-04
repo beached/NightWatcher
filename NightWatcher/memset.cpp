@@ -2,6 +2,9 @@
 
 error_t memset_s( void* s, size_t smax, int c, size_t n ) {
 	error_t err = 0;
+	if( n < 1 ) {
+		return err;
+	}
 	if( nullptr == s ) {
 		return EINVAL;
 	}

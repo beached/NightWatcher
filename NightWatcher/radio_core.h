@@ -184,7 +184,8 @@ namespace daw {
 
 		template<typename SequenceContainer, typename ValueType>
 		void sfill( SequenceContainer & container, ValueType const & value ) {
-			memset_s( container.data( ), container.size( ), static_cast<int>(value), container.size( ) );
+			//memset_s( container.data( ), container.size( ), static_cast<int>(value), container.size( ) );
+			std::fill( container.begin( ), container.end( ), 0 );
 		}
 
 		template<typename T>
@@ -308,10 +309,40 @@ namespace daw {
 				rf_flags.has_received_packet = true;
 			}
 
-			void receive_data( ) {
+			bool data_pending( ) const {
+				return rf_flags.has_received_packet;
+			}
+
+			size_t receive_data( ) {
 				if( !rf_flags.has_received_packet ) {
-					return;
+					return 0;
 				}
+				size_t rx_len = radio_read_single_reg( RXBYTES );
+				// For now clear buffer before proceeding and only read up to buffer len bytes
+				clear_rx_buffer( );
+				if( (rf_flags.has_received_packet = rx_len > rx_buffer.size( )) ) {
+					rx_len = size( );
+				}
+				radio_read_burst_reg( RF_RXFIFORD, rx_buffer, rx_len );
+				rx_buffer_tail += rx_len;
+
+				return rx_len;
+			}
+
+			size_t size( ) const {
+				return rx_buffer_tail;
+			}
+
+			size_t capacity( ) const {
+				return rx_buffer.size( );
+			}
+
+			uint8_t const & rx_data( size_t const & position ) const {
+				return rx_buffer[position];
+			}
+
+			uint8_t const * rx_data( ) const {
+				return rx_buffer.data( );
 			}
 		};
 	}

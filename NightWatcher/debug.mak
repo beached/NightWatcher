@@ -13,8 +13,8 @@ ADDITIONAL_LINKER_INPUTS :=
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
 
-CFLAGS := -ggdb -std=c++11 -Wall -pedantic -O0
-CXXFLAGS := -ggdb -std=c++11 -fno-exceptions -fno-rtti -Wall -pedantic -O0
+CFLAGS := -ggdb -Wall -pedantic -O0
+CXXFLAGS := -ggdb -std=c++1y -fno-exceptions -fno-rtti -Wall -pedantic -O0
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 
