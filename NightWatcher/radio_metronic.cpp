@@ -58,26 +58,28 @@ void radio_setup_916MHz( ) {
 	// // 	daw::radio::radio_write_single_reg( WORCTRL, 0xF8 );      //Wake On Radio Control
 	// // 	daw::radio::radio_write_single_reg( WOREVT0, 0x6B );      //Low Byte Event0 Timeout
 	// // 	daw::radio::radio_write_single_reg( WOREVT1, 0x87 );      //High Byte Event0 Timeout
-	daw::radio::radio_write_single_reg( IOCFG0, 0x06 );       //GDO0 Output Configuration
+	//
+	// Rf settings for CC430F6137
+	//
+	daw::radio::radio_write_single_reg( IOCFG2, 0x0B );       //GDO2 Output Configuration
+	daw::radio::radio_write_single_reg( IOCFG0, 0x2D );       //GDO0 Output Configuration
+	daw::radio::radio_write_single_reg( FIFOTHR, 0x47 );      //RX FIFO and TX FIFO Thresholds
 	daw::radio::radio_write_single_reg( SYNC1, 0xFF );        //Sync Word, High Byte
 	daw::radio::radio_write_single_reg( SYNC0, 0x00 );        //Sync Word, Low Byte
-	daw::radio::radio_write_single_reg( PKTCTRL1, 0x00 );     //Packet Automation Control
-	daw::radio::radio_write_single_reg( PKTCTRL0, 0x01 );     //Packet Automation Control
+	daw::radio::radio_write_single_reg( PKTCTRL0, 0x12 );     //Packet Automation Control
 	daw::radio::radio_write_single_reg( FSCTRL1, 0x06 );      //Frequency Synthesizer Control
-// 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );        //Frequency Control Word, High Byte
-// 	daw::radio::radio_write_single_reg( FREQ1, 0x40 );        //Frequency Control Word, Middle Byte
-// 	daw::radio::radio_write_single_reg( FREQ0, 0x00 );        //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );        //Frequency Control Word, High Byte
 	daw::radio::radio_write_single_reg( FREQ1, 0x3E );        //Frequency Control Word, Middle Byte
 	daw::radio::radio_write_single_reg( FREQ0, 0xD4 );        //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( MDMCFG4, 0xC9 );      //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG3, 0x4A );      //Modem Configuration
-	daw::radio::radio_write_single_reg( MDMCFG2, 0x32 );      //Modem Configuration
+	daw::radio::radio_write_single_reg( MDMCFG2, 0x30 );      //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG1, 0x11 );      //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG0, 0xC5 );      //Modem Configuration
 	daw::radio::radio_write_single_reg( DEVIATN, 0x15 );      //Modem Deviation Setting
 	daw::radio::radio_write_single_reg( MCSM0, 0x10 );        //Main Radio Control State Machine Configuration
 	daw::radio::radio_write_single_reg( FOCCFG, 0x17 );       //Frequency Offset Compensation Configuration
+	daw::radio::radio_write_single_reg( AGCCTRL1, 0x00 );     //AGC Control
 	daw::radio::radio_write_single_reg( WOREVT1, 0x87 );      //High Byte Event0 Timeout
 	daw::radio::radio_write_single_reg( WOREVT0, 0x6B );      //Low Byte Event0 Timeout
 	daw::radio::radio_write_single_reg( WORCTRL, 0xF8 );      //Wake On Radio Control
@@ -86,6 +88,8 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( FSCAL2, 0x2A );       //Frequency Synthesizer Calibration
 	daw::radio::radio_write_single_reg( FSCAL1, 0x00 );       //Frequency Synthesizer Calibration
 	daw::radio::radio_write_single_reg( FSCAL0, 0x1F );       //Frequency Synthesizer Calibration
+	daw::radio::radio_write_single_reg( TEST2, 0x81 );        //Various Test Settings
+	daw::radio::radio_write_single_reg( TEST1, 0x35 );        //Various Test Settings
 	daw::radio::radio_write_single_reg( TEST0, 0x09 );        //Various Test Settings
 	daw::radio::radio_write_single_reg( RSSI, 0x80 );         //Received Signal Strength Indication
 	daw::radio::radio_write_single_reg( VCO_VC_DAC, 0x94 );   //Current Setting from PLL Calibration Module
