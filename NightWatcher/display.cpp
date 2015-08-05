@@ -184,7 +184,7 @@ namespace display {
 		}
 		size_t i = 1;
 		for( ; i < result_str.size( ); ++i ) {
-			result_str[digits - i] = (char)(val % 10);
+			result_str[digits - i] += (char)(val % 10);
 			val /= 10;
 		}
 

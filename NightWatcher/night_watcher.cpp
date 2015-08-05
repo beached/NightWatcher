@@ -39,6 +39,10 @@ namespace {
 
 void toggle_net_activity( ) {
 	static uint32_t count = 0;
+	if( ++count > 99999 ) {
+		count = 0;
+	}
+	display::display_value( display::LCD_SEG_LINE2_START, count, 5, 0, display::LcdDisplayModes::SEG_ON );
 	switch( ++count % 4 ) {
 	case 0:
 		display::display_symbol( display::LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_OFF );
@@ -55,10 +59,6 @@ void toggle_net_activity( ) {
 		display::display_symbol( display::LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_ON );
 		break;
 	}
-	if( count > 99999 ) {
-		count = 0;
-	}
-	display::display_value( display::LCD_SEG_LINE2_START, count, 5, 5, display::LcdDisplayModes::SEG_ON );
 }
 
 static daw::radio::RadioCore<256> radio;
@@ -75,22 +75,19 @@ int main( ) {
 	//init_timer( );
 	uint32_t data_counter = 0;
 	radio.init_radio( radio_setup_916MHz );
-	__enable_interrupt( );
 	toggle_net_activity( );
-	radio.receive_on( );
 	while( true ) {
+		radio.receive_on( );
+		_enable_interrupts( );
 		//__low_power_mode_2( );
 		__no_operation( );
-		if( !radio.data_pending( ) ) {
-			continue;
-		} else {
-			radio.receive_on( );
-		}
-
-		while( radio.receive_data( ) > 0 ) {
+		if( radio.data_pending( ) ) {
 			toggle_net_activity( );
-			if( radio.has_data( ) ) {
-				__no_operation( );
+			while( radio.receive_data( ) > 0 ) {
+				toggle_net_activity( );
+				if( radio.has_data( ) ) {
+					__no_operation( );
+				}
 			}
 		}
 	}
