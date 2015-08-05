@@ -64,9 +64,9 @@ void radio_setup_916MHz( ) {
 	//
 	// Rf settings for CC430F6137
 	//
-	daw::radio::radio_write_single_reg( IOCFG2, 0x29 );  //GDO2 Output Configuration
-	daw::radio::radio_write_single_reg( IOCFG1, 0x2E );  //GDO1 Output Configuration
-	daw::radio::radio_write_single_reg( IOCFG0, 0x06 );  //GDO0 Output Configuration
+// 	daw::radio::radio_write_single_reg( IOCFG2, 0x29 );  //GDO2 Output Configuration
+// 	daw::radio::radio_write_single_reg( IOCFG1, 0x2E );  //GDO1 Output Configuration
+// 	daw::radio::radio_write_single_reg( IOCFG0, 0x06 );  //GDO0 Output Configuration
 	daw::radio::radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
 	daw::radio::radio_write_single_reg( SYNC1, 0xFF );   //Sync Word, High Byte
 	daw::radio::radio_write_single_reg( SYNC0, 0x00 );   //Sync Word, Low Byte
@@ -93,9 +93,9 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( AGCCTRL2, 0x03 );//AGC Control
 	daw::radio::radio_write_single_reg( AGCCTRL1, 0x00 );//AGC Control
 	daw::radio::radio_write_single_reg( AGCCTRL0, 0x91 );//AGC Control
-	daw::radio::radio_write_single_reg( WOREVT1, 0x87 ); //High Byte Event0 Timeout
-	daw::radio::radio_write_single_reg( WOREVT0, 0x6B ); //Low Byte Event0 Timeout
-	daw::radio::radio_write_single_reg( WORCTRL, 0xF8 ); //Wake On Radio Control
+// 	daw::radio::radio_write_single_reg( WOREVT1, 0x87 ); //High Byte Event0 Timeout
+// 	daw::radio::radio_write_single_reg( WOREVT0, 0x6B ); //Low Byte Event0 Timeout
+// 	daw::radio::radio_write_single_reg( WORCTRL, 0xF8 ); //Wake On Radio Control
 	daw::radio::radio_write_single_reg( FREND1, 0x56 );  //Front End RX Configuration
 	daw::radio::radio_write_single_reg( FREND0, 0x11 );  //Front End TX Configuration
 	daw::radio::radio_write_single_reg( FSCAL3, 0xE9 );  //Frequency Synthesizer Calibration
