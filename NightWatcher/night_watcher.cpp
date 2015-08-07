@@ -50,13 +50,16 @@ namespace {
 		radio.init_radio( radio_setup_916MHz );
 	}
 
-	using void_fptr = std::add_pointer<void( )>::type;
-	void_fptr current_state = nullptr;
+	using state_function_ptr = std::add_pointer<void( )>::type;
+	state_function_ptr current_state = nullptr;
 
 	void state_waiting_for_interrupt( );
 	void state_received_data( );
 	void state_process_data( );
 	void state_display_data( );
+	void state_button_pushed( );
+
+	void state_button_pushed( );
 
 	void state_process_data( ) {
 		toggle_net_activity( );
@@ -90,6 +93,11 @@ namespace {
 		if( radio.data_pending( ) ) {
 			current_state = state_received_data;
 		}
+		/*
+		if( button_push ) {
+			current_state = state_button_pushed;
+		}
+		*/
 	}
 }	// namespace anonymous
 
