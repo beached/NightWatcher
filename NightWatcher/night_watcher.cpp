@@ -61,19 +61,19 @@ namespace {
 
 	void state_button_pushed( );
 
-	void state_process_data( ) {
-		toggle_net_activity( );
-		if( radio.has_data( ) ) {
-			// Do something with buffer
-			current_state = state_display_data;
-		} else {
-			current_state = state_waiting_for_interrupt;
+	void state_waiting_for_interrupt( ) {
+		radio.receive_on( );
+		_enable_interrupts( );
+		__low_power_mode_2( );
+		__no_operation( );
+		if( radio.data_pending( ) ) {
+			current_state = state_received_data;
 		}
-	}
-
-	void state_display_data( ) {
-		// Display glucose or something
-		current_state = state_waiting_for_interrupt;
+		/*
+		if( button_push ) {
+		current_state = state_button_pushed;
+		}
+		*/
 	}
 
 	void state_received_data( ) {
@@ -85,19 +85,23 @@ namespace {
 		}
 	}
 
-	void state_waiting_for_interrupt( ) {
+	void state_process_data( ) {
+		toggle_net_activity( );
+		if( radio.has_data( ) ) {
+			receive_radio_symbols( radio.rx_array( ), radio.size( ) );
+			radio.reset_rx_buffer( );
+			current_state = state_display_data;
+		} else {
+			current_state = state_waiting_for_interrupt;
+		}
+	}
+
+	void state_display_data( ) {
+		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		_enable_interrupts( );
-		__low_power_mode_2( );
-		__no_operation( );
-		if( radio.data_pending( ) ) {
-			current_state = state_received_data;
-		}
-		/*
-		if( button_push ) {
-			current_state = state_button_pushed;
-		}
-		*/
+		// Display glucose or something
+		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous
 

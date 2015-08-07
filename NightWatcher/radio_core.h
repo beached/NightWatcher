@@ -260,6 +260,14 @@ namespace daw {
 				clear_rx_buffer( );
 			}
 
+			~RadioCore( ) {
+				clear_rx_buffer( );
+			}
+
+			void reset_rx_buffer( ) {
+				rx_buffer_tail = 0;
+			}
+
 			void receive_on( ) {
 				RF1AIES |= BIT9;	// Falling edge of RFIFG9
 				RF1AIFG &= ~BIT9;	// Clear a pending interrupt
@@ -342,6 +350,10 @@ namespace daw {
 
 			uint8_t const * rx_data( ) const {
 				return rx_buffer.data( );
+			}
+
+			std::array<uint8_t, BuffSize> const & rx_array( ) const {
+				return rx_buffer;
 			}
 		};
 	}
