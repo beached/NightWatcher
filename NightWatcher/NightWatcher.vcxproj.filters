@@ -46,9 +46,6 @@
     <ClCompile Include="criticalsection.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="timers.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="crc4b6b.cpp">
       <Filter>Source files</Filter>
     </ClCompile>

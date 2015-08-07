@@ -78,8 +78,8 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( FSCTRL1, 0x06 ); //Frequency Synthesizer Control
 	daw::radio::radio_write_single_reg( FSCTRL0, 0x00 ); //Frequency Synthesizer Control
 	daw::radio::radio_write_single_reg( FREQ2, 0x23 );   //Frequency Control Word, High Byte
-	daw::radio::radio_write_single_reg( FREQ1, 0x3E );   //Frequency Control Word, Middle Byte
-	daw::radio::radio_write_single_reg( FREQ0, 0xD4 );   //Frequency Control Word, Low Byte
+	daw::radio::radio_write_single_reg( FREQ1, 0x40 );   //Frequency Control Word, Middle Byte
+	daw::radio::radio_write_single_reg( FREQ0, 0x19 );   //Frequency Control Word, Low Byte
 	daw::radio::radio_write_single_reg( MDMCFG4, 0xC9 ); //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG3, 0x4A ); //Modem Configuration
 	daw::radio::radio_write_single_reg( MDMCFG2, 0x32 ); //Modem Configuration
@@ -148,7 +148,6 @@ namespace {
 
 	size_t packet_count = 0;
 	size_t packet_head_idx = 0;
-	size_t packet_tail_idx = 0;
 
 	std::array<Packet, MAX_PACKETS> packets { };
 
@@ -167,7 +166,7 @@ namespace {
 	uint8_t packet_overflow_count = 0;
 
 	size_t buffer_write_pos = 0;
-	size_t buffer_read_pos = 0;
+	//size_t buffer_read_pos = 0;
 
 	void drop_current_packet( ) { }
 
@@ -199,7 +198,7 @@ namespace {
 	}
 
 	void finish_incoming_packet( ) {
-		uint16_t packet_crc = 0;
+		// 		uint16_t packet_crc = 0;
 
 		auto crc_read_idx = packets[packet_head_idx].data_start_idx;
 		auto crc_len = packets[packet_head_idx].length - 1;
@@ -215,7 +214,7 @@ namespace {
 				crc_read_idx = 0;
 			}
 		}
-		packet_crc = data_buffer[crc_read_idx];
+		//packet_crc = data_buffer[crc_read_idx];
 
 		reset_symbol_processing_state( );
 

@@ -79,11 +79,6 @@
     <ClCompile Include="night_watcher.cpp" />
     <ClCompile Include="radio_core.cpp" />
     <ClCompile Include="radio_metronic.cpp" />
-    <ClCompile Include="timers.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <DeploymentContent>false</DeploymentContent>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crc4b6b.h" />

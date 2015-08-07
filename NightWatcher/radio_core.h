@@ -230,16 +230,15 @@ namespace daw {
 
 		private:
 
-			struct RFFlags {
-				using value_t = uint8_t;
-				volatile value_t is_transmitting : 1;
-				volatile value_t is_receiving : 1;
-				volatile value_t has_received_packet : 1;
-				volatile value_t receive_loop_on : 1;
+			volatile struct RFFlags {
+				volatile bool is_transmitting;
+				volatile bool is_receiving;
+				volatile bool has_received_packet;
+				volatile bool receive_loop_on;
 
 				RFFlags( ) : is_transmitting( false ), is_receiving( false ), has_received_packet( false ), receive_loop_on( false ) { }
 
-				void reset( ) {
+				void reset( ) volatile {
 					is_transmitting = false;
 					is_receiving = false;
 					has_received_packet = false;
@@ -301,15 +300,15 @@ namespace daw {
 				rf_flags.is_receiving = false;
 			}
 
-			bool has_data( ) const {
+			bool has_data( ) const volatile {
 				return rx_buffer_tail > 0;
 			}
 
-			void check_for_data( ) {
+			void check_for_data( ) volatile {
 				rf_flags.has_received_packet = true;
 			}
 
-			bool data_pending( ) const {
+			bool data_pending( ) const volatile {
 				return rf_flags.has_received_packet;
 			}
 
@@ -329,11 +328,11 @@ namespace daw {
 				return rx_len;
 			}
 
-			size_t size( ) const {
+			size_t size( ) const volatile {
 				return rx_buffer_tail;
 			}
 
-			size_t capacity( ) const {
+			size_t capacity( ) const volatile {
 				return rx_buffer.size( );
 			}
 
