@@ -4,6 +4,7 @@
 #include <limits>
 #include <cc430f6137.h>
 #include "registers.h"
+#include <type_traits>
 
 namespace {
 	const uint8_t RX_TIMER_PERIOD = 85;
@@ -49,7 +50,8 @@ namespace {
 		radio.init_radio( radio_setup_916MHz );
 	}
 
-	void( *current_state )() = nullptr;
+	using void_fptr = std::add_pointer<void( )>::type;
+	void_fptr current_state = nullptr;
 
 	void state_waiting_for_interrupt( );
 	void state_received_data( );
