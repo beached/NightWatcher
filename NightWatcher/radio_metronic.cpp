@@ -112,6 +112,8 @@ void radio_setup_916MHz( ) {
 	}
 }
 
+radio_data_buffer_t radio_data_buffer { };
+
 namespace {
 	auto const crc_table = []( ) {
 		uint8_t const polynomial = 0x9b;
@@ -144,15 +146,11 @@ namespace {
 	const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
 	const uint8_t MAX_PACKET_SIZE = 250;
 	const size_t MAX_PACKETS = 100;
-	const size_t BUFFER_SIZE = 1024;
 
 	size_t packet_count = 0;
 	size_t packet_head_idx = 0;
 
 	std::array<Packet, MAX_PACKETS> packets { };
-
-	std::array<uint8_t, BUFFER_SIZE> data_buffer { };
-
 	size_t data_buffer_bytes_used = 0;
 	uint8_t buffer_overflow_count = 0;
 
@@ -171,16 +169,16 @@ namespace {
 	void drop_current_packet( ) { }
 
 	void add_decoded_byte( uint8_t const & value ) {
-		if( BUFFER_SIZE <= data_buffer_bytes_used ) {
+		if( radio_data_buffer.size( ) <= data_buffer_bytes_used ) {
 			++buffer_overflow_count;
 			drop_current_packet( );
 			return;
 		}
-		data_buffer[buffer_write_pos++] = value;
+		radio_data_buffer[buffer_write_pos++] = value;
 		++data_buffer_bytes_used;
 		packets[packet_head_idx].length++;
 
-		if( BUFFER_SIZE <= buffer_write_pos ) {
+		if( radio_data_buffer.size( ) <= buffer_write_pos ) {
 			buffer_write_pos = 0;
 		}
 
@@ -208,9 +206,9 @@ namespace {
 
 		uint8_t crc = 0;
 		while( crc_len-- > 0 ) {
-			crc = crc_table[(crc ^ data_buffer[crc_read_idx]) & 0xff];
+			crc = crc_table[(crc ^ radio_data_buffer[crc_read_idx]) & 0xff];
 			++crc_read_idx;
-			if( data_buffer.size( ) >= crc_read_idx ) {
+			if( radio_data_buffer.size( ) >= crc_read_idx ) {
 				crc_read_idx = 0;
 			}
 		}

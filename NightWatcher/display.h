@@ -285,8 +285,9 @@ namespace display {
 	extern void set_blink_rate( uint8_t bits );
 
 	// Character / symbol draw functions
-	extern void display_char( uint8_t segment, unsigned char chr, LcdDisplayModes const mode );
-	extern void display_chars( uint8_t segments, char const * const str, LcdDisplayModes const mode );
+	extern void display_char( uint8_t const & segment, unsigned char chr, LcdDisplayModes const mode );
+	extern void display_chars( uint8_t const & segments, char const * const str, LcdDisplayModes const mode );
+	extern void display_hex_chars( uint8_t const & segments, char const * const str, LcdDisplayModes const mode );
 	extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode );
 
 	// Set_value display functions

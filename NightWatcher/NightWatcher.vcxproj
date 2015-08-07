@@ -70,10 +70,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crc4b6b.cpp" />
-    <ClCompile Include="criticalsection.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="display.cpp" />
     <ClCompile Include="memset.cpp" />
     <ClCompile Include="night_watcher.cpp" />
@@ -82,7 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crc4b6b.h" />
-    <ClInclude Include="criticalsection.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="memset.h" />
     <ClInclude Include="radio_medtronic.h" />

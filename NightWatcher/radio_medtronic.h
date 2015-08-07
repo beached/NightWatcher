@@ -1,9 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 void radio_setup_916MHz( );
 void receive_radio_symbol( uint8_t const & value );
+
+using radio_data_buffer_t = std::array<uint8_t, 1024>;
+extern radio_data_buffer_t radio_data_buffer;
 
 template<typename ArrayType>
 void receive_radio_symbols( ArrayType const & arry, std::size_t end_of_symbols ) {

@@ -14,12 +14,8 @@ namespace {
 	}
 
 	void toggle_net_activity( ) {
-		static uint32_t count = 0;
-		if( ++count > 99999 ) {
-			count = 0;
-		}
-		display::display_value( display::LCD_SEG_LINE2_START, count, 5, 0, display::LcdDisplayModes::SEG_ON );
-		switch( ++count % 4 ) {
+		static uint8_t count = 0;
+		switch( count++ % 4 ) {
 		case 0:
 			display::display_symbol( display::LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_OFF );
 			break;
@@ -86,8 +82,8 @@ namespace {
 	}
 
 	void state_process_data( ) {
-		toggle_net_activity( );
 		if( radio.has_data( ) ) {
+			toggle_net_activity( );
 			receive_radio_symbols( radio.rx_array( ), radio.size( ) );
 			radio.reset_rx_buffer( );
 			current_state = state_display_data;
@@ -101,6 +97,8 @@ namespace {
 		radio.receive_on( );
 		_enable_interrupts( );
 		// Display glucose or something
+		display_hex_chars( display::LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display_hex_chars( display::LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

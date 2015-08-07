@@ -5,7 +5,6 @@
 #include <array>
 #include <cstring>
 #include <type_traits>
-#include "criticalsection.h"
 #include "memset.h"
 
 #define _HAL_PMM_DISABLE_SVML_
@@ -199,7 +198,6 @@ namespace daw {
 
 		template<typename ArryType>
 		static void radio_read_burst_reg( uint8_t const & addr, ArryType & buffer, uint8_t const & count ) {
-			CriticalSection cs;
 			while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 
 			RF1AINSTR1B = (addr | RF_REGRD);
