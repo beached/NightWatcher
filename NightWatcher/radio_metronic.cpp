@@ -1,10 +1,11 @@
 #include "radio_medtronic.h"
 #include "radio_core.h"
-#include <cstdint>
-#include <array>
+#include <stdint.h>
 #include "buffer.h"
+#include "array.h"
 
-std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+size_t const radio_symbol_table_size = 54;
+uint8_t const radio_symbol_table[radio_symbol_table_size] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
 void radio_setup_916MHz( ) {
 	// 	daw::radio::radio_write_single_reg( AGCCTRL0, 0x91 );
@@ -108,31 +109,30 @@ void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( TEST0, 0x09 );   //Various Test Settings
 
 	{
-		std::array<uint8_t, 8> const pa_values = { 0x00,0x00,0x52,0x00,0x00,0x00,0x00,0x00, };
-		daw::radio::radio_write_burst_pa_table( pa_values.data( ), pa_values.size( ) );
+		uint8_t const pa_values[8] = { 0x00,0x00,0x52,0x00,0x00,0x00,0x00,0x00 };
+		daw::radio::radio_write_burst_pa_table( pa_values, 8 );
 	}
 }
 
-radio_data_buffer_t radio_data_buffer { };
+radio_data_buffer_t radio_data_buffer;
 
 namespace {
-	auto const crc_table = []( ) {
+	void crc_init( uint8_t * const arry, size_t const & size_of ) {
 		uint8_t const polynomial = 0x9b;
 		uint8_t const msbit = 0x80;
 
-		std::array<uint8_t, 256> result;
-		result[0] = 0;
+		arry[0] = 0;
 		uint8_t tmp = msbit;
 
-		for( size_t i = 1; i < result.size( ); i *= 2 ) {
-			auto const p2 = (tmp & msbit) ? polynomial : 0;
+		for( size_t i = 1; i < size_of; i *= 2 ) {
+			uint8_t const p2 = (tmp & msbit) ? polynomial : 0;
 			tmp = (tmp << 1) ^ p2;
 			for( size_t j = 0; j < i; ++j ) {
-				result[i + j] = result[j] ^ tmp;
+				arry[i + j] = arry[j] ^ tmp;
 			}
 		}
-		return result;
-	}();
+	}
+	daw::Array<uint8_t, 256> crc_table( crc_init );
 
 	struct Packet {
 		size_t data_start_idx;
@@ -151,7 +151,7 @@ namespace {
 	size_t packet_count = 0;
 	size_t packet_head_idx = 0;
 
-	Buffer<Packet, MAX_PACKETS> packets { };
+	daw::Buffer<Packet, MAX_PACKETS> packets;
 
 	size_t data_buffer_bytes_used = 0;
 	uint8_t buffer_overflow_count = 0;
@@ -200,8 +200,8 @@ namespace {
 	void finish_incoming_packet( ) {
 		// 		uint16_t packet_crc = 0;
 
-		auto crc_read_idx = packets[packet_head_idx].data_start_idx;
-		auto crc_len = packets[packet_head_idx].length - 1;
+		size_t crc_read_idx = packets[packet_head_idx].data_start_idx;
+		uint8_t crc_len = packets[packet_head_idx].length - 1;
 
 		packets[packet_head_idx].rssi = daw::radio::radio_read_single_reg( RSSI );
 		packets[packet_head_idx].packet_number = packet_number++;
@@ -257,7 +257,7 @@ void receive_radio_symbol( uint8_t const & value ) {
 		if( 0 == symbol ) {
 			continue;
 		}
-		if( radio_symbol_table.size( ) < symbol ) {
+		if( radio_symbol_table_size < symbol ) {
 			++symbol_error_count;
 			break;
 		}

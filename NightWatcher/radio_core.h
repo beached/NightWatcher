@@ -1,9 +1,8 @@
 #pragma once
 
 #include <cc430f6137.h>
-#include <cstdint>
+#include <stdint.h>
 #include <cstring>
-#include <type_traits>
 #include "buffer.h"
 
 #define _HAL_PMM_DISABLE_SVML_
@@ -224,7 +223,8 @@ namespace daw {
 			// 				RFST_STX = 0x03,
 			// 				RFST_SIDLE = 0x04
 			// 			};
-			using buffer_t = Buffer<uint8_t, BuffSize>;
+			typedef Buffer<uint8_t, BuffSize> buffer_t;
+			
 		private:
 
 			struct RFFlags {
@@ -245,7 +245,7 @@ namespace daw {
 
 		public:
 
-			RadioCore( ) : rf_flags { }, rx_buffer { } { }
+			RadioCore( ) : rf_flags( ), rx_buffer( ) { }
 
 			void receive_on( ) {
 				RF1AIES |= BIT9;	// Falling edge of RFIFG9
@@ -261,7 +261,7 @@ namespace daw {
 				return rf_flags.is_receiving;
 			}
 
-			using config_fn_t = std::add_pointer<void( )>::type;
+			typedef void( *config_fn_t )();
 			void init_radio( config_fn_t configure_radio ) {
 				rf_flags.reset( );
 				rx_buffer.clear( );
@@ -336,6 +336,10 @@ namespace daw {
 			}
 
 			buffer_t const & rx_array( ) const {
+				return rx_buffer;
+			}
+
+			buffer_t & rx_array( ) {
 				return rx_buffer;
 			}
 		};

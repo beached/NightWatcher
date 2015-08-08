@@ -1,9 +1,10 @@
 #include "display.h"
 #include "radio_core.h"
 #include "radio_medtronic.h"
-#include <limits>
 #include <cc430f6137.h>
-#include <type_traits>
+#include "nullptr.h"
+
+using std::size_t;
 
 namespace {
 	const uint8_t RX_TIMER_PERIOD = 85;
@@ -48,7 +49,7 @@ namespace {
 		radio.init_radio( radio_setup_916MHz );
 	}
 
-	using state_function_ptr = std::add_pointer<void( )>::type;
+	typedef void( *state_function_ptr )();
 	state_function_ptr current_state = nullptr;
 
 	void state_waiting_for_interrupt( );
@@ -77,7 +78,7 @@ namespace {
 	}
 
 	void state_received_data( ) {
-		auto data_size = radio.receive_data( );
+		size_t data_size = radio.receive_data( );
 		if( 0 < data_size ) {
 			current_state = state_process_data;
 		} else {
@@ -101,8 +102,8 @@ namespace {
 		radio.receive_on( );
 		_enable_interrupts( );
 		// Display glucose or something
-		display_hex_chars( LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display_hex_chars( LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

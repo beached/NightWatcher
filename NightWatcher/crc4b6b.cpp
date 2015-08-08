@@ -1,10 +1,10 @@
 #include "crc4b6b.h"
-#include <cstdint>
+#include <stdint.h>
 #include <cstddef>
-#include <array>
+#include "array.h"
 
 namespace {
-	std::array<uint16_t, 256> crc16_table;
+	daw::Array<uint16_t, 256> crc16_table;
 }
 
 uint8_t crc8( uint8_t *message, size_t length ) {

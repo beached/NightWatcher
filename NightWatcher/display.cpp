@@ -4,6 +4,7 @@
 #include <limits>
 #include <algorithm>
 #include "buffer.h"
+#include "array.h"
 
 namespace display {
 	// *************************************************************************************************
@@ -70,15 +71,16 @@ namespace display {
 	// @return      none
 	// *************************************************************************************************
 	void clear_line( uint8_t line ) {
-		display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), NULL, LcdDisplayModes::SEG_OFF );
+		using namespace display::LcdDisplayModes;
+		display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), NULL, SEG_OFF );
 		if( line == LINE1 ) {
-			display_symbol( LCD_SEG_L1_DP1, LcdDisplayModes::SEG_OFF );
-			display_symbol( LCD_SEG_L1_DP0, LcdDisplayModes::SEG_OFF );
-			display_symbol( LCD_SEG_L1_COL, LcdDisplayModes::SEG_OFF );
+			display_symbol( LCD_SEG_L1_DP1, SEG_OFF );
+			display_symbol( LCD_SEG_L1_DP0, SEG_OFF );
+			display_symbol( LCD_SEG_L1_COL, SEG_OFF );
 		} else { // line == LINE2
-			display_symbol( LCD_SEG_L2_DP, LcdDisplayModes::SEG_OFF );
-			display_symbol( LCD_SEG_L2_COL1, LcdDisplayModes::SEG_OFF );
-			display_symbol( LCD_SEG_L2_COL0, LcdDisplayModes::SEG_OFF );
+			display_symbol( LCD_SEG_L2_DP, SEG_OFF );
+			display_symbol( LCD_SEG_L2_COL1, SEG_OFF );
+			display_symbol( LCD_SEG_L2_COL0, SEG_OFF );
 		}
 	}
 
@@ -92,7 +94,7 @@ namespace display {
 		//				mode		On, off or blink segments
 		// @return
 		// *************************************************************************************************
-		void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const & state ) {
+		void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes::mode state ) {
 			switch( state ) {
 			case LcdDisplayModes::SEG_ON:
 				// Clear segments before writing
@@ -136,7 +138,7 @@ namespace display {
 		char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 			const size_t result_str_size = 7;
 
-			static Buffer<char, result_str_size + 1> result_str;
+			static daw::Buffer<char, result_str_size + 1> result_str;
 			result_str.fill_values( '0' );
 			result_str[result_str_size] = '\0';
 
@@ -177,8 +179,8 @@ namespace display {
 	//				uint8_t blanks			Number of leadings blanks in itoa result string
 	// @return      none
 	// *************************************************************************************************
-	void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const & disp_mode ) {
-		auto const str = itoa( value, digits, blanks );
+	void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, display::LcdDisplayModes::mode const & disp_mode ) {
+		char const * str = itoa( value, digits, blanks );
 		// Display string in blink mode
 		display_chars( segments, str, disp_mode );
 	}
@@ -190,7 +192,7 @@ namespace display {
 	//				uint8_t state		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
-	void display_symbol( uint8_t symbol, LcdDisplayModes const mode ) {
+	void display_symbol( uint8_t symbol, display::LcdDisplayModes::mode const & mode ) {
 		if( symbol <= LCD_SEG_L2_DP ) {
 			// Get LCD memory address for symbol from table
 			uint8_t * lcdmem = (uint8_t *)segments_lcdmem[symbol];
@@ -317,7 +319,7 @@ namespace display {
 	//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
-	void display_char( uint8_t const & segment, unsigned char chr, LcdDisplayModes const mode ) {
+	void display_char( uint8_t const & segment, unsigned char chr, display::LcdDisplayModes::mode const & mode ) {
 		// Write to single 7-segment character
 		if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 			// Get LCD memory address for segment from table
@@ -347,34 +349,36 @@ namespace display {
 		struct LCD_SEG_INFO {
 			uint8_t length;
 			uint8_t char_start;
+			LCD_SEG_INFO( ): length( 0 ), char_start( 0 ) { }
+			LCD_SEG_INFO( uint8_t const & l, uint8_t const & c ) : length( l ), char_start( c ) { }
 		};
 
 		LCD_SEG_INFO find_seg_info( uint8_t const & segments ) {
 			if( (segments >= LCD_SEG_L1_3) && (segments <= LCD_SEG_L2_DP) ) {
-				return LCD_SEG_INFO { 1, segments };
+				return LCD_SEG_INFO( 1, segments );
 			}
 			//multiple characters
 			switch( segments ) {
 				// LINE1
-			case LCD_SEG_L1_3_0:	return LCD_SEG_INFO { 4, LCD_SEG_L1_3 };
-			case LCD_SEG_L1_2_0:	return LCD_SEG_INFO { 3, LCD_SEG_L1_2 };
-			case LCD_SEG_L1_1_0: 	return LCD_SEG_INFO { 2, LCD_SEG_L1_1 };
-			case LCD_SEG_L1_3_1: 	return LCD_SEG_INFO { 3, LCD_SEG_L1_3 };
-			case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO { 2, LCD_SEG_L1_3 };
+			case LCD_SEG_L1_3_0:	return LCD_SEG_INFO( 4, LCD_SEG_L1_3 );
+			case LCD_SEG_L1_2_0:	return LCD_SEG_INFO( 3, LCD_SEG_L1_2 );
+			case LCD_SEG_L1_1_0: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_1 );
+			case LCD_SEG_L1_3_1: 	return LCD_SEG_INFO( 3, LCD_SEG_L1_3 );
+			case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_3 );
 
 									// LINE2
-			case LCD_SEG_L2_5_0: return LCD_SEG_INFO { 6, LCD_SEG_L2_5 };
-			case LCD_SEG_L2_4_0: return LCD_SEG_INFO { 5, LCD_SEG_L2_4 };
-			case LCD_SEG_L2_3_0: return LCD_SEG_INFO { 4, LCD_SEG_L2_3 };
-			case LCD_SEG_L2_2_0: return LCD_SEG_INFO { 3, LCD_SEG_L2_2 };
-			case LCD_SEG_L2_1_0: return LCD_SEG_INFO { 2, LCD_SEG_L2_1 };
-			case LCD_SEG_L2_5_4: return LCD_SEG_INFO { 2, LCD_SEG_L2_5 };
-			case LCD_SEG_L2_5_2: return LCD_SEG_INFO { 4, LCD_SEG_L2_5 };
-			case LCD_SEG_L2_3_2: return LCD_SEG_INFO { 2, LCD_SEG_L2_3 };
-			case LCD_SEG_L2_4_2: return LCD_SEG_INFO { 3, LCD_SEG_L2_4 };
-			case LCD_SEG_L2_4_3: return LCD_SEG_INFO { 2, LCD_SEG_L2_4 };
+			case LCD_SEG_L2_5_0: return LCD_SEG_INFO( 6, LCD_SEG_L2_5 );
+			case LCD_SEG_L2_4_0: return LCD_SEG_INFO( 5, LCD_SEG_L2_4 );
+			case LCD_SEG_L2_3_0: return LCD_SEG_INFO( 4, LCD_SEG_L2_3 );
+			case LCD_SEG_L2_2_0: return LCD_SEG_INFO( 3, LCD_SEG_L2_2 );
+			case LCD_SEG_L2_1_0: return LCD_SEG_INFO( 2, LCD_SEG_L2_1 );
+			case LCD_SEG_L2_5_4: return LCD_SEG_INFO( 2, LCD_SEG_L2_5 );
+			case LCD_SEG_L2_5_2: return LCD_SEG_INFO( 4, LCD_SEG_L2_5 );
+			case LCD_SEG_L2_3_2: return LCD_SEG_INFO( 2, LCD_SEG_L2_3 );
+			case LCD_SEG_L2_4_2: return LCD_SEG_INFO( 3, LCD_SEG_L2_4 );
+			case LCD_SEG_L2_4_3: return LCD_SEG_INFO( 2, LCD_SEG_L2_4 );
 			default:
-				return LCD_SEG_INFO { 0,  0 };
+				return LCD_SEG_INFO( 0, 0 );
 			}
 		}
 	}
@@ -386,10 +390,10 @@ namespace display {
 	//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
-	void display_chars( uint8_t const & segments, char const * str, LcdDisplayModes const mode ) {
+	void display_chars( uint8_t const & segments, char const * str, display::LcdDisplayModes::mode const & mode ) {
 		// Since segments is limited and static, one could turn this into a template with that as
 		// the parameter and make seg_info static
-		auto const seg_info = find_seg_info( segments );
+		LCD_SEG_INFO const seg_info = find_seg_info( segments );
 
 		// Write to consecutive digits
 		for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
@@ -398,11 +402,11 @@ namespace display {
 		}
 	}
 
-	void display_hex_chars( uint8_t const & segments, char const * const str, LcdDisplayModes const mode ) {
-		static const std::array<char, 16> hex_nibble = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-		auto const seg_info = find_seg_info( segments );
+	void display_hex_chars( uint8_t const & segments, char const * const str, display::LcdDisplayModes::mode const & mode ) {
+		char const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+		LCD_SEG_INFO const seg_info = find_seg_info( segments );
 		for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
-			auto const & curr_byte = *str;
+			char const & curr_byte = *str;
 			// Use single character routine to write display memory
 			display_char( seg_info.char_start + i, hex_nibble[(curr_byte & 0xF0) >> 4u], mode );
 			if( ++i < seg_info.length ) {
@@ -486,7 +490,7 @@ namespace display {
 	}
 
 	// Table with memory address for each display element
-	std::array<uint8_t*, 42> const segments_lcdmem = {
+	uint8_t* const segments_lcdmem[42] = {
 			LCD_SYMB_AM_MEM,
 			LCD_SYMB_PM_MEM,
 			LCD_SYMB_ARROW_UP_MEM,
@@ -532,7 +536,7 @@ namespace display {
 	};
 
 	// Table with bit mask for each display element
-	std::array<uint8_t, 42> const segments_bitmask = {
+	uint8_t const segments_bitmask[42] = {
 		(uint8_t)LcdBitMask::LCD_SYMB_AM_MASK,
 		(uint8_t)LcdBitMask::LCD_SYMB_PM_MASK,
 		(uint8_t)LcdBitMask::LCD_SYMB_ARROW_UP_MASK,

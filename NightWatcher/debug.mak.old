@@ -16,7 +16,7 @@ LINUX_PACKAGES :=
 CFLAGS := -ggdb -Os -g
 CXXFLAGS := -ggdb -std=c++1y -fno-exceptions -fno-rtti -Os -g
 ASFLAGS := 
-LDFLAGS := -Wl,-gc-sections -mmcu=cc430f6137
+LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 
 
 START_GROUP := -Wl,--start-group

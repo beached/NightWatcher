@@ -69,5 +69,11 @@
     <ClInclude Include="buffer.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="array.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="nullptr.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

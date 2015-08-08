@@ -66,18 +66,17 @@
 #define __FLT_HAS_DENORM__ 1
 #define __SIZEOF_LONG_DOUBLE__ 8
 #define __BIGGEST_ALIGNMENT__ 2
-#define __DBL_MAX__ double(1.7976931348623157e+308L)
+#define __GLIBCXX_USE_INT_N_0 1
 #define __INT_FAST32_MAX__ 0x7fffffffL
 #define __DBL_HAS_INFINITY__ 1
 #define __INT64_MAX__ 0x7fffffffffffffffLL
 #define __DEC32_MIN_EXP__ (-94)
 #define __INT_FAST16_TYPE__ int
-#define __STRICT_ANSI__ 1
 #define __LDBL_HAS_DENORM__ 1
 #define __UINT20_MAX__ 0xfffffUL
 //VS2005-2012 treats all files as C++, while VS2013+ can treat C files correctly.
 #if _MSC_VER < 1800 || defined(__cplusplus)
-#define __cplusplus 201300L
+#define __cplusplus 199711L
 #endif
 #define __DEC128_MAX__ 9.999999999999999999999999999999999E6144DL
 #define __INT_LEAST32_MAX__ 0x7fffffffL
@@ -166,6 +165,7 @@
 #define __INT_MAX__ 0x7fff
 #define __INT64_TYPE__ long long int
 #define __FLT_MAX_EXP__ 128
+#define __DBL_MAX__ double(1.7976931348623157e+308L)
 #define __DBL_MANT_DIG__ 53
 #define __INT_LEAST64_MAX__ 0x7fffffffffffffffLL
 #define __DEC64_MIN__ 1E-383DD
@@ -183,7 +183,6 @@
 #define __SIZEOF_WCHAR_T__ 4
 #define __UINT64_TYPE__ long long unsigned int
 #define __INT_FAST8_TYPE__ int
-#define __GNUC_STDC_INLINE__ 1
 #define __DBL_DECIMAL_DIG__ 17
 #define __DEC_EVAL_METHOD__ 2
 #define __ORDER_BIG_ENDIAN__ 4321
@@ -219,6 +218,7 @@
 #define __LDBL_DIG__ 15
 #define __FLT_DECIMAL_DIG__ 9
 #define __UINT_FAST16_MAX__ 0xffffU
+#define __GNUC_GNU_INLINE__ 1
 #define __GCC_ATOMIC_SHORT_LOCK_FREE 1
 #define __UINT_FAST8_TYPE__ unsigned int
 #define __ATOMIC_ACQ_REL 4

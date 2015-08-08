@@ -1,12 +1,12 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 #include "buffer.h"
 
 extern void radio_setup_916MHz( );
 extern void receive_radio_symbol( uint8_t const & value );
 
-using radio_data_buffer_t = Buffer<uint8_t, 1024>;
+typedef daw::Buffer<uint8_t, 1024> radio_data_buffer_t;
 extern radio_data_buffer_t radio_data_buffer;
 
 template<typename ArrayType>

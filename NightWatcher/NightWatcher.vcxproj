@@ -76,9 +76,11 @@
     <ClCompile Include="radio_metronic.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="array.h" />
     <ClInclude Include="buffer.h" />
     <ClInclude Include="crc4b6b.h" />
     <ClInclude Include="display.h" />
+    <ClInclude Include="nullptr.h" />
     <ClInclude Include="radio_medtronic.h" />
     <ClInclude Include="radio_core.h" />
   </ItemGroup>

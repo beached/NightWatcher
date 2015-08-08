@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <stdint.h>
 #include <cstddef>
 
 extern uint8_t crc8( uint8_t *message, size_t nBytes );
