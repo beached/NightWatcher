@@ -193,7 +193,6 @@
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 #define __FLT_DENORM_MIN__ 1.4012984643248171e-45F
 #define __INT8_MAX__ 0x7f
-#define __OPTIMIZE_SIZE__ 1
 #define __UINT_FAST32_TYPE__ long unsigned int
 #define __CHAR32_TYPE__ long unsigned int
 #define __FLT_MAX__ 3.4028234663852886e+38F

@@ -2,6 +2,7 @@
 #include "radio_core.h"
 #include <cstdint>
 #include <array>
+#include "buffer.h"
 
 std::array<uint8_t, 54> const radio_symbol_table = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 
@@ -150,7 +151,8 @@ namespace {
 	size_t packet_count = 0;
 	size_t packet_head_idx = 0;
 
-	std::array<Packet, MAX_PACKETS> packets { };
+	Buffer<Packet, MAX_PACKETS> packets { };
+
 	size_t data_buffer_bytes_used = 0;
 	uint8_t buffer_overflow_count = 0;
 

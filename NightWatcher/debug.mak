@@ -5,7 +5,7 @@
 BINARYDIR := Debug
 
 #Additional flags
-PREPROCESSOR_MACROS := DEBUG TIMER0_CALLBACK_COUNT=0
+PREPROCESSOR_MACROS := DEBUG
 INCLUDE_DIRS := 
 LIBRARY_DIRS := 
 LIBRARY_NAMES := 
@@ -13,8 +13,8 @@ ADDITIONAL_LINKER_INPUTS :=
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
 
-CFLAGS := -ggdb -Wall -pedantic -O0
-CXXFLAGS := -ggdb -std=c++1y -fno-exceptions -fno-rtti -Wall -pedantic -O0
+CFLAGS := -ggdb -Os -g
+CXXFLAGS := -ggdb -std=c++1y -fno-exceptions -fno-rtti -Os -g
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 

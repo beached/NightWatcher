@@ -49,18 +49,12 @@
     <ClCompile Include="radio_metronic.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="memset.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="radio_core.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="timers.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="crc4b6b.h">
@@ -72,13 +66,7 @@
     <ClInclude Include="radio_medtronic.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="memset.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="reg_base.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="registers.h">
+    <ClInclude Include="buffer.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

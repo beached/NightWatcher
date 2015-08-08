@@ -1,11 +1,30 @@
 <?xml version="1.0"?>
 <EmbeddedProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <ToolchainID>com.visualgdb.msp430-ti</ToolchainID>
-  <BspID>com.sysprogs.msp430.core</BspID>
+  <BspID>com.visualgdb.bsp.in-place</BspID>
   <McuID>cc430f6137</McuID>
-  <MCUDefinitionFile>devices\cc430f6137.xml</MCUDefinitionFile>
-  <MCUProperties>
-    <Entries />
-  </MCUProperties>
+  <BSPSubdirectory>BSP</BSPSubdirectory>
+  <MCUDefinitionFile>cc430f6137.xml</MCUDefinitionFile>
   <BSPSourceFolderName>Device-specific files</BSPSourceFolderName>
+  <InPlaceMCU>
+    <ID>cc430f6137</ID>
+    <UserFriendlyName>cc430f6137</UserFriendlyName>
+    <CompilationFlags>
+      <IncludeDirectories>
+        <string>$$SYS:TOOLCHAIN_ROOT$$/include</string>
+      </IncludeDirectories>
+      <AdditionalLibraryDirectories>
+        <string>$$SYS:TOOLCHAIN_ROOT$$/include</string>
+      </AdditionalLibraryDirectories>
+      <COMMONFLAGS>-mmcu=cc430f6137</COMMONFLAGS>
+      <EnableLinkerGroups>true</EnableLinkerGroups>
+    </CompilationFlags>
+    <HierarchicalPath>16-Bit Ultra-Low-Power MCU, 32KB Flash, 4KB RAM, CC1101 Radio, AES-128, 12Bit ADC, USCI, LCD driver</HierarchicalPath>
+    <FamilyID>fam_8</FamilyID>
+    <FLASHSize>32640</FLASHSize>
+    <RAMSize>4094</RAMSize>
+    <FLASHBase>32768</FLASHBase>
+    <RAMBase>7168</RAMBase>
+    <MCUDefinitionFile>devices\cc430f6137.xml</MCUDefinitionFile>
+  </InPlaceMCU>
 </EmbeddedProfile>

@@ -4,7 +4,7 @@
 #Use VisualGDB Project Properties dialog or modify Makefile or per-configuration .mak files instead.
 
 #VisualGDB provides BSP_ROOT and TOOLCHAIN_ROOT via environment when running Make. The line below will only be active if GNU Make is started manually.
-BSP_ROOT ?= C:/SysGCC/msp430-elf/msp430-bsp
+BSP_ROOT ?= C:/devel/github/NightWatcher/NightWatcher/BSP
 TOOLCHAIN_ROOT ?= C:/SysGCC/msp430-elf
 
 #Embedded toolchain

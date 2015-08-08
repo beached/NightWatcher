@@ -71,20 +71,16 @@
   <ItemGroup>
     <ClCompile Include="crc4b6b.cpp" />
     <ClCompile Include="display.cpp" />
-    <ClCompile Include="memset.cpp" />
     <ClCompile Include="night_watcher.cpp" />
     <ClCompile Include="radio_core.cpp" />
     <ClCompile Include="radio_metronic.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="buffer.h" />
     <ClInclude Include="crc4b6b.h" />
     <ClInclude Include="display.h" />
-    <ClInclude Include="memset.h" />
     <ClInclude Include="radio_medtronic.h" />
     <ClInclude Include="radio_core.h" />
-    <ClInclude Include="registers.h" />
-    <ClInclude Include="reg_base.h" />
-    <ClInclude Include="timers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,49 +1,9 @@
-// *************************************************************************************************
-//
-//	Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
-//
-//
-//	  Redistribution and use in source and binary forms, with or without
-//	  modification, are permitted provided that the following conditions
-//	  are met:
-//
-//	    Redistributions of source code must retain the above copyright
-//	    notice, this list of conditions and the following disclaimer.
-//
-//	    Redistributions in binary form must reproduce the above copyright
-//	    notice, this list of conditions and the following disclaimer in the
-//	    documentation and/or other materials provided with the
-//	    distribution.
-//
-//	    Neither the name of Texas Instruments Incorporated nor the names of
-//	    its contributors may be used to endorse or promote products derived
-//	    from this software without specific prior written permission.
-//
-//	  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-//	  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-//	  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-//	  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-//	  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-//	  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-//	  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-//	  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-//	  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//	  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-//	  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-// *************************************************************************************************
-// Display functions.
-// *************************************************************************************************
-
-// *************************************************************************************************
-// Include section
-
 #include "display.h"
 #include <cc430f6137.h>
 #include <cstring>
 #include <limits>
 #include <algorithm>
-#include <array>
+#include "buffer.h"
 
 namespace display {
 	// *************************************************************************************************
@@ -122,85 +82,92 @@ namespace display {
 		}
 	}
 
-	// *************************************************************************************************
-	// @fn          write_segment
-	// @brief       Write to one or multiple LCD segments
-	// @param       lcdmem		Pointer to LCD byte memory
-	//				bits		Segments to address
-	//				bitmask		Bitmask for particular display item
-	//				mode		On, off or blink segments
-	// @return
-	// *************************************************************************************************
-	static void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const & state ) {
-		switch( state ) {
-		case LcdDisplayModes::SEG_ON:
-			// Clear segments before writing
-			*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+	namespace {
+		// *************************************************************************************************
+		// @fn          write_segment
+		// @brief       Write to one or multiple LCD segments
+		// @param       lcdmem		Pointer to LCD byte memory
+		//				bits		Segments to address
+		//				bitmask		Bitmask for particular display item
+		//				mode		On, off or blink segments
+		// @return
+		// *************************************************************************************************
+		void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const & state ) {
+			switch( state ) {
+			case LcdDisplayModes::SEG_ON:
+				// Clear segments before writing
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
-			// Set visible segments
-			*lcdmem = (uint8_t)(*lcdmem | bits);
-			break;
-		case LcdDisplayModes::SEG_OFF:
-			// Clear segments
-			*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-			break;
-		case LcdDisplayModes::SEG_ON_BLINK_ON:
-			// Clear visible / blink segments before writing
-			*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-			*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+				// Set visible segments
+				*lcdmem = (uint8_t)(*lcdmem | bits);
+				break;
+			case LcdDisplayModes::SEG_OFF:
+				// Clear segments
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+				break;
+			case LcdDisplayModes::SEG_ON_BLINK_ON:
+				// Clear visible / blink segments before writing
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
 
-			// Set visible / blink segments
-			*lcdmem = (uint8_t)(*lcdmem | bits);
-			*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
-			break;
-		case LcdDisplayModes::SEG_ON_BLINK_OFF:
-			// Clear visible segments before writing
-			*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+				// Set visible / blink segments
+				*lcdmem = (uint8_t)(*lcdmem | bits);
+				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
+				break;
+			case LcdDisplayModes::SEG_ON_BLINK_OFF:
+				// Clear visible segments before writing
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
-			// Set visible segments
-			*lcdmem = (uint8_t)(*lcdmem | bits);
+				// Set visible segments
+				*lcdmem = (uint8_t)(*lcdmem | bits);
 
-			// Clear blink segments
-			*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
-			break;
-		case LcdDisplayModes::SEG_OFF_BLINK_OFF:
-			// Clear segments
-			*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+				// Clear blink segments
+				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+				break;
+			case LcdDisplayModes::SEG_OFF_BLINK_OFF:
+				// Clear segments
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 
-			// Clear blink segments
-			*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+				// Clear blink segments
+				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+			}
 		}
-	}
 
-	static char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
-		const size_t result_str_size = 7;
-		static std::array<char, result_str_size + 1> result_str;
-		std::fill( std::begin( result_str ), std::begin( result_str ) + result_str_size, '0' );
-		result_str[result_str_size] = '\0';
+		char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
+			const size_t result_str_size = 7;
 
-		// Return empty string if number of digits is invalid (valid range for digits: 1-7)
-		if( (digits == 0) || (digits > result_str_size) ) {
+			static Buffer<char, result_str_size + 1> result_str;
+			result_str.fill_values( '0' );
+			result_str[result_str_size] = '\0';
+
+			// Return empty string if number of digits is invalid (valid range for digits: 1-7)
+			if( (digits == 0) || (digits > result_str_size) ) {
+				return result_str.data( );
+			}
+			size_t i = 1;
+			for( ; i < result_str.size( ); ++i ) {
+				result_str[digits - i] += (char)(val % 10);
+				val /= 10;
+			}
+
+			// Remove specified number of leading '0', always keep last one
+			i = 0;
+			while( (result_str[i] == '0') && (i < digits - 1u) ) {
+				if( blanks ) {
+					// Convert only specified number of leading '0'
+					result_str[i] = ' ';
+					--blanks;
+				}
+				++i;
+			}
 			return result_str.data( );
 		}
-		size_t i = 1;
-		for( ; i < result_str.size( ); ++i ) {
-			result_str[digits - i] += (char)(val % 10);
-			val /= 10;
-		}
 
-		// Remove specified number of leading '0', always keep last one
-		i = 0;
-		while( (result_str[i] == '0') && (i < digits - 1u) ) {
-			if( blanks ) {
-				// Convert only specified number of leading '0'
-				result_str[i] = ' ';
-				--blanks;
-			}
-			++i;
+		static uint8_t swap_nibble( uint8_t value ) {
+			value = ((value << 4) & 0xF0) | ((value >> 4) & 0x0F);
+			return value;
 		}
-		return result_str.data( );
-	}
-
+	}	// namespace anonymous
 	// *************************************************************************************************
 	// @fn          display_value
 	// @brief       Generic decimal display routine. Used exclusively by set_value function.
@@ -340,11 +307,6 @@ namespace display {
 		default:
 			return 0;
 		}
-	}
-
-	static uint8_t swap_nibble( uint8_t value ) {
-		value = ((value << 4) & 0xF0) | ((value >> 4) & 0x0F);
-		return value;
 	}
 
 	// *************************************************************************************************

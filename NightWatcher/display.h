@@ -38,27 +38,172 @@
 #include <cc430f6137.h>
 #include <array>
 
-namespace display {
-	// Constants defined in library
-	extern std::array<uint8_t*, 42> const segments_lcdmem;
-	extern std::array<uint8_t, 42> const segments_bitmask;
-
 	// *************************************************************************************************
 	// Defines section
 
 	// Display function modes
-	uint8_t const DISPLAY_LINE_UPDATE_FULL = BIT0;
-	uint8_t const DISPLAY_LINE_UPDATE_PARTIAL = BIT1;
-	uint8_t const DISPLAY_LINE_CLEAR = BIT2;
+#define DISPLAY_LINE_UPDATE_FULL BIT0
+#define DISPLAY_LINE_UPDATE_PARTIAL BIT1
+#define DISPLAY_LINE_CLEAR BIT2
 
-	// Definitions for line view style
-	uint8_t const DISPLAY_DEFAULT_VIEW = 0;
-	uint8_t const DISPLAY_ALTERNATIVE_VIEW = 1;
-	uint8_t const DISPLAY_ALTERNATIVE2_VIEW = 2;
+// Definitions for line view style
+#define DISPLAY_DEFAULT_VIEW 0
+#define DISPLAY_ALTERNATIVE_VIEW 1
+#define DISPLAY_ALTERNATIVE2_VIEW 2
 
-	// Definitions for line access
-	uint8_t const LINE1 = 1;
-	uint8_t const LINE2 = 2;
+// Definitions for line access
+#define LINE1 1
+#define LINE2 2
+
+	// ------------------------------------------
+	// LCD symbols for easier access
+	//
+	// xxx_SEG_xxx 		= Seven-segment character (sequence 5-4-3-2-1-0)
+	// xxx_SYMB_xxx 	= Display symbol, e.g. "AM" for ante meridiem
+	// xxx_UNIT_xxx 	= Display unit, e.g. "km/h" for kilometers per hour
+	// xxx_ICON_xxx 	= Display icon, e.g. heart to indicate reception of heart rate data
+	// xxx_L1_xxx 		= Item is part of Line1 information
+	// xxx_L2_xxx 		= Item is part of Line2 information
+
+// Symbols for Line1
+#define LCD_SYMB_AM 0
+#define LCD_SYMB_PM 1
+#define LCD_SYMB_ARROW_UP 2
+#define LCD_SYMB_ARROW_DOWN 3
+#define LCD_SYMB_PERCENT 4
+
+// Symbols for Line2
+#define LCD_SYMB_TOTAL 5
+#define LCD_SYMB_AVERAGE 6
+#define LCD_SYMB_MAX 7
+#define LCD_SYMB_BATTERY 8
+
+// Units for Line1
+#define LCD_UNIT_L1_FT 9
+#define LCD_UNIT_L1_K 10
+#define LCD_UNIT_L1_M 11
+#define LCD_UNIT_L1_I 12
+#define LCD_UNIT_L1_PER_S 13
+#define LCD_UNIT_L1_PER_H 14
+#define LCD_UNIT_L1_DEGREE 15
+
+// Units for Line2
+#define LCD_UNIT_L2_KCAL 16
+#define LCD_UNIT_L2_KM 17
+#define LCD_UNIT_L2_MI 18
+
+// Icons
+#define LCD_ICON_HEART 19
+#define LCD_ICON_STOPWATCH 20
+#define LCD_ICON_RECORD 21
+#define LCD_ICON_ALARM 22
+#define LCD_ICON_BEEPER1 23
+#define LCD_ICON_BEEPER2 24
+#define LCD_ICON_BEEPER3 25
+
+// Line1 7-segments
+#define LCD_SEG_L1_3 26
+#define LCD_SEG_L1_2 27
+#define LCD_SEG_L1_1 28
+#define LCD_SEG_L1_0 29
+#define LCD_SEG_L1_COL 30
+#define LCD_SEG_L1_DP1 31
+#define LCD_SEG_L1_DP0 32
+
+// Line2 7-segments
+#define LCD_SEG_L2_5 33
+#define LCD_SEG_L2_4 34
+#define LCD_SEG_L2_3 35
+#define LCD_SEG_L2_2 36
+#define LCD_SEG_L2_1 37
+#define LCD_SEG_L2_0 38
+#define LCD_SEG_L2_COL1 39
+#define LCD_SEG_L2_COL0 40
+#define LCD_SEG_L2_DP 41
+
+// Line1 7-segment arrays
+#define LCD_SEG_L1_3_0 70
+#define LCD_SEG_LINE1_START 70
+#define LCD_SEG_L1_2_0 71
+#define LCD_SEG_L1_1_0 72
+#define LCD_SEG_L1_3_1 73
+#define LCD_SEG_L1_3_2 74
+
+// Line2 7-segment arrays
+#define LCD_SEG_L2_5_0 90
+#define LCD_SEG_L2_4_0 91
+#define LCD_SEG_LINE2_START 91
+#define LCD_SEG_L2_3_0 92
+#define LCD_SEG_L2_2_0 93
+#define LCD_SEG_L2_1_0 94
+#define LCD_SEG_L2_5_2 95
+#define LCD_SEG_L2_3_2 96
+#define LCD_SEG_L2_5_4 97
+#define LCD_SEG_L2_4_2 98
+#define LCD_SEG_L2_4_3 99
+
+// LCD controller memory map
+#define LCD_MEM_1 (uint8_t*)0x0A20
+#define LCD_MEM_2 (uint8_t*)0x0A21
+#define LCD_MEM_3 (uint8_t*)0x0A22
+#define LCD_MEM_4 (uint8_t*)0x0A23
+#define LCD_MEM_5 (uint8_t*)0x0A24
+#define LCD_MEM_6 (uint8_t*)0x0A25
+#define LCD_MEM_7 (uint8_t*)0x0A26
+#define LCD_MEM_8 (uint8_t*)0x0A27
+#define LCD_MEM_9 (uint8_t*)0x0A28
+#define LCD_MEM_10 (uint8_t*)0x0A29
+#define LCD_MEM_11 (uint8_t*)0x0A2A
+#define LCD_MEM_12 (uint8_t*)0x0A2B
+
+// Memory assignment
+#define LCD_SEG_L1_0_MEM LCD_MEM_6
+#define LCD_SEG_L1_1_MEM LCD_MEM_4
+#define LCD_SEG_L1_2_MEM LCD_MEM_3
+#define LCD_SEG_L1_3_MEM LCD_MEM_2
+#define LCD_SEG_L1_COL_MEM LCD_MEM_1
+#define LCD_SEG_L1_DP1_MEM LCD_MEM_1
+#define LCD_SEG_L1_DP0_MEM LCD_MEM_5
+#define LCD_SEG_L2_0_MEM LCD_MEM_8
+#define LCD_SEG_L2_1_MEM LCD_MEM_9
+#define LCD_SEG_L2_2_MEM LCD_MEM_10
+#define LCD_SEG_L2_3_MEM LCD_MEM_11
+#define LCD_SEG_L2_4_MEM LCD_MEM_12
+#define LCD_SEG_L2_5_MEM LCD_MEM_12
+#define LCD_SEG_L2_COL1_MEM LCD_MEM_1
+#define LCD_SEG_L2_COL0_MEM LCD_MEM_5
+#define LCD_SEG_L2_DP_MEM LCD_MEM_9
+#define LCD_SYMB_AM_MEM LCD_MEM_1
+#define LCD_SYMB_PM_MEM LCD_MEM_1
+#define LCD_SYMB_ARROW_UP_MEM LCD_MEM_1
+#define LCD_SYMB_ARROW_DOWN_MEM LCD_MEM_1
+#define LCD_SYMB_PERCENT_MEM LCD_MEM_5
+#define LCD_SYMB_TOTAL_MEM LCD_MEM_11
+#define LCD_SYMB_AVERAGE_MEM LCD_MEM_10
+#define LCD_SYMB_MAX_MEM LCD_MEM_8
+#define LCD_SYMB_BATTERY_MEM LCD_MEM_7
+#define LCD_UNIT_L1_FT_MEM LCD_MEM_5
+#define LCD_UNIT_L1_K_MEM LCD_MEM_5
+#define LCD_UNIT_L1_M_MEM LCD_MEM_7
+#define LCD_UNIT_L1_I_MEM LCD_MEM_7
+#define LCD_UNIT_L1_PER_S_MEM LCD_MEM_5
+#define LCD_UNIT_L1_PER_H_MEM LCD_MEM_7
+#define LCD_UNIT_L1_DEGREE_MEM LCD_MEM_5
+#define LCD_UNIT_L2_KCAL_MEM LCD_MEM_7
+#define LCD_UNIT_L2_KM_MEM LCD_MEM_7
+#define LCD_UNIT_L2_MI_MEM LCD_MEM_7
+#define LCD_ICON_HEART_MEM LCD_MEM_2
+#define LCD_ICON_STOPWATCH_MEM LCD_MEM_3
+#define LCD_ICON_RECORD_MEM LCD_MEM_1
+#define LCD_ICON_ALARM_MEM LCD_MEM_4
+#define LCD_ICON_BEEPER1_MEM LCD_MEM_5
+#define LCD_ICON_BEEPER2_MEM LCD_MEM_6
+#define LCD_ICON_BEEPER3_MEM LCD_MEM_7
+
+namespace display {
+	// Constants defined in library
+	extern std::array<uint8_t*, 42> const segments_lcdmem;
+	extern std::array<uint8_t, 42> const segments_bitmask;
 
 	enum class LcdDisplayModes: int16_t {
 		SEG_OFF = 0,
@@ -77,151 +222,6 @@ namespace display {
 		SEG_F = BIT0,
 		SEG_G = BIT1
 	};
-
-	// ------------------------------------------
-	// LCD symbols for easier access
-	//
-	// xxx_SEG_xxx 		= Seven-segment character (sequence 5-4-3-2-1-0)
-	// xxx_SYMB_xxx 	= Display symbol, e.g. "AM" for ante meridiem
-	// xxx_UNIT_xxx 	= Display unit, e.g. "km/h" for kilometers per hour
-	// xxx_ICON_xxx 	= Display icon, e.g. heart to indicate reception of heart rate data
-	// xxx_L1_xxx 		= Item is part of Line1 information
-	// xxx_L2_xxx 		= Item is part of Line2 information
-
-	// Symbols for Line1
-	uint8_t const LCD_SYMB_AM = 0;
-	uint8_t const LCD_SYMB_PM = 1;
-	uint8_t const LCD_SYMB_ARROW_UP = 2;
-	uint8_t const LCD_SYMB_ARROW_DOWN = 3;
-	uint8_t const LCD_SYMB_PERCENT = 4;
-
-	// Symbols for Line2
-	uint8_t const LCD_SYMB_TOTAL = 5;
-	uint8_t const LCD_SYMB_AVERAGE = 6;
-	uint8_t const LCD_SYMB_MAX = 7;
-	uint8_t const LCD_SYMB_BATTERY = 8;
-
-	// Units for Line1
-	uint8_t const LCD_UNIT_L1_FT = 9;
-	uint8_t const LCD_UNIT_L1_K = 10;
-	uint8_t const LCD_UNIT_L1_M = 11;
-	uint8_t const LCD_UNIT_L1_I = 12;
-	uint8_t const LCD_UNIT_L1_PER_S = 13;
-	uint8_t const LCD_UNIT_L1_PER_H = 14;
-	uint8_t const LCD_UNIT_L1_DEGREE = 15;
-
-	// Units for Line2
-	uint8_t const LCD_UNIT_L2_KCAL = 16;
-	uint8_t const LCD_UNIT_L2_KM = 17;
-	uint8_t const LCD_UNIT_L2_MI = 18;
-
-	// Icons
-	uint8_t const LCD_ICON_HEART = 19;
-	uint8_t const LCD_ICON_STOPWATCH = 20;
-	uint8_t const LCD_ICON_RECORD = 21;
-	uint8_t const LCD_ICON_ALARM = 22;
-	uint8_t const LCD_ICON_BEEPER1 = 23;
-	uint8_t const LCD_ICON_BEEPER2 = 24;
-	uint8_t const LCD_ICON_BEEPER3 = 25;
-
-	// Line1 7-segments
-	uint8_t const LCD_SEG_L1_3 = 26;
-	uint8_t const LCD_SEG_L1_2 = 27;
-	uint8_t const LCD_SEG_L1_1 = 28;
-	uint8_t const LCD_SEG_L1_0 = 29;
-	uint8_t const LCD_SEG_L1_COL = 30;
-	uint8_t const LCD_SEG_L1_DP1 = 31;
-	uint8_t const LCD_SEG_L1_DP0 = 32;
-
-	// Line2 7-segments
-	uint8_t const LCD_SEG_L2_5 = 33;
-	uint8_t const LCD_SEG_L2_4 = 34;
-	uint8_t const LCD_SEG_L2_3 = 35;
-	uint8_t const LCD_SEG_L2_2 = 36;
-	uint8_t const LCD_SEG_L2_1 = 37;
-	uint8_t const LCD_SEG_L2_0 = 38;
-	uint8_t const LCD_SEG_L2_COL1 = 39;
-	uint8_t const LCD_SEG_L2_COL0 = 40;
-	uint8_t const LCD_SEG_L2_DP = 41;
-
-	// Line1 7-segment arrays
-	uint8_t const LCD_SEG_L1_3_0 = 70;
-	uint8_t const LCD_SEG_LINE1_START = 70;
-	uint8_t const LCD_SEG_L1_2_0 = 71;
-	uint8_t const LCD_SEG_L1_1_0 = 72;
-	uint8_t const LCD_SEG_L1_3_1 = 73;
-	uint8_t const LCD_SEG_L1_3_2 = 74;
-
-	// Line2 7-segment arrays
-	uint8_t const LCD_SEG_L2_5_0 = 90;
-	uint8_t const LCD_SEG_L2_4_0 = 91;
-	uint8_t const LCD_SEG_LINE2_START = 91;
-	uint8_t const LCD_SEG_L2_3_0 = 92;
-	uint8_t const LCD_SEG_L2_2_0 = 93;
-	uint8_t const LCD_SEG_L2_1_0 = 94;
-	uint8_t const LCD_SEG_L2_5_2 = 95;
-	uint8_t const LCD_SEG_L2_3_2 = 96;
-	uint8_t const LCD_SEG_L2_5_4 = 97;
-	uint8_t const LCD_SEG_L2_4_2 = 98;
-	uint8_t const LCD_SEG_L2_4_3 = 99;
-
-	// LCD controller memory map
-	uint8_t * const LCD_MEM_1 = (uint8_t*)0x0A20;
-	uint8_t * const LCD_MEM_2 = (uint8_t*)0x0A21;
-	uint8_t * const LCD_MEM_3 = (uint8_t*)0x0A22;
-	uint8_t * const LCD_MEM_4 = (uint8_t*)0x0A23;
-	uint8_t * const LCD_MEM_5 = (uint8_t*)0x0A24;
-	uint8_t * const LCD_MEM_6 = (uint8_t*)0x0A25;
-	uint8_t * const LCD_MEM_7 = (uint8_t*)0x0A26;
-	uint8_t * const LCD_MEM_8 = (uint8_t*)0x0A27;
-	uint8_t * const LCD_MEM_9 = (uint8_t*)0x0A28;
-	uint8_t * const LCD_MEM_10 = (uint8_t*)0x0A29;
-	uint8_t * const LCD_MEM_11 = (uint8_t*)0x0A2A;
-	uint8_t * const LCD_MEM_12 = (uint8_t*)0x0A2B;
-
-	// Memory assignment
-	uint8_t * const LCD_SEG_L1_0_MEM = LCD_MEM_6;
-	uint8_t * const LCD_SEG_L1_1_MEM = LCD_MEM_4;
-	uint8_t * const LCD_SEG_L1_2_MEM = LCD_MEM_3;
-	uint8_t * const LCD_SEG_L1_3_MEM = LCD_MEM_2;
-	uint8_t * const LCD_SEG_L1_COL_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SEG_L1_DP1_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SEG_L1_DP0_MEM = LCD_MEM_5;
-	uint8_t * const LCD_SEG_L2_0_MEM = LCD_MEM_8;
-	uint8_t * const LCD_SEG_L2_1_MEM = LCD_MEM_9;
-	uint8_t * const LCD_SEG_L2_2_MEM = LCD_MEM_10;
-	uint8_t * const LCD_SEG_L2_3_MEM = LCD_MEM_11;
-	uint8_t * const LCD_SEG_L2_4_MEM = LCD_MEM_12;
-	uint8_t * const LCD_SEG_L2_5_MEM = LCD_MEM_12;
-	uint8_t * const LCD_SEG_L2_COL1_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SEG_L2_COL0_MEM = LCD_MEM_5;
-	uint8_t * const LCD_SEG_L2_DP_MEM = LCD_MEM_9;
-	uint8_t * const LCD_SYMB_AM_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SYMB_PM_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SYMB_ARROW_UP_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SYMB_ARROW_DOWN_MEM = LCD_MEM_1;
-	uint8_t * const LCD_SYMB_PERCENT_MEM = LCD_MEM_5;
-	uint8_t * const LCD_SYMB_TOTAL_MEM = LCD_MEM_11;
-	uint8_t * const LCD_SYMB_AVERAGE_MEM = LCD_MEM_10;
-	uint8_t * const LCD_SYMB_MAX_MEM = LCD_MEM_8;
-	uint8_t * const LCD_SYMB_BATTERY_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L1_FT_MEM = LCD_MEM_5;
-	uint8_t * const LCD_UNIT_L1_K_MEM = LCD_MEM_5;
-	uint8_t * const LCD_UNIT_L1_M_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L1_I_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L1_PER_S_MEM = LCD_MEM_5;
-	uint8_t * const LCD_UNIT_L1_PER_H_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L1_DEGREE_MEM = LCD_MEM_5;
-	uint8_t * const LCD_UNIT_L2_KCAL_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L2_KM_MEM = LCD_MEM_7;
-	uint8_t * const LCD_UNIT_L2_MI_MEM = LCD_MEM_7;
-	uint8_t * const LCD_ICON_HEART_MEM = LCD_MEM_2;
-	uint8_t * const LCD_ICON_STOPWATCH_MEM = LCD_MEM_3;
-	uint8_t * const LCD_ICON_RECORD_MEM = LCD_MEM_1;
-	uint8_t * const LCD_ICON_ALARM_MEM = LCD_MEM_4;
-	uint8_t * const LCD_ICON_BEEPER1_MEM = LCD_MEM_5;
-	uint8_t * const LCD_ICON_BEEPER2_MEM = LCD_MEM_6;
-	uint8_t * const LCD_ICON_BEEPER3_MEM = LCD_MEM_7;
 
 	enum class LcdBitMask: uint16_t {
 		// Bit masks for write access
@@ -296,5 +296,5 @@ namespace display {
 	// Segment index helper function
 	extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
 
-	void display_all_off( );
+	extern void display_all_off( );
 }

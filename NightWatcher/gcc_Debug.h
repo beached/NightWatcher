@@ -37,6 +37,7 @@
 #define __GCC_ATOMIC_BOOL_LOCK_FREE 1
 #define __UINTMAX_TYPE__ long long unsigned int
 #define __DEC32_EPSILON__ 1E-6DF
+#define __OPTIMIZE__ 1
 #define __CHAR_UNSIGNED__ 1
 #define __UINT32_MAX__ 0xffffffffUL
 #define __LDBL_MAX_EXP__ 1024
@@ -101,7 +102,6 @@
 #define __UINT16_MAX__ 0xffffU
 #define __DBL_HAS_DENORM__ 1
 #define __UINT8_TYPE__ unsigned char
-#define __NO_INLINE__ 1
 #define __FLT_MANT_DIG__ 24
 #define __VERSION__ "4.9.1 20140707 (prerelease (msp430-14r1-167)) (GNUPro 14r1) (Based on: GCC 4.8 GDB 7.7 Binutils 2.24 Newlib 2.1)"
 #define __GCC_ATOMIC_INT_LOCK_FREE 1
@@ -186,12 +186,12 @@
 #define __GNUC_STDC_INLINE__ 1
 #define __DBL_DECIMAL_DIG__ 17
 #define __DEC_EVAL_METHOD__ 2
-#define TIMER0_CALLBACK_COUNT 0
 #define __ORDER_BIG_ENDIAN__ 4321
 #define __INTMAX_MAX__ 0x7fffffffffffffffLL
 #define __BYTE_ORDER__ __ORDER_LITTLE_ENDIAN__
 #define __FLT_DENORM_MIN__ 1.4012984643248171e-45F
 #define __INT8_MAX__ 0x7f
+#define __OPTIMIZE_SIZE__ 1
 #define __UINT_FAST32_TYPE__ long unsigned int
 #define __CHAR32_TYPE__ long unsigned int
 #define __FLT_MAX__ 3.4028234663852886e+38F

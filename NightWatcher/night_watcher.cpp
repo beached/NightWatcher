@@ -3,7 +3,6 @@
 #include "radio_medtronic.h"
 #include <limits>
 #include <cc430f6137.h>
-#include "registers.h"
 #include <type_traits>
 
 namespace {
@@ -14,21 +13,24 @@ namespace {
 	}
 
 	void toggle_net_activity( ) {
-		static uint8_t count = 0;
-		switch( count++ % 4 ) {
+		static uint8_t count = 1;
+		if( count > 3 ) {
+			count = 1;
+		}
+		switch( count ) {
 		case 0:
-			display::display_symbol( display::LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_OFF );
+			display::display_symbol( LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_OFF );
 			break;
 		case 1:
-			display::display_symbol( display::LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_ON );
+			display::display_symbol( LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_ON );
 			break;
 		case 2:
-			display::display_symbol( display::LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_OFF );
-			display::display_symbol( display::LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_ON );
+			display::display_symbol( LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_OFF );
+			display::display_symbol( LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_ON );
 			break;
 		case 3:
-			display::display_symbol( display::LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_OFF );
-			display::display_symbol( display::LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_ON );
+			display::display_symbol( LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_OFF );
+			display::display_symbol( LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_ON );
 			break;
 		}
 	}
@@ -41,7 +43,7 @@ namespace {
 
 		display::lcd_init( );
 		display::clear_display( );
-		display::display_chars( display::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON );
+		display::display_chars( LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON );
 		//init_timer( );
 		radio.init_radio( radio_setup_916MHz );
 	}
@@ -55,7 +57,9 @@ namespace {
 	void state_display_data( );
 	void state_button_pushed( );
 
-	void state_button_pushed( );
+	void state_button_pushed( ) {
+		current_state = state_waiting_for_interrupt;
+	}
 
 	void state_waiting_for_interrupt( ) {
 		radio.receive_on( );
@@ -97,8 +101,8 @@ namespace {
 		radio.receive_on( );
 		_enable_interrupts( );
 		// Display glucose or something
-		display_hex_chars( display::LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display_hex_chars( display::LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
+		display_hex_chars( LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display_hex_chars( LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

@@ -2,10 +2,9 @@
 
 #include <cc430f6137.h>
 #include <cstdint>
-#include <array>
 #include <cstring>
 #include <type_traits>
-#include "memset.h"
+#include "buffer.h"
 
 #define _HAL_PMM_DISABLE_SVML_
 #define _HAL_PMM_SVMLE SVMLE
@@ -13,12 +12,12 @@
 #define _HAL_PMM_SVSLE SVSLE
 #define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
 #define _HAL_PMM_SVSFP SVSLFP
-uint8_t const PMM_STATUS_OK = 0;
-uint8_t const PMM_STATUS_ERROR = 1;
+#define PMM_STATUS_OK 0
+#define PMM_STATUS_ERROR 1
 
 namespace daw {
 	namespace radio {
-		void init_fll( uint16_t fsystem, uint16_t ratio );
+		extern void init_fll( uint16_t fsystem, uint16_t ratio );
 
 		//****************************************************************************//
 		// Set VCore Up
@@ -192,9 +191,9 @@ namespace daw {
 			return m < n ? m : n;
 		}
 
-		uint8_t strobe( uint8_t const cmd );
-		void radio_write_single_reg( uint8_t const & addr, uint8_t const & value );
-		uint8_t radio_read_single_reg( uint8_t const & addr );
+		extern uint8_t strobe( uint8_t const cmd );
+		extern void radio_write_single_reg( uint8_t const & addr, uint8_t const & value );
+		extern uint8_t radio_read_single_reg( uint8_t const & addr );
 
 		template<typename ArryType>
 		static void radio_read_burst_reg( uint8_t const & addr, ArryType & buffer, uint8_t const & count ) {
@@ -208,11 +207,11 @@ namespace daw {
 			buffer[count - 1] = RF1ADOUT0B;
 		}
 
-		void radio_write_single_pa_table( uint8_t const & value );
+		extern void radio_write_single_pa_table( uint8_t const & value );
 
-		void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const & count );
+		extern void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const & count );
 
-		void reset_core( );
+		extern void reset_core( );
 
 		template<size_t BuffSize>
 		class RadioCore {
@@ -225,46 +224,28 @@ namespace daw {
 			// 				RFST_STX = 0x03,
 			// 				RFST_SIDLE = 0x04
 			// 			};
-
+			using buffer_t = Buffer<uint8_t, BuffSize>;
 		private:
 
-			volatile struct RFFlags {
-				volatile bool is_transmitting;
+			struct RFFlags {
 				volatile bool is_receiving;
 				volatile bool has_received_packet;
 				volatile bool receive_loop_on;
 
-				RFFlags( ) : is_transmitting( false ), is_receiving( false ), has_received_packet( false ), receive_loop_on( false ) { }
+				RFFlags( ) : is_receiving( false ), has_received_packet( false ), receive_loop_on( false ) { }
 
-				void reset( ) volatile {
-					is_transmitting = false;
+				void reset( ) {
 					is_receiving = false;
 					has_received_packet = false;
 					receive_loop_on = false;
 				}
 			} rf_flags;
 
-			std::array<uint8_t, BuffSize> rx_buffer;
-			size_t rx_buffer_tail;
-
-			void clear_rx_buffer( ) {
-				sfill( rx_buffer, 0 );
-				rx_buffer_tail = 0;
-			}
+			buffer_t rx_buffer;
 
 		public:
 
-			RadioCore( ) : rf_flags { }, rx_buffer { }, rx_buffer_tail { 0 } {
-				clear_rx_buffer( );
-			}
-
-			~RadioCore( ) {
-				clear_rx_buffer( );
-			}
-
-			void reset_rx_buffer( ) {
-				rx_buffer_tail = 0;
-			}
+			RadioCore( ) : rf_flags { }, rx_buffer { } { }
 
 			void receive_on( ) {
 				RF1AIES |= BIT9;	// Falling edge of RFIFG9
@@ -283,7 +264,7 @@ namespace daw {
 			using config_fn_t = std::add_pointer<void( )>::type;
 			void init_radio( config_fn_t configure_radio ) {
 				rf_flags.reset( );
-				clear_rx_buffer( );
+				rx_buffer.clear( );
 
 				// Set the High-Power Mode Request Enable bit so LPM3 can be entered
 				// with active radio enabled
@@ -306,16 +287,20 @@ namespace daw {
 				rf_flags.is_receiving = false;
 			}
 
-			bool has_data( ) const volatile {
-				return rx_buffer_tail > 0;
+			bool has_data( ) const {
+				return !rx_buffer.empty( );
 			}
 
-			void check_for_data( ) volatile {
+			void check_for_data( ) {
 				rf_flags.has_received_packet = true;
 			}
 
-			bool data_pending( ) const volatile {
+			bool data_pending( ) const {
 				return rf_flags.has_received_packet;
+			}
+
+			void reset_rx_buffer( ) {
+				return rx_buffer.size( 0 );
 			}
 
 			size_t receive_data( ) {
@@ -324,22 +309,22 @@ namespace daw {
 				}
 				size_t rx_len = radio_read_single_reg( RXBYTES );
 				// For now clear buffer before proceeding and only read up to buffer len bytes
-				clear_rx_buffer( );
-				if( (rf_flags.has_received_packet = rx_len > rx_buffer.size( )) ) {
-					rx_len = size( );
+				rx_buffer.clear( );
+				if( (rf_flags.has_received_packet = rx_len > rx_buffer.capacity( )) ) {
+					rx_len = rx_buffer.capacity( );
 				}
+				rx_buffer.size( rx_len );
 				radio_read_burst_reg( RF_RXFIFORD, rx_buffer, rx_len );
-				rx_buffer_tail += rx_len;
 
 				return rx_len;
 			}
 
-			size_t size( ) const volatile {
-				return rx_buffer_tail;
+			size_t size( ) const {
+				return rx_buffer.size( );
 			}
 
-			size_t capacity( ) const volatile {
-				return rx_buffer.size( );
+			size_t capacity( ) const {
+				return rx_buffer.capacity( );
 			}
 
 			uint8_t const & rx_data( size_t const & position ) const {
@@ -350,7 +335,7 @@ namespace daw {
 				return rx_buffer.data( );
 			}
 
-			std::array<uint8_t, BuffSize> const & rx_array( ) const {
+			buffer_t const & rx_array( ) const {
 				return rx_buffer;
 			}
 		};
