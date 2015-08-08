@@ -5,7 +5,7 @@
 #include <intrinsics.h>
 #include "nullptr.h"
 
-#define low_power_mode_2( ) _BIS_SR( LPM2_bits + GIE)
+#define low_power_mode( ) _BIS_SR( LPM2_bits + GIE)
 #define low_power_mode_off_on_exit( ) LPM2_EXIT;
 namespace {
 	const uint8_t RX_TIMER_PERIOD = 85;
@@ -66,7 +66,7 @@ namespace {
 	void state_waiting_for_interrupt( ) {
 		radio.receive_on( );
 		__enable_interrupt( );
-		low_power_mode_2( );
+		low_power_mode( );
 		__no_operation( );
 		if( radio.data_pending( ) ) {
 			current_state = state_received_data;
