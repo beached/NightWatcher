@@ -2,7 +2,8 @@
 
 #include <cc430f6137.h>
 #include <stdint.h>
-#include <cstring>
+#include <stddef.h>
+#include <string.h>
 #include "buffer.h"
 
 #define _HAL_PMM_DISABLE_SVML_
@@ -182,7 +183,7 @@ namespace daw {
 		template<typename SequenceContainer, typename ValueType>
 		void sfill( SequenceContainer & container, ValueType const & value ) {
 			//memset_s( container.data( ), container.size( ), static_cast<int>(value), container.size( ) );
-			std::fill( container.begin( ), container.end( ), 0 );
+			daw::fill( container.begin( ), container.end( ), 0 );
 		}
 
 		template<typename T>

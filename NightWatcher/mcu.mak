@@ -4,20 +4,20 @@
 #Use VisualGDB Project Properties dialog or modify Makefile or per-configuration .mak files instead.
 
 #VisualGDB provides BSP_ROOT and TOOLCHAIN_ROOT via environment when running Make. The line below will only be active if GNU Make is started manually.
-BSP_ROOT ?= C:/devel/github/NightWatcher/NightWatcher/BSP
-TOOLCHAIN_ROOT ?= C:/SysGCC/msp430-elf
+BSP_ROOT ?= C:/devel/SysGCC/msp430/msp430-bsp
+TOOLCHAIN_ROOT ?= C:/devel/SysGCC/msp430
 
 #Embedded toolchain
-CC := $(TOOLCHAIN_ROOT)/bin/msp430-elf-gcc.exe
-CXX := $(TOOLCHAIN_ROOT)/bin/msp430-elf-g++.exe
+CC := $(TOOLCHAIN_ROOT)/bin/msp430-gcc.exe
+CXX := $(TOOLCHAIN_ROOT)/bin/msp430-g++.exe
 LD := $(CXX)
-AR := $(TOOLCHAIN_ROOT)/bin/msp430-elf-ar.exe
-OBJCOPY := $(TOOLCHAIN_ROOT)/bin/msp430-elf-objcopy.exe
+AR := $(TOOLCHAIN_ROOT)/bin/msp430-ar.exe
+OBJCOPY := $(TOOLCHAIN_ROOT)/bin/msp430-objcopy.exe
 
 #Additional flags
 PREPROCESSOR_MACROS += 
-INCLUDE_DIRS += $(TOOLCHAIN_ROOT)/include
-LIBRARY_DIRS += $(TOOLCHAIN_ROOT)/include
+INCLUDE_DIRS += 
+LIBRARY_DIRS += 
 LIBRARY_NAMES += 
 ADDITIONAL_LINKER_INPUTS += 
 MACOS_FRAMEWORKS += 

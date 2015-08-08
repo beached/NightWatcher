@@ -1,6 +1,5 @@
 #include "crc4b6b.h"
 #include <stdint.h>
-#include <cstddef>
 #include "array.h"
 
 namespace {

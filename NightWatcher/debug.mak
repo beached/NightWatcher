@@ -13,8 +13,8 @@ ADDITIONAL_LINKER_INPUTS :=
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
 
-CFLAGS := -ggdb -Os -g
-CXXFLAGS := -ggdb -fno-exceptions -fno-rtti -Os -g
+CFLAGS := -ggdb -ffunction-sections -O0
+CXXFLAGS := -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O0
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 
@@ -29,3 +29,4 @@ CP_NOT_AVAILABLE := 1
 ADDITIONAL_MAKE_FILES := mcu.mak
 GENERATE_BIN_FILE := 1
 GENERATE_IHEX_FILE := 1
+GENERATE_MAP_FILE := 1

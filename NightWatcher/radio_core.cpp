@@ -1,6 +1,5 @@
 #include "radio_core.h"
 #include <stdint.h>
-#include <functional>
 
 namespace daw {
 	namespace radio {

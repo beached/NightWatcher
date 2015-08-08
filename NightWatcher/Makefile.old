@@ -23,7 +23,7 @@ error:
 	$(error Invalid configuration, please check your inputs)
 endif
 
-SOURCEFILES := crc4b6b.cpp display.cpp memset.cpp night_watcher.cpp radio_core.cpp radio_metronic.cpp
+SOURCEFILES := LEDBlink.cpp
 EXTERNAL_LIBS := 
 EXTERNAL_LIBS_COPIED := $(foreach lib, $(EXTERNAL_LIBS),$(BINARYDIR)/$(notdir $(lib)))
 

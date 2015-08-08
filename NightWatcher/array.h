@@ -1,10 +1,9 @@
 #pragma once
 
 #include <stdint.h>
-#include <utility>
+#include <stddef.h>
 
 namespace daw {
-	using std::size_t;
 	template<typename T, size_t array_size>
 	struct Array {
 		typedef T value_type;
@@ -12,7 +11,7 @@ namespace daw {
 		typedef T const * const_iterator;
 		typedef T& reference;
 		typedef T const & const_reference;
-		typedef std::size_t size_type;
+		typedef size_t size_type;
 
 		typedef void (*init_fn)( T* const arry, size_t const & size_of );
 		value_type elems[array_size];

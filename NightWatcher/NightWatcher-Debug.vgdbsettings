@@ -17,7 +17,7 @@
     <MakeCommandTemplate>
       <SkipWhenRunningCommandList>false</SkipWhenRunningCommandList>
       <Command>cmd.exe</Command>
-      <Arguments>/c "C:\SysGCC\msp430-elf\bin\make.exe"</Arguments>
+      <Arguments>/c "C:\devel\SysGCC\msp430\bin\make.exe"</Arguments>
       <WorkingDirectory>$(BuildDir)</WorkingDirectory>
       <Environment>
         <Records>
@@ -27,7 +27,7 @@
           </Record>
           <Record>
             <VariableName>PATH</VariableName>
-            <Value>%PATH%;C:\SysGCC\msp430-elf\bin</Value>
+            <Value>%PATH%;C:\devel\SysGCC\msp430\bin</Value>
           </Record>
         </Records>
       </Environment>
@@ -83,7 +83,7 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.msp430proxy.verbose</Key>
-          <Value />
+          <Value>--verbose</Value>
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.msp430proxy.interface</Key>
@@ -95,11 +95,11 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.msp430proxy.32bitregs</Key>
-          <Value>--32bitregs</Value>
+          <Value />
         </KeyValue>
       </Entries>
     </DebugMethodProperties>
-    <SemihostingSupport>Disabled</SemihostingSupport>
+    <SemihostingSupport>Auto</SemihostingSupport>
     <StepIntoEntryPoint>false</StepIntoEntryPoint>
     <ReloadFirmwareOnReset>false</ReloadFirmwareOnReset>
   </Debug>

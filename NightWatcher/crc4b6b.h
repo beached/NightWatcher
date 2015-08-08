@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include <cstddef>
+#include <stddef.h>
 
 extern uint8_t crc8( uint8_t *message, size_t nBytes );
 extern void crc16_init( );

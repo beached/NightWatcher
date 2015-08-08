@@ -2,10 +2,11 @@
 #include "radio_core.h"
 #include "radio_medtronic.h"
 #include <cc430f6137.h>
+#include <intrinsics.h>
 #include "nullptr.h"
 
-using std::size_t;
-
+#define low_power_mode_2( ) _BIS_SR( LPM2_bits + GIE)
+#define low_power_mode_off_on_exit( ) LPM2_EXIT;
 namespace {
 	const uint8_t RX_TIMER_PERIOD = 85;
 
@@ -64,8 +65,8 @@ namespace {
 
 	void state_waiting_for_interrupt( ) {
 		radio.receive_on( );
-		_enable_interrupts( );
-		__low_power_mode_2( );
+		__enable_interrupt( );
+		low_power_mode_2( );
 		__no_operation( );
 		if( radio.data_pending( ) ) {
 			current_state = state_received_data;
@@ -100,7 +101,7 @@ namespace {
 	void state_display_data( ) {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
-		_enable_interrupts( );
+		__enable_interrupt( );
 		// Display glucose or something
 		display::display_hex_chars( LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
 		display::display_hex_chars( LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
@@ -119,8 +120,10 @@ int main( ) {
 	}
 }
 
+#define __even_in_range( x, y ) (x)
+
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
-	switch( __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
+	switch(  __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
 	case  0: break;                         // No RF core interrupt pending
 	case  2: break;                         // RFIFG0
 	case  4:								// RFIFG1
@@ -143,7 +146,7 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 		} else {
 			while( true ) {/* spin */ }	// trap
 		}
-		_low_power_mode_off_on_exit( );
+		low_power_mode_off_on_exit( );
 		break;
 	case 22: break;                         // RFIFG10
 	case 24: break;                         // RFIFG11

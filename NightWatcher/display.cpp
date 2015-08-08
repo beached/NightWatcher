@@ -1,8 +1,7 @@
 #include "display.h"
 #include <cc430f6137.h>
-#include <cstring>
-#include <limits>
-#include <algorithm>
+#include <string.h>
+#include <limits.h>
 #include "buffer.h"
 #include "array.h"
 

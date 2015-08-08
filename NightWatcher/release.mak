@@ -5,7 +5,7 @@
 BINARYDIR := Release
 
 #Additional flags
-PREPROCESSOR_MACROS := NDEBUG RELEASE TIMER0_CALLBACK_COUNT=0
+PREPROCESSOR_MACROS := NDEBUG RELEASE
 INCLUDE_DIRS := 
 LIBRARY_DIRS := 
 LIBRARY_NAMES := 
@@ -14,7 +14,7 @@ MACOS_FRAMEWORKS :=
 LINUX_PACKAGES := 
 
 CFLAGS := -ggdb -ffunction-sections -O3
-CXXFLAGS := -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O3 -std=c++1y
+CXXFLAGS := -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O3
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 

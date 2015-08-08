@@ -1,11 +1,11 @@
 #pragma once
 
 #include <stdint.h>
-#include <algorithm>
+#include <stddef.h>
+#include "algorithm.h"
 #include "array.h"
 
 namespace daw {
-	using std::size_t;
 	template<typename T, size_t max_size>
 	class Buffer {
 	public:
@@ -54,11 +54,11 @@ namespace daw {
 		}
 	
 		void fill_values( T const & value ) {
-			std::fill( m_buffer.begin( ), m_buffer.end( ), value );
+			daw::fill( m_buffer.begin( ), m_buffer.end( ), value );
 		}
 	
 		void fill_values( T const & value ) volatile {
-			std::fill( m_buffer.begin( ), m_buffer.end( ), value );
+			daw::fill( m_buffer.begin( ), m_buffer.end( ), value );
 		}
 	
 		void zero_values( ) {
