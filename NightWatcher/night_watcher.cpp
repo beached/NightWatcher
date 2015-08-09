@@ -1,15 +1,14 @@
-#include "display.h"
-#include "radio_core.h"
-#include "radio_medtronic.h"
 #include <cc430f6137.h>
 #include <intrinsics.h>
+
+#include "display.h"
 #include "nullptr.h"
+#include "radio_core.h"
+#include "radio_medtronic.h"
 
 #define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
 #define low_power_mode_off_on_exit( ) LPM3_EXIT;
 namespace {
-	const uint8_t RX_TIMER_PERIOD = 85;
-
 	inline void disable_watchdog( ) {
 		WDTCTL = WDTPW | WDTHOLD;
 	}
@@ -122,7 +121,7 @@ int main( ) {
 #define __even_in_range( x, y ) (x)
 
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
-	switch(  __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
+	switch( __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
 	case  0: break; // No RF core interrupt pending
 	case  2: break; // RFIFG0
 	case  4:								// RFIFG1
@@ -137,7 +136,7 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	case 14: break; // RFIFG6
 	case 16: break; // RFIFG7
 	case 18: break; // RFIFG8
-	case 20:
+	case 20: // RFIFG9
 		RF1AIE &= ~(BIT1 | BIT9);
 		if( radio.is_receiving( ) ) {
 			radio.check_for_data( );
