@@ -129,7 +129,6 @@
     <ClInclude Include="crc4b6b.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="algorithm.h" />
-    <ClInclude Include="nullptr.h" />
     <ClInclude Include="radio_core.h" />
     <ClInclude Include="radio_medtronic.h" />
   </ItemGroup>

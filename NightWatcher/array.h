@@ -13,17 +13,17 @@ namespace daw {
 		typedef T const& const_reference;
 		typedef size_t size_type;
 
-		typedef void ( *init_fn )( T* const arry, size_t const& size_of );
+		typedef void( *init_fn )(T* const arry, size_t const& size_of);
 	private:
 		value_type m_values[ARRAY_SIZE];
 	public:
 		Array( ): m_values( ) { }
 
-		Array( T const& value ): m_values( ) {
+		explicit Array( T const& value ): m_values( ) {
 			daw::fill( m_values, m_values + ARRAY_SIZE, value );
 		}
 
-		Array( init_fn init_function ): m_values( ) {
+		explicit Array( init_fn init_function ): m_values( ) {
 			init_function( m_values, ARRAY_SIZE );
 		}
 
@@ -42,7 +42,7 @@ namespace daw {
 			return m_values;
 		}
 
-		iterator const begin( ) const {
+		const_iterator begin( ) const {
 			return m_values;
 		}
 
@@ -54,7 +54,7 @@ namespace daw {
 			return m_values + ARRAY_SIZE;
 		}
 
-		iterator const end( ) const {
+		const_iterator end( ) const {
 			return m_values + ARRAY_SIZE;
 		}
 

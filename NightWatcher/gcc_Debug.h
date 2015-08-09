@@ -50,6 +50,7 @@
 #define __MSP430_MPY__ 51
 #define __DEC32_MIN_EXP__ (-94)
 #define __MSP430_MPY16__ 51
+#define __STRICT_ANSI__ 1
 #define __LDBL_HAS_DENORM__ 1
 //VS2005-2012 treats all files as C++, while VS2013+ can treat C files correctly.
 #if _MSC_VER < 1800 || defined(__cplusplus)
@@ -136,7 +137,6 @@
 #define __LDBL_DENORM_MIN__ 1.40129846e-45L
 #define __STDC__ 1
 #define __PTRDIFF_TYPE__ long int
-#define MSP430 1
 #define __DEC64_SUBNORMAL_MIN__ 0.000000000000001E-383DD
 #define __DEC128_MANT_DIG__ 34
 #define __LDBL_MIN_10_EXP__ (-37)

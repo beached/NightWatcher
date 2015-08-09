@@ -25,7 +25,7 @@ namespace daw {
 				radio_write_single_reg( FREND0, 0x11 ); //Front End TX Configuration
 				radio_write_single_reg( FREND1, 0x56 ); //Front End RX Configuration
 				//radio_write_single_reg( FREQ0, 0x19 ); //Frequency Control Word, Low Byte
-				radio_write_single_reg( FREQ0, 0xAD ); //Frequency Control Word, Low Byte
+				radio_write_single_reg( FREQ0, 0x00 ); //Frequency Control Word, Low Byte
 				radio_write_single_reg( FREQ1, 0x40 ); //Frequency Control Word, Middle Byte
 				radio_write_single_reg( FREQ2, 0x23 ); //Frequency Control Word, High Byte
 				radio_write_single_reg( FSCAL0, 0x1F ); //Frequency Synthesizer Calibration
@@ -84,17 +84,17 @@ namespace daw {
 					uint8_t const msbit = 0x80;
 					uint8_t const polynomial = 0x9b;
 
-					uint8_t tmp = msbit;
+					auto tmp = msbit;
 					arry[0] = 0;
 					for( size_t i = 1; i < size_of; i *= 2 ) {
-						uint8_t const p2 = (tmp & msbit) ? polynomial : 0;
+						auto const p2 = (tmp & msbit) ? polynomial : 0;
 						tmp = (tmp << 1) ^ p2;
 						for( size_t j = 0; j < i; ++j ) {
 							arry[i + j] = arry[j] ^ tmp;
 						}
 					}
 				}
-				Array<uint8_t, 256> crc_table( crc_init );
+				Array<uint8_t, 256> crc_table { crc_init };
 
 				struct Packet {
 					size_t data_start_idx;
@@ -142,7 +142,7 @@ namespace daw {
 					packets[packet_head_idx].packet_number = packet_number++;
 					{
 						uint8_t crc = 0;
-						size_t crc_read_idx = packets[packet_head_idx].data_start_idx;
+						auto crc_read_idx = packets[packet_head_idx].data_start_idx;
 						for( uint8_t crc_len = packets[packet_head_idx].length - 1; crc_len > 0; --crc_len ) {
 							crc = crc_table[(crc ^ radio_data_buffer[crc_read_idx]) & 0xff];
 							++crc_read_idx;

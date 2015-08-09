@@ -7,7 +7,7 @@ namespace daw {
 		namespace medtronic {
 			namespace crc4b6b {
 				namespace {
-					daw::Array<uint16_t, 256> crc16_table;
+					Array<uint16_t, 256> crc16_table;
 				}
 
 				uint8_t crc8( uint8_t *message, size_t length ) {
@@ -29,7 +29,7 @@ namespace daw {
 				void crc16_init( ) {
 					for( size_t i = 0; i < 256; i++ ) {
 						uint16_t crc = 0;
-						uint16_t c = static_cast<uint16_t>(i) << 8;
+						auto c = static_cast<uint16_t>(i) << 8;
 						for( size_t j = 0; j < 8; j++ ) {
 							if( (crc^c) & 0x8000 ) {
 								crc = (crc << 1) ^ 0x1021;
@@ -45,8 +45,8 @@ namespace daw {
 				int16_t crc16( uint8_t *message, size_t length ) {
 					uint16_t crc = 0xFFFF;
 					for( size_t i = 0; i < length; i++ ) {
-						uint16_t short_c = 0x00FF & static_cast<uint16_t>(message[i]);
-						uint16_t tmp = (crc >> 8) ^ short_c;
+						auto const short_c = 0x00FF & static_cast<uint16_t>(message[i]);
+						auto const tmp = (crc >> 8) ^ short_c;
 						crc = (crc << 8) ^ crc16_table[tmp];
 					}
 					return crc;
@@ -147,7 +147,7 @@ namespace daw {
 					}
 				}
 
-				void encode_4b6b( uint8_t *in_message, size_t in_length, uint8_t *out_message, size_t & out_length ) {				
+				void encode_4b6b( uint8_t *in_message, size_t in_length, uint8_t *out_message, size_t & out_length ) {
 					int16_t int_bits_available = 0;
 					int16_t int_buffer = 0;
 
@@ -178,7 +178,7 @@ namespace daw {
 						int16_t mask = (1 << int_bits_available) - 1;
 						int_buffer = int_buffer & mask;
 						int_buffer = int_buffer << (8 - int_bits_available);
-						uint8_t symbol = int_buffer & 0x00FF;
+						auto symbol = static_cast<uint8_t>(int_buffer & 0x00FF);
 						out_message[out_length] = symbol;
 						++out_length;
 					}

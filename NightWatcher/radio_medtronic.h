@@ -9,7 +9,7 @@ namespace daw {
 			extern void radio_setup_916MHz( );
 			extern void receive_radio_symbol( uint8_t const & value );
 
-			typedef daw::Buffer<uint8_t, 1024> radio_data_buffer_t;
+			typedef Buffer<uint8_t, 1024> radio_data_buffer_t;
 			extern radio_data_buffer_t radio_data_buffer;
 
 			template<typename ArrayType>

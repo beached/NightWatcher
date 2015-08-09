@@ -23,7 +23,7 @@ namespace daw {
 			void init_fll( uint16_t fsystem, uint16_t ratio ) {
 				uint16_t d, dco_div_bits;
 				uint16_t mode = 0; // save actual state of FLL loop control
-				uint16_t globalInterruptState = __get_SR_register( ) & SCG0;
+				auto const globalInterruptState = __get_SR_register( ) & SCG0;
 				__bic_SR_register( SCG0 ); // Disable FLL loop control
 
 				d = ratio;
@@ -85,7 +85,7 @@ namespace daw {
 				SVSMHCTL_backup = SVSMHCTL;
 				PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG);
 				SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level); // Wait until SVM high side is settled
-				while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
+				while( 0 == (PMMIFG & SVSMHDLYIFG) ) { /* spin */ }
 
 				// Disable full-performance mode to save energy
 				SVSMHCTL &= ~_HAL_PMM_SVSFP; // Check if a VCore increase is possible
@@ -110,13 +110,13 @@ namespace daw {
 				PMMIFG &= ~(SVMLVLRIFG | SVMLIFG); // Set VCore to new level
 				PMMCTL0_L = PMMCOREV0 * level; // Wait until new level reached
 				if( PMMIFG & SVMLIFG ) {
-					while( (PMMIFG & SVMLVLRIFG) == 0 ) { /* spin */ }
+					while( 0 == (PMMIFG & SVMLVLRIFG) ) { /* spin */ }
 				}
 
 				// Set also SVS/SVM low side to new level
 				PMMIFG &= ~SVSMLDLYIFG;
-				SVSMLCTL |= SVSLE | (SVSLRVL0 * level); // wait for lowside delay flags
-				while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
+				SVSMLCTL |= SVSLE | (SVSLRVL0 * level); // wait for low side delay flags
+				while( 0 == (PMMIFG & SVSMLDLYIFG) ) { /* spin */ }
 
 				// Disable SVS/SVM Low
 				// Disable full-performance mode to save energy
@@ -131,21 +131,20 @@ namespace daw {
 			// Set VCore down (Independent from the enabled Interrupts in PMMRIE)
 			//****************************************************************************//
 			uint16_t set_vcore_down( uint16_t const & level ) {
-				uint16_t PMMRIE_backup; // Open PMM registers for write access
 				PMMCTL0_H = 0xA5; // Disable dedicated Interrupts to prevent that needed flags will be cleared
-				PMMRIE_backup = PMMRIE;
+				auto PMMRIE_backup = PMMRIE; // Open PMM registers for write access
 				PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE); // Set SVM high side and SVM low side to new level
 				PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG | SVMLIFG | SVSMLDLYIFG);
 				SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
 				SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level); // Wait until SVM high side and SVM low side is settled
-				while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
+				while( 0 == (PMMIFG & SVSMHDLYIFG) || 0 == (PMMIFG & SVSMLDLYIFG) ) { /* spin */ }
 
 				// Set VCore to new level
-				PMMCTL0_L = PMMCOREV0 * level; // Set also SVS highside and SVS low side to new level
+				PMMCTL0_L = PMMCOREV0 * level; // Set also SVS high side and SVS low side to new level
 				PMMIFG &= ~(SVSHIFG | SVSMHDLYIFG | SVSLIFG | SVSMLDLYIFG);
 				SVSMHCTL |= SVSHE | SVSHFP | (SVSHRVL0 * level);
 				SVSMLCTL |= SVSLE | SVSLFP | (SVSLRVL0 * level); // Wait until SVS high side and SVS low side is settled
-				while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
+				while( 0 == (PMMIFG & SVSMHDLYIFG) || 0 == (PMMIFG & SVSMLDLYIFG) ) { /* spin */ }
 
 				// Disable full-performance mode to save energy
 				SVSMHCTL &= ~_HAL_PMM_SVSFP; // Disable SVS/SVM Low
@@ -169,9 +168,9 @@ namespace daw {
 				uint16_t status = 0;
 
 				level &= PMMCOREV_3; // Set Mask for Max. level
-				uint16_t actlevel = (PMMCTL0 & PMMCOREV_3); // Get actual VCore
+				auto actlevel = (PMMCTL0 & PMMCOREV_3); // Get actual VCore
 
-				while( (level != actlevel && status == 0) || level < actlevel ) {	// step by step increase or decrease
+				while( (level != actlevel && 0 == status) || level < actlevel ) {	// step by step increase or decrease
 					if( level > actlevel ) {
 						status = set_vcore_up( ++actlevel );
 					} else {
@@ -183,19 +182,19 @@ namespace daw {
 
 			uint8_t strobe( uint8_t const cmd ) {
 				uint8_t status_byte = 0;
-				if( cmd == 0xBD || (cmd >= RF_SRES && cmd <= RF_SNOP) ) {
+				if( 0xBD == cmd || (cmd >= RF_SRES && cmd <= RF_SNOP) ) {
 					// Clear the Status read flag
 					RF1AIFCTL1 &= ~(RFSTATIFG); // Wait for radio to be ready for next instruction
 					while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
 
 					if( (cmd > RF_SRES) && (cmd < RF_SNOP) ) {
-						uint8_t gdo_state = radio_read_single_reg( IOCFG2 ); // buffer IOCFG2 state
+						auto gdo_state = radio_read_single_reg( IOCFG2 ); // buffer IOCFG2 state
 						radio_write_single_reg( IOCFG2, 0x29 ); // chip-ready to GDO2
 
 						RF1AINSTRB = cmd;
-						if( (RF1AIN & 0x04) == 0x04 ) {	// chip at sleep mode
+						if( 0x04 == (RF1AIN & 0x04) ) {	// chip at sleep mode
 							if( !((cmd == RF_SXOFF) || (cmd == RF_SPWD) || (cmd == RF_SWOR)) ) {
-								while( (RF1AIN & 0x04) == 0x04 ) { /* spin */ }	// chip-ready ?
+								while( 0x04 == (RF1AIN & 0x04) ) { /* spin */ }	// chip-ready ?
 
 								__delay_cycles( 850 ); // Delay for ~810usec at 1.05MHz CPU clock, see erratum RF1A7
 							}
@@ -219,7 +218,6 @@ namespace daw {
 			}
 
 			uint8_t radio_read_single_reg( uint8_t const & addr ) {
-				uint8_t data_out; // Check for valid configuration register address, 0x3E refers to PATABLE
 				if( (addr <= 0x2E) || (addr == 0x3E) ) {
 					RF1AINSTR1B = (addr | RF_SNGLREGRD); // Send address + Instruction + 1 dummy byte (auto-read)
 				} else {
@@ -228,7 +226,7 @@ namespace daw {
 
 				while( !(RF1AIFCTL1 & RFDOUTIFG) ) { /* spin */ }
 
-				data_out = RF1ADOUTB; // Read data and clears the RFDOUTIFG
+				auto data_out = RF1ADOUTB; // Read data and clears the RFDOUTIFG
 				return data_out;
 			}
 
@@ -242,9 +240,9 @@ namespace daw {
 			}
 
 			void radio_write_burst_pa_table( uint8_t const * const buffer, size_t const & count ) {
-				volatile size_t i = 0;
-
 				while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
+
+				volatile size_t i = 0;
 				RF1AINSTRW = 0x7E00 + buffer[i]; // PA Table burst write
 
 				for( i = 1; i < count; ++i ) {

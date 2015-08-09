@@ -2,7 +2,6 @@
 #include <intrinsics.h>
 
 #include "display.h"
-#include "nullptr.h"
 #include "radio_core.h"
 #include "radio_medtronic.h"
 
@@ -78,7 +77,7 @@ namespace {
 	}
 
 	void state_received_data( ) {
-		size_t data_size = radio.receive_data( );
+		auto const data_size = radio.receive_data( );
 		if( 0 < data_size ) {
 			current_state = state_process_data;
 		} else {

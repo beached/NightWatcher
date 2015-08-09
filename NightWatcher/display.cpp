@@ -1,6 +1,5 @@
 #include "display.h"
 #include <cc430f6137.h>
-#include "nullptr.h"
 #include "buffer.h"
 
 namespace daw {
@@ -72,7 +71,7 @@ namespace daw {
 		void clear_line( uint8_t const & line ) {
 			using namespace display;
 			display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
-			if( line == LINE1 ) {
+			if( LINE1 == line ) {
 				display_symbol( LCD_SEG_L1_DP1, SEG_OFF );
 				display_symbol( LCD_SEG_L1_DP0, SEG_OFF );
 				display_symbol( LCD_SEG_L1_COL, SEG_OFF );
@@ -136,10 +135,9 @@ namespace daw {
 			}
 
 			char const * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
-				const size_t result_str_size = 7;
+				size_t const result_str_size = 7;
 
-				static daw::Buffer<char, result_str_size + 1> result_str;
-				result_str.fill_values( '0' );
+				static Buffer<char, result_str_size + 1> result_str( '0' );
 				result_str[result_str_size] = '\0';
 
 				// Return empty string if number of digits is invalid (valid range for digits: 1-7)
@@ -165,7 +163,7 @@ namespace daw {
 				return result_str.data( );
 			}
 
-			static uint8_t swap_nibble( uint8_t value ) {
+			uint8_t swap_nibble( uint8_t value ) {
 				value = ((value << 4) & 0xF0) | ((value >> 4) & 0x0F);
 				return value;
 			}
@@ -180,7 +178,7 @@ namespace daw {
 		// @return      none
 		// *************************************************************************************************
 		void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ) {
-			char const * str = itoa( value, digits, blanks );
+			auto const str = itoa( value, digits, blanks );
 			// Display string in blink mode
 			display_chars( segments, str, disp_mode );
 		}
@@ -323,10 +321,10 @@ namespace daw {
 			// Write to single 7-segment character
 			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 				// Get LCD memory address for segment from table
-				uint8_t * lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
+				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
 
 																		// Get bitmask for character from table
-				uint8_t bitmask = segments_bitmask[segment]; // Bitmask for character
+				auto bitmask = segments_bitmask[segment]; // Bitmask for character
 
 															 // Get bits from font set
 				chr = get_font( chr );
@@ -393,7 +391,7 @@ namespace daw {
 		void display_chars( uint8_t const & segments, char const * str, LcdDisplayModes const mode ) {
 			// Since segments is limited and static, one could turn this into a template with that as
 			// the parameter and make seg_info static
-			LCD_SEG_INFO const seg_info = find_seg_info( segments );
+			auto const seg_info = find_seg_info( segments );
 
 			// Write to consecutive digits
 			for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
@@ -404,9 +402,9 @@ namespace daw {
 
 		void display_hex_chars( uint8_t const & segments, uint8_t const * const str, LcdDisplayModes const mode ) {
 			uint8_t const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-			LCD_SEG_INFO const seg_info = find_seg_info( segments );
+			auto const seg_info = find_seg_info( segments );
 			for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
-				uint8_t const & curr_byte = *str;
+				auto const & curr_byte = *str;
 				// Use single character routine to write display memory
 				display_char( seg_info.char_start + i, hex_nibble[(curr_byte & 0xF0) >> 4u], mode );
 				if( ++i < seg_info.length ) {

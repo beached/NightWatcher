@@ -20,7 +20,7 @@ namespace daw {
 	public:
 		Buffer( ): m_current_size( 0 ), m_array( ) { }
 
-		Buffer( T const & value ): m_current_size( 0 ), m_array( ) {
+		explicit Buffer( T const & value ): m_current_size( 0 ), m_array( ) {
 			fill_values( value );
 		}
 
@@ -28,7 +28,7 @@ namespace daw {
 			return m_array.begin( );
 		}
 
-		iterator const begin( ) const {
+		const_iterator begin( ) const {
 			return m_array.begin( );
 		}
 
@@ -40,7 +40,7 @@ namespace daw {
 			return begin( ) + m_current_size;
 		}
 
-		iterator const end( ) const {
+		const_iterator end( ) const {
 			return begin( ) + m_current_size;
 		}
 
