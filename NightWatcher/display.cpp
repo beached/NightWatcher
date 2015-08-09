@@ -17,31 +17,31 @@ namespace daw {
 		void lcd_init( ) {
 			// Clear entire display memory
 			LCDBMEMCTL |= LCDCLRBM + LCDCLRM;
-	
+
 			// LCD_FREQ = ACLK/12/8 = 341.3Hz flickers in the sun
 			// LCD_FREQ = ACLK/10/8 = 409.6Hz still flickers in the sun when watch is moving (might be negligible)
-	
+
 			// LCD_FREQ = ACLK/8/8 = 512Hz no flickering, even when watch is moving
 			// Frame frequency = 512Hz/2/4 = 64Hz, LCD mux 4, LCD on
 			LCDBCTL0 = (LCDDIV0 + LCDDIV1 + LCDDIV2) | (LCDPRE0 + LCDPRE1) | LCD4MUX | LCDON;
-	
+
 			// LCB_BLK_FREQ = ACLK/8/4096 = 1Hz
 			LCDBBLKCTL = LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 | LCDBLKMOD0;
-	
+
 			// I/O to COM outputs
 			P5SEL |= (BIT5 | BIT6 | BIT7);
 			P5DIR |= (BIT5 | BIT6 | BIT7);
-	
+
 			// Activate LCD output
 			LCDBPCTL0 = 0xFFFF; // Select LCD segments S0-S15
 			LCDBPCTL1 = 0x00FF; // Select LCD segments S16-S22
-	
-	#ifdef USE_LCD_CHARGE_PUMP
-													// Charge pump voltage generated internally, internal bias (V2-V4) generation
+
+		#ifdef USE_LCD_CHARGE_PUMP
+														// Charge pump voltage generated internally, internal bias (V2-V4) generation
 			LCDBVCTL = LCDCPEN | VLCD_2_72;
-	#endif
+		#endif
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          clear_display_all
 		// @brief       Erase LINE1 and LINE2 segments. Clear also function-specific content.
@@ -53,7 +53,7 @@ namespace daw {
 			clear_line( LINE1 );
 			clear_line( LINE2 );
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          clear_display
 		// @brief       Erase LINE1 and LINE2 segments. Keep icons.
@@ -64,7 +64,7 @@ namespace daw {
 			clear_line( LINE1 );
 			clear_line( LINE2 );
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          clear_line
 		// @brief       Erase segments of a given line.
@@ -84,7 +84,7 @@ namespace daw {
 				display_symbol( LCD_SEG_L2_COL0, SEG_OFF );
 			}
 		}
-	
+
 		namespace {
 			// *************************************************************************************************
 			// @fn          write_segment
@@ -101,7 +101,7 @@ namespace daw {
 				case SEG_ON:
 					// Clear segments before writing
 					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-	
+
 					// Set visible segments
 					*lcdmem = (uint8_t)(*lcdmem | bits);
 					break;
@@ -113,7 +113,7 @@ namespace daw {
 					// Clear visible / blink segments before writing
 					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
 					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
-	
+
 					// Set visible / blink segments
 					*lcdmem = (uint8_t)(*lcdmem | bits);
 					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
@@ -121,29 +121,29 @@ namespace daw {
 				case SEG_ON_BLINK_OFF:
 					// Clear visible segments before writing
 					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-	
+
 					// Set visible segments
 					*lcdmem = (uint8_t)(*lcdmem | bits);
-	
+
 					// Clear blink segments
 					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
 					break;
 				case SEG_OFF_BLINK_OFF:
 					// Clear segments
 					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-	
+
 					// Clear blink segments
 					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
 				}
 			}
-	
+
 			uint8_t * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 				const size_t result_str_size = 7;
-	
+
 				static daw::Buffer<uint8_t, result_str_size + 1> result_str;
 				result_str.fill_values( '0' );
 				result_str[result_str_size] = '\0';
-	
+
 				// Return empty string if number of digits is invalid (valid range for digits: 1-7)
 				if( (digits == 0) || (digits > result_str_size) ) {
 					return result_str.data( );
@@ -153,7 +153,7 @@ namespace daw {
 					result_str[digits - i] += (uint8_t)(val % 10);
 					val /= 10;
 				}
-	
+
 				// Remove specified number of leading '0', always keep last one
 				i = 0;
 				while( (result_str[i] == '0') && (i < digits - 1u) ) {
@@ -166,7 +166,7 @@ namespace daw {
 				}
 				return result_str.data( );
 			}
-	
+
 			static uint8_t swap_nibble( uint8_t value ) {
 				value = ((value << 4) & 0xF0) | ((value >> 4) & 0x0F);
 				return value;
@@ -186,7 +186,7 @@ namespace daw {
 			// Display string in blink mode
 			display_chars( segments, str, disp_mode );
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          display_symbol
 		// @brief       Switch symbol on or off on LCD.
@@ -198,18 +198,18 @@ namespace daw {
 			if( symbol <= LCD_SEG_L2_DP ) {
 				// Get LCD memory address for symbol from table
 				uint8_t * lcdmem = (uint8_t *)segments_lcdmem[symbol];
-	
+
 				// Get bits for symbol from table
 				uint8_t bits = segments_bitmask[symbol];
-	
+
 				// Bitmask for symbols equals bits
 				uint8_t bitmask = bits;
-	
+
 				// Write LCD memory
 				write_lcd_mem( lcdmem, bits, bitmask, mode );
 			}
 		}
-	
+
 		uint8_t get_font( uint8_t const character ) {
 			/*
 			LCD Display has the following segment assignments
@@ -312,7 +312,7 @@ namespace daw {
 				return 0;
 			}
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          display_char
 		// @brief       Write to 7-segment characters.
@@ -326,13 +326,13 @@ namespace daw {
 			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 				// Get LCD memory address for segment from table
 				uint8_t * lcdmem = (uint8_t *)segments_lcdmem[segment]; // Pointer to LCD memory
-	
+
 																		// Get bitmask for character from table
 				uint8_t bitmask = segments_bitmask[segment]; // Bitmask for character
-	
+
 															 // Get bits from font set
 				chr = get_font( chr );
-	
+
 				if( segment >= LCD_SEG_L2_5 ) {
 					if( segment == LCD_SEG_L2_5 && chr != 0 ) {
 						chr = BIT7;
@@ -342,7 +342,7 @@ namespace daw {
 						chr = swap_nibble( chr );
 					}
 				}
-	
+
 				// Physically write to LCD memory
 				write_lcd_mem( lcdmem, chr, bitmask, mode );
 			}
@@ -352,9 +352,9 @@ namespace daw {
 				uint8_t length;
 				uint8_t char_start;
 				LCD_SEG_INFO( ): length( 0 ), char_start( 0 ) { }
-				LCD_SEG_INFO( uint8_t const & l, uint8_t const & c ) : length( l ), char_start( c ) { }
+				LCD_SEG_INFO( uint8_t const & l, uint8_t const & c ): length( l ), char_start( c ) { }
 			};
-	
+
 			LCD_SEG_INFO find_seg_info( uint8_t const & segments ) {
 				if( (segments >= LCD_SEG_L1_3) && (segments <= LCD_SEG_L2_DP) ) {
 					return LCD_SEG_INFO( 1, segments );
@@ -367,8 +367,8 @@ namespace daw {
 				case LCD_SEG_L1_1_0: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_1 );
 				case LCD_SEG_L1_3_1: 	return LCD_SEG_INFO( 3, LCD_SEG_L1_3 );
 				case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_3 );
-	
-										// LINE2
+
+					// LINE2
 				case LCD_SEG_L2_5_0: return LCD_SEG_INFO( 6, LCD_SEG_L2_5 );
 				case LCD_SEG_L2_4_0: return LCD_SEG_INFO( 5, LCD_SEG_L2_4 );
 				case LCD_SEG_L2_3_0: return LCD_SEG_INFO( 4, LCD_SEG_L2_3 );
@@ -396,14 +396,14 @@ namespace daw {
 			// Since segments is limited and static, one could turn this into a template with that as
 			// the parameter and make seg_info static
 			LCD_SEG_INFO const seg_info = find_seg_info( segments );
-	
+
 			// Write to consecutive digits
 			for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
 				// Use single character routine to write display memory
 				display_char( seg_info.char_start + i, *(str++), mode );
 			}
 		}
-	
+
 		void display_hex_chars( uint8_t const & segments, uint8_t const * const str, LcdDisplayModes const mode ) {
 			uint8_t const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 			LCD_SEG_INFO const seg_info = find_seg_info( segments );
@@ -416,7 +416,7 @@ namespace daw {
 				}
 			}
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          switch_seg
 		// @brief       Returns index of 7-segment character. Required for display routines that can draw
@@ -433,7 +433,7 @@ namespace daw {
 				return index2;
 			}
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          start_blink
 		// @brief       Start blinking.
@@ -443,7 +443,7 @@ namespace daw {
 		void start_blink( ) {
 			LCDBBLKCTL |= LCDBLKMOD0;
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          stop_blink
 		// @brief       Stop blinking.
@@ -453,7 +453,7 @@ namespace daw {
 		void stop_blink( ) {
 			LCDBBLKCTL &= ~LCDBLKMOD0;
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          stop_blink
 		// @brief       Clear blinking memory.
@@ -463,7 +463,7 @@ namespace daw {
 		void clear_blink_mem( ) {
 			LCDBMEMCTL |= LCDCLRBM;
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          set_blink_rate
 		// @brief       Set blink rate register bits.
@@ -474,7 +474,7 @@ namespace daw {
 			LCDBBLKCTL &= ~(BIT7 | BIT6 | BIT5);
 			LCDBBLKCTL |= bits;
 		}
-	
+
 		// *************************************************************************************************
 		// @fn          display_all_off
 		// @brief       Sets everything of on the display
@@ -485,53 +485,53 @@ namespace daw {
 			uint8_t * const lcdptr = (uint8_t* const)0x0A20;
 			daw::fill( lcdptr, lcdptr + 12, 0x00 );
 		}
-	
+
 		// Table with memory address for each display element
 		uint8_t* const segments_lcdmem[42] = {
-				LCD_SYMB_AM_MEM,
-				LCD_SYMB_PM_MEM,
-				LCD_SYMB_ARROW_UP_MEM,
-				LCD_SYMB_ARROW_DOWN_MEM,
-				LCD_SYMB_PERCENT_MEM,
-				LCD_SYMB_TOTAL_MEM,
-				LCD_SYMB_AVERAGE_MEM,
-				LCD_SYMB_MAX_MEM,
-				LCD_SYMB_BATTERY_MEM,
-				LCD_UNIT_L1_FT_MEM,
-				LCD_UNIT_L1_K_MEM,
-				LCD_UNIT_L1_M_MEM,
-				LCD_UNIT_L1_I_MEM,
-				LCD_UNIT_L1_PER_S_MEM,
-				LCD_UNIT_L1_PER_H_MEM,
-				LCD_UNIT_L1_DEGREE_MEM,
-				LCD_UNIT_L2_KCAL_MEM,
-				LCD_UNIT_L2_KM_MEM,
-				LCD_UNIT_L2_MI_MEM,
-				LCD_ICON_HEART_MEM,
-				LCD_ICON_STOPWATCH_MEM,
-				LCD_ICON_RECORD_MEM,
-				LCD_ICON_ALARM_MEM,
-				LCD_ICON_BEEPER1_MEM,
-				LCD_ICON_BEEPER2_MEM,
-				LCD_ICON_BEEPER3_MEM,
-				LCD_SEG_L1_3_MEM,
-				LCD_SEG_L1_2_MEM,
-				LCD_SEG_L1_1_MEM,
-				LCD_SEG_L1_0_MEM,
-				LCD_SEG_L1_COL_MEM,
-				LCD_SEG_L1_DP1_MEM,
-				LCD_SEG_L1_DP0_MEM,
-				LCD_SEG_L2_5_MEM,
-				LCD_SEG_L2_4_MEM,
-				LCD_SEG_L2_3_MEM,
-				LCD_SEG_L2_2_MEM,
-				LCD_SEG_L2_1_MEM,
-				LCD_SEG_L2_0_MEM,
-				LCD_SEG_L2_COL1_MEM,
-				LCD_SEG_L2_COL0_MEM,
-				LCD_SEG_L2_DP_MEM,
+			LCD_SYMB_AM_MEM,
+			LCD_SYMB_PM_MEM,
+			LCD_SYMB_ARROW_UP_MEM,
+			LCD_SYMB_ARROW_DOWN_MEM,
+			LCD_SYMB_PERCENT_MEM,
+			LCD_SYMB_TOTAL_MEM,
+			LCD_SYMB_AVERAGE_MEM,
+			LCD_SYMB_MAX_MEM,
+			LCD_SYMB_BATTERY_MEM,
+			LCD_UNIT_L1_FT_MEM,
+			LCD_UNIT_L1_K_MEM,
+			LCD_UNIT_L1_M_MEM,
+			LCD_UNIT_L1_I_MEM,
+			LCD_UNIT_L1_PER_S_MEM,
+			LCD_UNIT_L1_PER_H_MEM,
+			LCD_UNIT_L1_DEGREE_MEM,
+			LCD_UNIT_L2_KCAL_MEM,
+			LCD_UNIT_L2_KM_MEM,
+			LCD_UNIT_L2_MI_MEM,
+			LCD_ICON_HEART_MEM,
+			LCD_ICON_STOPWATCH_MEM,
+			LCD_ICON_RECORD_MEM,
+			LCD_ICON_ALARM_MEM,
+			LCD_ICON_BEEPER1_MEM,
+			LCD_ICON_BEEPER2_MEM,
+			LCD_ICON_BEEPER3_MEM,
+			LCD_SEG_L1_3_MEM,
+			LCD_SEG_L1_2_MEM,
+			LCD_SEG_L1_1_MEM,
+			LCD_SEG_L1_0_MEM,
+			LCD_SEG_L1_COL_MEM,
+			LCD_SEG_L1_DP1_MEM,
+			LCD_SEG_L1_DP0_MEM,
+			LCD_SEG_L2_5_MEM,
+			LCD_SEG_L2_4_MEM,
+			LCD_SEG_L2_3_MEM,
+			LCD_SEG_L2_2_MEM,
+			LCD_SEG_L2_1_MEM,
+			LCD_SEG_L2_0_MEM,
+			LCD_SEG_L2_COL1_MEM,
+			LCD_SEG_L2_COL0_MEM,
+			LCD_SEG_L2_DP_MEM,
 		};
-	
+
 		// Table with bit mask for each display element
 		uint8_t const segments_bitmask[42] = {
 			(uint8_t)LcdBitMask::LCD_SYMB_AM_MASK,

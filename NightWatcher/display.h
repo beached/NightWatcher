@@ -10,21 +10,20 @@
 namespace daw {
 	namespace display {
 		namespace defines {
-	
 			// Display function modes
 			uint16_t const DISPLAY_LINE_UPDATE_FULL = BIT0;
 			uint16_t const DISPLAY_LINE_UPDATE_PARTIAL = BIT1;
 			uint16_t const DISPLAY_LINE_CLEAR = BIT2;
-	
+
 			// Definitions for line view style
 			uint8_t const DISPLAY_DEFAULT_VIEW = 0;
 			uint8_t const DISPLAY_ALTERNATIVE_VIEW = 1;
 			uint8_t const DISPLAY_ALTERNATIVE2_VIEW = 2;
-	
+
 			// Definitions for line access
 			uint8_t const LINE1 = 1;
 			uint8_t const LINE2 = 2;
-	
+
 			// ------------------------------------------
 			// LCD symbols for easier access
 			//
@@ -34,20 +33,20 @@ namespace daw {
 			// xxx_ICON_xxx 	= Display icon, e.g. heart to indicate reception of heart rate data
 			// xxx_L1_xxx 		= Item is part of Line1 information
 			// xxx_L2_xxx 		= Item is part of Line2 information
-	
+
 			// Symbols for Line1
 			uint8_t const LCD_SYMB_AM = 0;
 			uint8_t const LCD_SYMB_PM = 1;
 			uint8_t const LCD_SYMB_ARROW_UP = 2;
 			uint8_t const LCD_SYMB_ARROW_DOWN = 3;
 			uint8_t const LCD_SYMB_PERCENT = 4;
-	
+
 			// Symbols for Line2
 			uint8_t const LCD_SYMB_TOTAL = 5;
 			uint8_t const LCD_SYMB_AVERAGE = 6;
 			uint8_t const LCD_SYMB_MAX = 7;
 			uint8_t const LCD_SYMB_BATTERY = 8;
-	
+
 			// Units for Line1
 			uint8_t const LCD_UNIT_L1_FT = 9;
 			uint8_t const LCD_UNIT_L1_K = 10;
@@ -56,12 +55,12 @@ namespace daw {
 			uint8_t const LCD_UNIT_L1_PER_S = 13;
 			uint8_t const LCD_UNIT_L1_PER_H = 14;
 			uint8_t const LCD_UNIT_L1_DEGREE = 15;
-	
+
 			// Units for Line2
 			uint8_t const LCD_UNIT_L2_KCAL = 16;
 			uint8_t const LCD_UNIT_L2_KM = 17;
 			uint8_t const LCD_UNIT_L2_MI = 18;
-	
+
 			// Icons
 			uint8_t const LCD_ICON_HEART = 19;
 			uint8_t const LCD_ICON_STOPWATCH = 20;
@@ -70,7 +69,7 @@ namespace daw {
 			uint8_t const LCD_ICON_BEEPER1 = 23;
 			uint8_t const LCD_ICON_BEEPER2 = 24;
 			uint8_t const LCD_ICON_BEEPER3 = 25;
-	
+
 			// Line1 7-segments
 			uint8_t const LCD_SEG_L1_3 = 26;
 			uint8_t const LCD_SEG_L1_2 = 27;
@@ -79,7 +78,7 @@ namespace daw {
 			uint8_t const LCD_SEG_L1_COL = 30;
 			uint8_t const LCD_SEG_L1_DP1 = 31;
 			uint8_t const LCD_SEG_L1_DP0 = 32;
-	
+
 			// Line2 7-segments
 			uint8_t const LCD_SEG_L2_5 = 33;
 			uint8_t const LCD_SEG_L2_4 = 34;
@@ -90,7 +89,7 @@ namespace daw {
 			uint8_t const LCD_SEG_L2_COL1 = 39;
 			uint8_t const LCD_SEG_L2_COL0 = 40;
 			uint8_t const LCD_SEG_L2_DP = 41;
-	
+
 			// Line1 7-segment arrays
 			uint8_t const LCD_SEG_L1_3_0 = 70;
 			uint8_t const LCD_SEG_LINE1_START = 70;
@@ -98,7 +97,7 @@ namespace daw {
 			uint8_t const LCD_SEG_L1_1_0 = 72;
 			uint8_t const LCD_SEG_L1_3_1 = 73;
 			uint8_t const LCD_SEG_L1_3_2 = 74;
-	
+
 			// Line2 7-segment arrays
 			uint8_t const LCD_SEG_L2_5_0 = 90;
 			uint8_t const LCD_SEG_L2_4_0 = 91;
@@ -111,7 +110,7 @@ namespace daw {
 			uint8_t const LCD_SEG_L2_5_4 = 97;
 			uint8_t const LCD_SEG_L2_4_2 = 98;
 			uint8_t const LCD_SEG_L2_4_3 = 99;
-	
+
 			// LCD controller memory map
 			uint8_t * const LCD_MEM_1 = (uint8_t * const)0x0A20;
 			uint8_t * const LCD_MEM_2 = (uint8_t * const)0x0A21;
@@ -125,7 +124,7 @@ namespace daw {
 			uint8_t * const LCD_MEM_10 = (uint8_t * const)0x0A29;
 			uint8_t * const LCD_MEM_11 = (uint8_t * const)0x0A2A;
 			uint8_t * const LCD_MEM_12 = (uint8_t * const)0x0A2B;
-	
+
 			// Memory assignment
 			uint8_t * const LCD_SEG_L1_0_MEM = LCD_MEM_6;
 			uint8_t * const LCD_SEG_L1_1_MEM = LCD_MEM_4;
@@ -170,11 +169,11 @@ namespace daw {
 			uint8_t * const LCD_ICON_BEEPER2_MEM = LCD_MEM_6;
 			uint8_t * const LCD_ICON_BEEPER3_MEM = LCD_MEM_7;
 		}	// namespace defines
-	
+
 		// Constants defined in library
 		extern uint8_t* const segments_lcdmem[42];
 		extern uint8_t const segments_bitmask[42];
-	
+
 		enum LcdDisplayModes {
 			SEG_OFF = 0,
 			SEG_ON = 1,
@@ -182,7 +181,7 @@ namespace daw {
 			SEG_ON_BLINK_OFF = 3,
 			SEG_OFF_BLINK_OFF = 4
 		};
-	
+
 		enum LcdSegments {
 			SEG_A = BIT4,
 			SEG_B = BIT5,
@@ -192,7 +191,7 @@ namespace daw {
 			SEG_F = BIT0,
 			SEG_G = BIT1
 		};
-	
+
 		namespace LcdBitMask {
 			enum LcdBitMask {
 				// Bit masks for write access
@@ -240,10 +239,10 @@ namespace daw {
 				LCD_ICON_BEEPER3_MASK = BIT3
 			};
 		}
-	
+
 		// *************************************************************************************************
 		// API section
-	
+
 		// Display init / clear
 		extern void lcd_init( );
 		extern void clear_display( );
@@ -259,7 +258,7 @@ namespace daw {
 		extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode ); // Set_value display functions
 		extern void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ); // Segment index helper function
 		extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
-	
+
 		extern void display_all_off( );
 	} // namespace display
 }	// namespace daw

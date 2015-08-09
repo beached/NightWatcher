@@ -11,7 +11,7 @@ namespace daw {
 				size_t const radio_symbol_table_size = 54;
 				uint8_t const radio_symbol_table[radio_symbol_table_size] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 			}
-	
+
 			void radio_setup_916MHz( ) {
 				using namespace daw::radio::core;
 				radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
@@ -49,20 +49,20 @@ namespace daw {
 				radio_write_single_reg( TEST2, 0x81 ); //Various Test Settings
 				radio_write_single_reg( TEST1, 0x35 ); //Various Test Settings
 				radio_write_single_reg( TEST0, 0x09 ); //Various Test Settings
-	
+
 				{
-					uint8_t const pa_values[8] = { 0x00,0x00,0x52,0x00,0x00,0x00,0x00,0x00 };
+					uint8_t const pa_values[8] = { 0x00, 0x00, 0x52, 0x00, 0x00, 0x00, 0x00, 0x00 };
 					radio_write_burst_pa_table( pa_values, 8 );
 				}
 			}
-	
+
 			radio_data_buffer_t radio_data_buffer;
-	
+
 			namespace {
 				void crc_init( uint8_t * const arry, size_t const & size_of ) {
 					uint8_t const msbit = 0x80;
 					uint8_t const polynomial = 0x9b;
-	
+
 					uint8_t tmp = msbit;
 					arry[0] = 0;
 					for( size_t i = 1; i < size_of; i *= 2 ) {
@@ -74,29 +74,29 @@ namespace daw {
 					}
 				}
 				daw::Array<uint8_t, 256> crc_table( crc_init );
-	
+
 				struct Packet {
 					size_t data_start_idx;
 					uint8_t length;
 					uint8_t rssi;
 					uint8_t packet_number;
-	
-					Packet( ) : data_start_idx( 0 ), length( 0 ), rssi( 0 ), packet_number( 0 ) { }
+
+					Packet( ): data_start_idx( 0 ), length( 0 ), rssi( 0 ), packet_number( 0 ) { }
 				};
 				const uint8_t ERROR_DATA_BUFFER_OVERFLOW = 0x50;
 				const uint8_t ERROR_TOO_MANY_PACKETS = 0x51;
 				const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
 				const uint8_t MAX_PACKET_SIZE = 250;
 				const size_t MAX_PACKETS = 100;
-	
+
 				size_t packet_count = 0;
 				size_t packet_head_idx = 0;
-	
+
 				daw::Buffer<Packet, MAX_PACKETS> packets;
-	
+
 				size_t data_buffer_bytes_used = 0;
 				uint8_t buffer_overflow_count = 0;
-	
+
 				uint16_t symbol_input_buffer = 0;
 				uint16_t symbol_input_bit_count = 0;
 				uint16_t symbol_output_buffer = 0;
@@ -105,11 +105,11 @@ namespace daw {
 				uint8_t packet_number = 0;
 				uint8_t last_error = 0;
 				uint8_t packet_overflow_count = 0;
-	
+
 				size_t buffer_write_pos = 0; //size_t buffer_read_pos = 0;
-	
+
 				void drop_current_packet( ) { }
-	
+
 				void add_decoded_byte( uint8_t const & value ) {
 					if( radio_data_buffer.size( ) <= data_buffer_bytes_used ) {
 						++buffer_overflow_count;
@@ -119,16 +119,16 @@ namespace daw {
 					radio_data_buffer[buffer_write_pos++] = value;
 					++data_buffer_bytes_used;
 					packets[packet_head_idx].length++;
-	
+
 					if( radio_data_buffer.size( ) <= buffer_write_pos ) {
 						buffer_write_pos = 0;
 					}
-	
+
 					if( MAX_PACKET_SIZE <= packets[packet_head_idx].length ) {
 						drop_current_packet( );
 					}
 				}
-	
+
 				void reset_symbol_processing_state( ) {
 					symbol_input_buffer = 0;
 					symbol_input_bit_count = 0;
@@ -136,7 +136,7 @@ namespace daw {
 					symbol_output_bit_count = 0;
 					symbol_error_count = 0;
 				}
-	
+
 				void finish_incoming_packet( ) {
 					// 		uint16_t packet_crc = 0;
 					packets[packet_head_idx].rssi = daw::radio::core::radio_read_single_reg( RSSI );
@@ -154,7 +154,7 @@ namespace daw {
 						//packet_crc = data_buffer[crc_read_idx];
 					}
 					reset_symbol_processing_state( );
-	
+
 					if( MAX_PACKETS - 1 <= packet_count ) {
 						// Packet count overflow
 						last_error = ERROR_TOO_MANY_PACKETS;
@@ -162,18 +162,18 @@ namespace daw {
 						drop_current_packet( );
 						return;
 					}
-	
+
 					++packet_count;
 					++packet_head_idx;
 					if( MAX_PACKETS <= packet_head_idx ) {
 						packet_head_idx = 0;
 					}
-	
+
 					packets[packet_head_idx].data_start_idx = buffer_write_pos;
 					packets[packet_head_idx].length = 0;
 				}
 			}	// namespace anonymous
-	
+
 			void receive_radio_symbol( uint8_t const & value ) {
 				if( 0 == value ) {
 					if( 0 <= packets[packet_head_idx].length ) {
@@ -181,10 +181,10 @@ namespace daw {
 					}
 					return;
 				}
-	
+
 				symbol_input_buffer = (symbol_input_buffer << 8) + value;
 				symbol_input_bit_count += 8;
-	
+
 				while( 6 <= symbol_input_bit_count ) {
 					uint8_t symbol = (symbol_input_buffer >> (symbol_input_bit_count - 6) & 0b111111);
 					symbol_input_bit_count -= 6;
@@ -208,7 +208,7 @@ namespace daw {
 					symbol_output_bit_count -= 8;
 					add_decoded_byte( output_sybmol );
 				}
-	
+
 				if( 0 < symbol_error_count && 0 < packets[packet_head_idx].length ) {
 					finish_incoming_packet( );
 				}

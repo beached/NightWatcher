@@ -14,15 +14,15 @@ namespace daw {
 		typedef T const & const_reference;
 		typedef size_t size_type;
 
-		typedef void (*init_fn)( T* const arry, size_t const & size_of );
+		typedef void( *init_fn )(T* const arry, size_t const & size_of);
 		value_type elems[array_size];
 
 		Array( ): elems( ) { }
-		Array( T const & value ) : elems( ) {
+		Array( T const & value ): elems( ) {
 			daw::fill( elems, elems + array_size, value );
 		}
 
-		Array( init_fn init_function ) : elems( ) {
+		Array( init_fn init_function ): elems( ) {
 			init_function( elems, array_size );
 		}
 
@@ -53,7 +53,7 @@ namespace daw {
 		const_iterator cend( ) const {
 			return elems + array_size;
 		}
-		
+
 		reference operator[]( size_t const & pos ) {
 			return elems[pos];
 		}
@@ -74,5 +74,4 @@ namespace daw {
 			return 0 == array_size;
 		}
 	};
-
 }

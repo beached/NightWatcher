@@ -18,4 +18,3 @@ namespace daw {
 		} // namespace medtronic
 	} // namespace radio
 }	// namespace daw
-

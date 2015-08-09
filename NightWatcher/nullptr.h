@@ -62,4 +62,3 @@ namespace daw {
 	}
 }
 daw::nullptr_t const nullptr = daw::nullptr_t( );
-
