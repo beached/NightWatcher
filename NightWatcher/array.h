@@ -5,7 +5,7 @@
 #include "algorithm.h"
 
 namespace daw {
-	template<typename T, size_t array_size>
+	template<typename T, size_t ARRAY_SIZE>
 	struct Array {
 		typedef T value_type;
 		typedef T* iterator;
@@ -15,63 +15,72 @@ namespace daw {
 		typedef size_t size_type;
 
 		typedef void( *init_fn )(T* const arry, size_t const & size_of);
-		value_type elems[array_size];
+	private:
+		value_type m_values[ARRAY_SIZE];
+	public:
+		Array( ): m_values( ) { }
 
-		Array( ): elems( ) { }
-		Array( T const & value ): elems( ) {
-			daw::fill( elems, elems + array_size, value );
+		Array( T const & value ): m_values( ) {
+			daw::fill( m_values, m_values + ARRAY_SIZE, value );
 		}
 
-		Array( init_fn init_function ): elems( ) {
-			init_function( elems, array_size );
+		Array( init_fn init_function ): m_values( ) {
+			init_function( m_values, ARRAY_SIZE );
+		}
+
+		Array & operator=( Array const & other ) {
+			if( this != &other ) {
+				daw::copy( other.begin( ), other.end( ), begin( ) );
+			}
+			return *this;
 		}
 
 		static size_t size( ) {
-			return array_size;
+			return ARRAY_SIZE;
 		}
 
 		iterator begin( ) {
-			return elems;
+			return m_values;
 		}
 
 		iterator const begin( ) const {
-			return elems;
+			return m_values;
 		}
 
 		const_iterator cbegin( ) const {
-			return elems;
+			return m_values;
 		}
 
 		iterator end( ) {
-			return elems + array_size;
+			return m_values + ARRAY_SIZE;
 		}
 
 		iterator const end( ) const {
-			return elems + array_size;
+			return m_values + ARRAY_SIZE;
 		}
 
 		const_iterator cend( ) const {
-			return elems + array_size;
+			return m_values + ARRAY_SIZE;
 		}
 
 		reference operator[]( size_t const & pos ) {
-			return elems[pos];
+			return m_values[pos];
 		}
 
 		const_reference operator[]( size_t const & pos ) const {
-			return elems[pos];
+			return m_values[pos];
 		}
 
 		value_type * data( ) {
-			return elems;
+			return m_values;
 		}
 
 		value_type const * data( ) const {
-			return elems;
+			return m_values;
 		}
 
 		static bool empty( ) {
-			return 0 == array_size;
+			return 0 == ARRAY_SIZE;
 		}
 	};
 }
