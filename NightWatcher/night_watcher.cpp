@@ -37,16 +37,16 @@ namespace {
 		}
 	}
 
-	daw::radio::RadioCore<256> radio;
+	daw::radio::core::RadioCore<256> radio;
 
 	void setup_hardware( ) {
-		daw::radio::set_vcore( 2u );
-		daw::radio::init_fll( 8500000 / 1000, 8500000 / 32768 );
+		daw::radio::core::set_vcore( 2u );
+		daw::radio::core::init_fll( 8500000 / 1000, 8500000 / 32768 );
 
 		display::lcd_init( );
 		display::clear_display( );
 		display::display_chars( display::defines::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON ); //init_timer( );
-		radio.init_radio( radio_setup_916MHz );
+		radio.init_radio( daw::radio::medtronic::radio_setup_916MHz );
 	}
 
 	typedef void( *state_function_ptr )();
@@ -89,7 +89,7 @@ namespace {
 	void state_process_data( ) {
 		if( radio.has_data( ) ) {
 			toggle_net_activity( );
-			receive_radio_symbols( radio.rx_array( ), radio.size( ) );
+			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
 			radio.reset_rx_buffer( );
 			current_state = state_display_data;
 		} else {
@@ -101,8 +101,8 @@ namespace {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		__enable_interrupt( ); // Display glucose or something
-		display::display_hex_chars( display::defines::LCD_SEG_LINE1_START, (uint8_t const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display::display_hex_chars( display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( display::defines::LCD_SEG_LINE1_START, (uint8_t const *)daw::radio::medtronic::radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)(daw::radio::medtronic::radio_data_buffer.data( ) + 4), display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous
@@ -126,7 +126,7 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	case  2: break; // RFIFG0
 	case  4:								// RFIFG1
 		RF1AIE &= ~(BIT1 | BIT9);
-		daw::radio::strobe( RF_SWOR ); // Go back to sleep
+		daw::radio::core::strobe( RF_SWOR ); // Go back to sleep
 		P1OUT ^= BIT0;
 		break;
 	case  6: break; // RFIFG2

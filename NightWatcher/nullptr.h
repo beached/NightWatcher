@@ -61,5 +61,5 @@ namespace std {
 		return rhs != 0;
 	}
 }
-const std::nullptr_t nullptr = std::nullptr_t( );
+std::nullptr_t const nullptr = std::nullptr_t( );
 
