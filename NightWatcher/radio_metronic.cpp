@@ -14,41 +14,42 @@ namespace daw {
 
 			void radio_setup_916MHz( ) {
 				using namespace core;
-				radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
-				radio_write_single_reg( SYNC1, 0xFF ); //Sync Word, High Byte
-				radio_write_single_reg( SYNC0, 0x00 ); //Sync Word, Low Byte
-				radio_write_single_reg( PKTLEN, 0xFF ); //Packet Length
-				radio_write_single_reg( PKTCTRL1, 0x04 ); //Packet Automation Control
-				radio_write_single_reg( PKTCTRL0, 0x01 ); //Packet Automation Control
 				radio_write_single_reg( ADDR, 0x00 ); //Device Address
-				radio_write_single_reg( CHANNR, 0x00 ); //Channel Number
-				radio_write_single_reg( FSCTRL1, 0x06 ); //Frequency Synthesizer Control
-				radio_write_single_reg( FSCTRL0, 0x00 ); //Frequency Synthesizer Control
-				radio_write_single_reg( FREQ2, 0x23 ); //Frequency Control Word, High Byte
-				radio_write_single_reg( FREQ1, 0x40 ); //Frequency Control Word, Middle Byte
-				radio_write_single_reg( FREQ0, 0x19 ); //Frequency Control Word, Low Byte
-				radio_write_single_reg( MDMCFG4, 0xC9 ); //Modem Configuration
-				radio_write_single_reg( MDMCFG3, 0x4A ); //Modem Configuration
-				radio_write_single_reg( MDMCFG2, 0x32 ); //Modem Configuration
-				radio_write_single_reg( MDMCFG1, 0x11 ); //Modem Configuration
-				radio_write_single_reg( MDMCFG0, 0xC5 ); //Modem Configuration
-				radio_write_single_reg( DEVIATN, 0x15 ); //Modem Deviation Setting
-				radio_write_single_reg( MCSM2, 0x07 ); //Main Radio Control State Machine Configuration
-				radio_write_single_reg( MCSM1, 0x30 ); //Main Radio Control State Machine Configuration
-				radio_write_single_reg( MCSM0, 0x10 ); //Main Radio Control State Machine Configuration
-				radio_write_single_reg( FOCCFG, 0x17 ); //Frequency Offset Compensation Configuration
-				radio_write_single_reg( AGCCTRL2, 0x03 ); //AGC Control
-				radio_write_single_reg( AGCCTRL1, 0x00 ); //AGC Control
 				radio_write_single_reg( AGCCTRL0, 0x91 ); //AGC Control
-				radio_write_single_reg( FREND1, 0x56 ); //Front End RX Configuration
+				radio_write_single_reg( AGCCTRL1, 0x00 ); //AGC Control
+				radio_write_single_reg( AGCCTRL2, 0x03 ); //AGC Control
+				radio_write_single_reg( CHANNR, 0x00 ); //Channel Number
+				radio_write_single_reg( DEVIATN, 0x15 ); //Modem Deviation Setting
+				radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
+				radio_write_single_reg( FOCCFG, 0x17 ); //Frequency Offset Compensation Configuration
 				radio_write_single_reg( FREND0, 0x11 ); //Front End TX Configuration
-				radio_write_single_reg( FSCAL3, 0xE9 ); //Frequency Synthesizer Calibration
-				radio_write_single_reg( FSCAL2, 0x2A ); //Frequency Synthesizer Calibration
-				radio_write_single_reg( FSCAL1, 0x00 ); //Frequency Synthesizer Calibration
+				radio_write_single_reg( FREND1, 0x56 ); //Front End RX Configuration
+				//radio_write_single_reg( FREQ0, 0x19 ); //Frequency Control Word, Low Byte
+				radio_write_single_reg( FREQ0, 0xAD ); //Frequency Control Word, Low Byte
+				radio_write_single_reg( FREQ1, 0x40 ); //Frequency Control Word, Middle Byte
+				radio_write_single_reg( FREQ2, 0x23 ); //Frequency Control Word, High Byte
 				radio_write_single_reg( FSCAL0, 0x1F ); //Frequency Synthesizer Calibration
-				radio_write_single_reg( TEST2, 0x81 ); //Various Test Settings
-				radio_write_single_reg( TEST1, 0x35 ); //Various Test Settings
+				radio_write_single_reg( FSCAL1, 0x00 ); //Frequency Synthesizer Calibration
+				radio_write_single_reg( FSCAL2, 0x2A ); //Frequency Synthesizer Calibration
+				radio_write_single_reg( FSCAL3, 0xE9 ); //Frequency Synthesizer Calibration
+				radio_write_single_reg( FSCTRL0, 0x00 ); //Frequency Synthesizer Control
+				radio_write_single_reg( FSCTRL1, 0x06 ); //Frequency Synthesizer Control
+				radio_write_single_reg( MCSM0, 0x10 ); //Main Radio Control State Machine Configuration
+				radio_write_single_reg( MCSM1, 0x30 ); //Main Radio Control State Machine Configuration
+				radio_write_single_reg( MCSM2, 0x07 ); //Main Radio Control State Machine Configuration
+				radio_write_single_reg( MDMCFG0, 0xC5 ); //Modem Configuration
+				radio_write_single_reg( MDMCFG1, 0x11 ); //Modem Configuration
+				radio_write_single_reg( MDMCFG2, 0x32 ); //Modem Configuration
+				radio_write_single_reg( MDMCFG3, 0x4A ); //Modem Configuration
+				radio_write_single_reg( MDMCFG4, 0xC9 ); //Modem Configuration
+				radio_write_single_reg( PKTCTRL0, 0x01 ); //Packet Automation Control
+				radio_write_single_reg( PKTCTRL1, 0x04 ); //Packet Automation Control
+				radio_write_single_reg( PKTLEN, 0xFF ); //Packet Length
+				radio_write_single_reg( SYNC0, 0x00 ); //Sync Word, Low Byte
+				radio_write_single_reg( SYNC1, 0xFF ); //Sync Word, High Byte
 				radio_write_single_reg( TEST0, 0x09 ); //Various Test Settings
+				radio_write_single_reg( TEST1, 0x35 ); //Various Test Settings
+				radio_write_single_reg( TEST2, 0x81 ); //Various Test Settings
 
 				{
 					uint8_t const pa_values[8] = { 0x00, 0x00, 0x52, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -59,6 +60,26 @@ namespace daw {
 			radio_data_buffer_t radio_data_buffer;
 
 			namespace {
+				const uint8_t ERROR_DATA_BUFFER_OVERFLOW = 0x50;
+				const uint8_t ERROR_TOO_MANY_PACKETS = 0x51;
+				const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
+				const uint8_t MAX_PACKET_SIZE = 250;
+				const size_t MAX_PACKETS = 100;
+
+				size_t packet_count = 0;
+				size_t packet_head_idx = 0;
+				size_t data_buffer_bytes_used = 0;
+				uint8_t buffer_overflow_count = 0;
+				uint16_t symbol_input_buffer = 0;
+				uint16_t symbol_input_bit_count = 0;
+				uint16_t symbol_output_buffer = 0;
+				size_t symbol_output_bit_count = 0;
+				size_t symbol_error_count = 0;
+				uint8_t packet_number = 0;
+				uint8_t last_error = 0;
+				uint8_t packet_overflow_count = 0;
+				size_t buffer_write_pos = 0;
+
 				void crc_init( uint8_t * const arry, size_t const & size_of ) {
 					uint8_t const msbit = 0x80;
 					uint8_t const polynomial = 0x9b;
@@ -83,30 +104,8 @@ namespace daw {
 
 					Packet( ): data_start_idx( 0 ), length( 0 ), rssi( 0 ), packet_number( 0 ) { }
 				};
-				const uint8_t ERROR_DATA_BUFFER_OVERFLOW = 0x50;
-				const uint8_t ERROR_TOO_MANY_PACKETS = 0x51;
-				const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
-				const uint8_t MAX_PACKET_SIZE = 250;
-				const size_t MAX_PACKETS = 100;
-
-				size_t packet_count = 0;
-				size_t packet_head_idx = 0;
 
 				Buffer<Packet, MAX_PACKETS> packets;
-
-				size_t data_buffer_bytes_used = 0;
-				uint8_t buffer_overflow_count = 0;
-
-				uint16_t symbol_input_buffer = 0;
-				uint16_t symbol_input_bit_count = 0;
-				uint16_t symbol_output_buffer = 0;
-				size_t symbol_output_bit_count = 0;
-				size_t symbol_error_count = 0;
-				uint8_t packet_number = 0;
-				uint8_t last_error = 0;
-				uint8_t packet_overflow_count = 0;
-
-				size_t buffer_write_pos = 0; //size_t buffer_read_pos = 0;
 
 				void drop_current_packet( ) { }
 
@@ -209,7 +208,7 @@ namespace daw {
 					add_decoded_byte( output_sybmol );
 				}
 
-				if( 0 < symbol_error_count && 0 < packets[packet_head_idx].length ) {
+				if( 0 < symbol_error_count && !packets.empty( ) && 0 < packets[packet_head_idx].length ) {
 					finish_incoming_packet( );
 				}
 			}

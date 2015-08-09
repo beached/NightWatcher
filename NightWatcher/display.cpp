@@ -360,11 +360,11 @@ namespace daw {
 				//multiple characters
 				switch( segments ) {
 					// LINE1
-				case LCD_SEG_L1_3_0:	return LCD_SEG_INFO( 4, LCD_SEG_L1_3 );
-				case LCD_SEG_L1_2_0:	return LCD_SEG_INFO( 3, LCD_SEG_L1_2 );
-				case LCD_SEG_L1_1_0: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_1 );
-				case LCD_SEG_L1_3_1: 	return LCD_SEG_INFO( 3, LCD_SEG_L1_3 );
-				case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_3 );
+				case LCD_SEG_L1_3_0: return LCD_SEG_INFO( 4, LCD_SEG_L1_3 );
+				case LCD_SEG_L1_2_0: return LCD_SEG_INFO( 3, LCD_SEG_L1_2 );
+				case LCD_SEG_L1_1_0: return LCD_SEG_INFO( 2, LCD_SEG_L1_1 );
+				case LCD_SEG_L1_3_1: return LCD_SEG_INFO( 3, LCD_SEG_L1_3 );
+				case LCD_SEG_L1_3_2: return LCD_SEG_INFO( 2, LCD_SEG_L1_3 );
 
 					// LINE2
 				case LCD_SEG_L2_5_0: return LCD_SEG_INFO( 6, LCD_SEG_L2_5 );
@@ -424,12 +424,12 @@ namespace daw {
 		//				uint8_t index2		Index of LINE2
 		// @return      uint8
 		// *************************************************************************************************
-		uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 ) {
+		uint8_t switch_seg( uint8_t const & line, uint8_t const & index1, uint8_t const & index2 ) {
 			if( line == LINE1 ) {
 				return index1;
-			} else { // line == LINE2
-				return index2;
-			}
+			}// line == LINE2
+
+			return index2;
 		}
 
 		// *************************************************************************************************

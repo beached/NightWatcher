@@ -110,18 +110,18 @@ namespace daw {
 			uint8_t const LCD_SEG_L2_4_3 = 99;
 
 			// LCD controller memory map
-			uint8_t* const LCD_MEM_1 = reinterpret_cast<uint8_t * const>( 0x0A20 );
-			uint8_t* const LCD_MEM_2 = reinterpret_cast<uint8_t * const>( 0x0A21 );
-			uint8_t* const LCD_MEM_3 = reinterpret_cast<uint8_t * const>( 0x0A22 );
-			uint8_t* const LCD_MEM_4 = reinterpret_cast<uint8_t * const>( 0x0A23 );
-			uint8_t* const LCD_MEM_5 = reinterpret_cast<uint8_t * const>( 0x0A24 );
-			uint8_t* const LCD_MEM_6 = reinterpret_cast<uint8_t * const >(0x0A25);
-			uint8_t* const LCD_MEM_7 = reinterpret_cast<uint8_t * const >(0x0A26);
-			uint8_t* const LCD_MEM_8 = reinterpret_cast<uint8_t * const >(0x0A27);
-			uint8_t* const LCD_MEM_9 = reinterpret_cast<uint8_t * const >(0x0A28);
-			uint8_t* const LCD_MEM_10 = reinterpret_cast<uint8_t * const >(0x0A29);
-			uint8_t* const LCD_MEM_11 = reinterpret_cast<uint8_t * const >(0x0A2A);
-			uint8_t* const LCD_MEM_12 = reinterpret_cast<uint8_t * const >(0x0A2B);
+			uint8_t* const LCD_MEM_1 = reinterpret_cast<uint8_t * const>(0x0A20);
+			uint8_t* const LCD_MEM_2 = reinterpret_cast<uint8_t * const>(0x0A21);
+			uint8_t* const LCD_MEM_3 = reinterpret_cast<uint8_t * const>(0x0A22);
+			uint8_t* const LCD_MEM_4 = reinterpret_cast<uint8_t * const>(0x0A23);
+			uint8_t* const LCD_MEM_5 = reinterpret_cast<uint8_t * const>(0x0A24);
+			uint8_t* const LCD_MEM_6 = reinterpret_cast<uint8_t * const>(0x0A25);
+			uint8_t* const LCD_MEM_7 = reinterpret_cast<uint8_t * const>(0x0A26);
+			uint8_t* const LCD_MEM_8 = reinterpret_cast<uint8_t * const>(0x0A27);
+			uint8_t* const LCD_MEM_9 = reinterpret_cast<uint8_t * const>(0x0A28);
+			uint8_t* const LCD_MEM_10 = reinterpret_cast<uint8_t * const>(0x0A29);
+			uint8_t* const LCD_MEM_11 = reinterpret_cast<uint8_t * const>(0x0A2A);
+			uint8_t* const LCD_MEM_12 = reinterpret_cast<uint8_t * const>(0x0A2B);
 
 			// Memory assignment
 			uint8_t* const LCD_SEG_L1_0_MEM = LCD_MEM_6;
@@ -255,9 +255,8 @@ namespace daw {
 		extern void display_hex_chars( uint8_t const& segments, uint8_t const* const str, LcdDisplayModes const mode );
 		extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode ); // Set_value display functions
 		extern void display_value( uint8_t const& segments, uint32_t const& value, uint8_t const& digits, uint8_t const& blanks, LcdDisplayModes const disp_mode ); // Segment index helper function
-		extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
+		extern uint8_t switch_seg( uint8_t const & line, uint8_t const & index1, uint8_t const & index2 );
 
 		extern void display_all_off( );
 	} // namespace display
 } // namespace daw
-
