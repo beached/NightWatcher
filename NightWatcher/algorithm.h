@@ -7,4 +7,11 @@ namespace daw {
 			*first = value;
 		}
 	}
+
+	template< class ForwardIt, class T >
+	void fill( ForwardIt first, ForwardIt last, const volatile T& value ) {
+		for( ; first != last; ++first ) {
+			*first = value;
+		}
+	}
 }

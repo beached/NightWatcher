@@ -14,25 +14,25 @@ namespace {
 	}
 
 	void toggle_net_activity( ) {
-		using namespace display::defines;
+		using namespace daw::display::defines;
 		static uint8_t count = 1;
 		if( count > 3 ) {
 			count = 1;
 		}
 		switch( count ) {
 		case 0:
-			display::display_symbol( LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_OFF );
+			daw::display::display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_OFF );
 			break;
 		case 1:
-			display::display_symbol( LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_ON );
+			daw::display::display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_ON );
 			break;
 		case 2:
-			display::display_symbol( LCD_ICON_BEEPER1, display::LcdDisplayModes::SEG_OFF );
-			display::display_symbol( LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_ON );
+			daw::display::display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_OFF );
+			daw::display::display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_ON );
 			break;
 		case 3:
-			display::display_symbol( LCD_ICON_BEEPER2, display::LcdDisplayModes::SEG_OFF );
-			display::display_symbol( LCD_ICON_BEEPER3, display::LcdDisplayModes::SEG_ON );
+			daw::display::display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_OFF );
+			daw::display::display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_ON );
 			break;
 		}
 	}
@@ -43,9 +43,9 @@ namespace {
 		daw::radio::core::set_vcore( 2u );
 		daw::radio::core::init_fll( 8500000 / 1000, 8500000 / 32768 );
 
-		display::lcd_init( );
-		display::clear_display( );
-		display::display_chars( display::defines::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON ); //init_timer( );
+		daw::display::lcd_init( );
+		daw::display::clear_display( );
+		daw::display::display_chars( daw::display::defines::LCD_SEG_LINE1_START, "On", daw::display::SEG_ON ); //init_timer( );
 		radio.init_radio( daw::radio::medtronic::radio_setup_916MHz );
 	}
 
@@ -101,8 +101,8 @@ namespace {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		__enable_interrupt( ); // Display glucose or something
-		display::display_hex_chars( display::defines::LCD_SEG_LINE1_START, (uint8_t const *)daw::radio::medtronic::radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display::display_hex_chars( display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)(daw::radio::medtronic::radio_data_buffer.data( ) + 4), display::LcdDisplayModes::SEG_ON );
+		daw::display::display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, (uint8_t const *)daw::radio::medtronic::radio_data_buffer.data( ), daw::display::SEG_ON );
+		daw::display::display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

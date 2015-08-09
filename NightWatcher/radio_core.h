@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "buffer.h"
+#include "algorithm.h"
 
 #define _HAL_PMM_DISABLE_SVML_
 #define _HAL_PMM_SVMLE SVMLE
@@ -12,12 +13,13 @@
 #define _HAL_PMM_SVSLE SVSLE
 #define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
 #define _HAL_PMM_SVSFP SVSLFP
-uint8_t const PMM_STATUS_OK = 0;
-uint8_t const PMM_STATUS_ERROR = 1;
 
 namespace daw {
 	namespace radio {
 		namespace core {
+			uint8_t const PMM_STATUS_OK = 0;
+			uint8_t const PMM_STATUS_ERROR = 1;
+
 			extern void init_fll( uint16_t fsystem, uint16_t ratio ); 
 			extern uint16_t set_vcore_up( uint16_t const & level );
 			extern uint16_t set_vcore_down( uint16_t const & level );
@@ -32,17 +34,12 @@ namespace daw {
 			template<typename ArryType>
 			static void radio_read_burst_reg( uint8_t const & addr, ArryType & buffer, uint8_t const & count ) {
 				while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
-	
 				RF1AINSTR1B = (addr | RF_REGRD);
-	
-				for( size_t i = 1; i < count; ++i ) {
-					buffer[i - 1] = RF1ADOUT1B;
-				}
+				daw::fill( buffer.begin( ), buffer.begin( ) + count, RF1ADOUT1B );
 				buffer[count - 1] = RF1ADOUT0B;
 			}
 	
 			
-	
 			template<size_t BuffSize>
 			class RadioCore {
 			public:

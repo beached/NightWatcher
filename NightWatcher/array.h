@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "algorithm.h"
 
 namespace daw {
 	template<typename T, size_t array_size>
@@ -18,9 +19,7 @@ namespace daw {
 
 		Array( ): elems( ) { }
 		Array( T const & value ) : elems( ) {
-			for( size_t n = 0; n < array_size; ++n ) {
-				elems[n] = value;
- 			}
+			daw::fill( elems, elems + array_size, value );
 		}
 
 		Array( init_fn init_function ) : elems( ) {

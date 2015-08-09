@@ -1,6 +1,6 @@
 #pragma once
 
-namespace std {
+namespace daw {
 	class nullptr_t {
 	public:
 		template<class T>
@@ -61,5 +61,5 @@ namespace std {
 		return rhs != 0;
 	}
 }
-std::nullptr_t const nullptr = std::nullptr_t( );
+daw::nullptr_t const nullptr = daw::nullptr_t( );
 
