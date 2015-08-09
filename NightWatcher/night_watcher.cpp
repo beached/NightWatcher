@@ -15,6 +15,7 @@ namespace {
 	}
 
 	void toggle_net_activity( ) {
+		using namespace display::defines;
 		static uint8_t count = 1;
 		if( count > 3 ) {
 			count = 1;
@@ -45,7 +46,7 @@ namespace {
 
 		display::lcd_init( );
 		display::clear_display( );
-		display::display_chars( LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON ); //init_timer( );
+		display::display_chars( display::defines::LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON ); //init_timer( );
 		radio.init_radio( radio_setup_916MHz );
 	}
 
@@ -101,8 +102,8 @@ namespace {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		__enable_interrupt( ); // Display glucose or something
-		display::display_hex_chars( LCD_SEG_LINE1_START, (uint8_t const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display::display_hex_chars( LCD_SEG_LINE2_START, (uint8_t  const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( display::defines::LCD_SEG_LINE1_START, (uint8_t const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

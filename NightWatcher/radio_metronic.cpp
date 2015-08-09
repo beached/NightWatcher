@@ -4,8 +4,10 @@
 #include "buffer.h"
 #include "array.h"
 
-size_t const radio_symbol_table_size = 54;
-uint8_t const radio_symbol_table[radio_symbol_table_size] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+namespace {
+	size_t const radio_symbol_table_size = 54;
+	uint8_t const radio_symbol_table[radio_symbol_table_size] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+}
 
 void radio_setup_916MHz( ) {
 	daw::radio::radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
@@ -54,12 +56,11 @@ radio_data_buffer_t radio_data_buffer;
 
 namespace {
 	void crc_init( uint8_t * const arry, size_t const & size_of ) {
-		uint8_t const polynomial = 0x9b;
 		uint8_t const msbit = 0x80;
-
-		arry[0] = 0;
+		uint8_t const polynomial = 0x9b;
+		
 		uint8_t tmp = msbit;
-
+		arry[0] = 0;
 		for( size_t i = 1; i < size_of; i *= 2 ) {
 			uint8_t const p2 = (tmp & msbit) ? polynomial : 0;
 			tmp = (tmp << 1) ^ p2;
@@ -134,23 +135,20 @@ namespace {
 
 	void finish_incoming_packet( ) {
 		// 		uint16_t packet_crc = 0;
-
-		size_t crc_read_idx = packets[packet_head_idx].data_start_idx;
-		uint8_t crc_len = packets[packet_head_idx].length - 1;
-
 		packets[packet_head_idx].rssi = daw::radio::radio_read_single_reg( RSSI );
 		packets[packet_head_idx].packet_number = packet_number++;
-
-		uint8_t crc = 0;
-		while( crc_len-- > 0 ) {
-			crc = crc_table[(crc ^ radio_data_buffer[crc_read_idx]) & 0xff];
-			++crc_read_idx;
-			if( radio_data_buffer.size( ) >= crc_read_idx ) {
-				crc_read_idx = 0;
+		{
+			uint8_t crc = 0;
+			size_t crc_read_idx = packets[packet_head_idx].data_start_idx;
+			for( uint8_t crc_len = packets[packet_head_idx].length - 1; crc_len > 0; --crc_len ) {
+				crc = crc_table[(crc ^ radio_data_buffer[crc_read_idx]) & 0xff];
+				++crc_read_idx;
+				if( radio_data_buffer.size( ) >= crc_read_idx ) {
+					crc_read_idx = 0;
+				}
 			}
+			//packet_crc = data_buffer[crc_read_idx];
 		}
-		//packet_crc = data_buffer[crc_read_idx];
-
 		reset_symbol_processing_state( );
 
 		if( MAX_PACKETS - 1 <= packet_count ) {
@@ -173,9 +171,6 @@ namespace {
 }	// namespace anonymous
 
 void receive_radio_symbol( uint8_t const & value ) {
-	uint8_t symbol = 0;
-	uint8_t output_sybmol = 0;
-
 	if( 0 == value ) {
 		if( 0 <= packets[packet_head_idx].length ) {
 			finish_incoming_packet( );
@@ -187,7 +182,7 @@ void receive_radio_symbol( uint8_t const & value ) {
 	symbol_input_bit_count += 8;
 
 	while( 6 <= symbol_input_bit_count ) {
-		symbol = (symbol_input_buffer >> (symbol_input_bit_count - 6) & 0b111111);
+		uint8_t symbol = (symbol_input_buffer >> (symbol_input_bit_count - 6) & 0b111111);
 		symbol_input_bit_count -= 6;
 		if( 0 == symbol ) {
 			continue;
@@ -205,7 +200,7 @@ void receive_radio_symbol( uint8_t const & value ) {
 		symbol_output_bit_count += 4;
 	}
 	while( 8 <= symbol_output_bit_count ) {
-		output_sybmol = (symbol_output_buffer >> (symbol_output_bit_count - 8)) & 0b11111111;
+		uint8_t output_sybmol = (symbol_output_buffer >> (symbol_output_bit_count - 8)) & 0b11111111;
 		symbol_output_bit_count -= 8;
 		add_decoded_byte( output_sybmol );
 	}

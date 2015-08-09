@@ -12,8 +12,8 @@
 #define _HAL_PMM_SVSLE SVSLE
 #define _HAL_PMM_DISABLE_FULL_PERFORMANCE_
 #define _HAL_PMM_SVSFP SVSLFP
-#define PMM_STATUS_OK 0
-#define PMM_STATUS_ERROR 1
+uint8_t const PMM_STATUS_OK = 0;
+uint8_t const PMM_STATUS_ERROR = 1;
 
 namespace daw {
 	namespace radio {
