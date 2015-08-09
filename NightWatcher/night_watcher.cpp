@@ -5,8 +5,8 @@
 #include <intrinsics.h>
 #include "nullptr.h"
 
-#define low_power_mode( ) _BIS_SR( LPM2_bits + GIE)
-#define low_power_mode_off_on_exit( ) LPM2_EXIT;
+#define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
+#define low_power_mode_off_on_exit( ) LPM3_EXIT;
 namespace {
 	const uint8_t RX_TIMER_PERIOD = 85;
 
@@ -45,8 +45,7 @@ namespace {
 
 		display::lcd_init( );
 		display::clear_display( );
-		display::display_chars( LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON );
-		//init_timer( );
+		display::display_chars( LCD_SEG_LINE1_START, "On", display::LcdDisplayModes::SEG_ON ); //init_timer( );
 		radio.init_radio( radio_setup_916MHz );
 	}
 
@@ -101,10 +100,9 @@ namespace {
 	void state_display_data( ) {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
-		__enable_interrupt( );
-		// Display glucose or something
-		display::display_hex_chars( LCD_SEG_LINE1_START, (char const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
-		display::display_hex_chars( LCD_SEG_LINE2_START, (char const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
+		__enable_interrupt( ); // Display glucose or something
+		display::display_hex_chars( LCD_SEG_LINE1_START, (uint8_t const *)radio_data_buffer.data( ), display::LcdDisplayModes::SEG_ON );
+		display::display_hex_chars( LCD_SEG_LINE2_START, (uint8_t  const *)radio_data_buffer.data( ) + 4, display::LcdDisplayModes::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous
@@ -124,20 +122,20 @@ int main( ) {
 
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	switch(  __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
-	case  0: break;                         // No RF core interrupt pending
-	case  2: break;                         // RFIFG0
+	case  0: break; // No RF core interrupt pending
+	case  2: break; // RFIFG0
 	case  4:								// RFIFG1
 		RF1AIE &= ~(BIT1 | BIT9);
-		daw::radio::strobe( RF_SWOR );		// Go back to sleep
+		daw::radio::strobe( RF_SWOR ); // Go back to sleep
 		P1OUT ^= BIT0;
 		break;
-	case  6: break;                         // RFIFG2
-	case  8: break;                         // RFIFG3
-	case 10: break;                         // RFIFG4
-	case 12: break;                         // RFIFG5
-	case 14: break;                         // RFIFG6
-	case 16: break;                         // RFIFG7
-	case 18: break;                         // RFIFG8
+	case  6: break; // RFIFG2
+	case  8: break; // RFIFG3
+	case 10: break; // RFIFG4
+	case 12: break; // RFIFG5
+	case 14: break; // RFIFG6
+	case 16: break; // RFIFG7
+	case 18: break; // RFIFG8
 	case 20:
 		RF1AIE &= ~(BIT1 | BIT9);
 		if( radio.is_receiving( ) ) {
@@ -148,11 +146,11 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 		}
 		low_power_mode_off_on_exit( );
 		break;
-	case 22: break;                         // RFIFG10
-	case 24: break;                         // RFIFG11
-	case 26: break;                         // RFIFG12
-	case 28: break;                         // RFIFG13
-	case 30: break;                         // RFIFG14
-	case 32: break;                         // RFIFG15
+	case 22: break; // RFIFG10
+	case 24: break; // RFIFG11
+	case 26: break; // RFIFG12
+	case 28: break; // RFIFG13
+	case 30: break; // RFIFG14
+	case 32: break; // RFIFG15
 	}
 }

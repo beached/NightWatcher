@@ -247,24 +247,16 @@ namespace display {
 	extern void lcd_init( );
 	extern void clear_display( );
 	extern void clear_display_all( );
-	extern void clear_line( uint8_t line );
-
-	// Blinking function
+	extern void clear_line( uint8_t line ); // Blinking function
 	extern void start_blink( );
 	extern void stop_blink( );
 	extern void clear_blink_mem( );
-	extern void set_blink_rate( uint8_t bits );
-
-	// Character / symbol draw functions
-	extern void display_char( uint8_t const & segment, unsigned char chr, display::LcdDisplayModes::mode const & mode );
+	extern void set_blink_rate( uint8_t bits ); // Character / symbol draw functions
+	extern void display_char( uint8_t const & segment, uint8_t chr, display::LcdDisplayModes::mode const & mode );
 	extern void display_chars( uint8_t const & segments, char const * const str, display::LcdDisplayModes::mode const & mode );
-	extern void display_hex_chars( uint8_t const & segments, char const * const str, display::LcdDisplayModes::mode const & mode );
-	extern void display_symbol( uint8_t symbol, display::LcdDisplayModes::mode const & mode );
-
-	// Set_value display functions
-	extern void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, display::LcdDisplayModes::mode const & disp_mode );
-
-	// Segment index helper function
+	extern void display_hex_chars( uint8_t const & segments, uint8_t const * const str, display::LcdDisplayModes::mode const & mode );
+	extern void display_symbol( uint8_t symbol, display::LcdDisplayModes::mode const & mode ); // Set_value display functions
+	extern void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, display::LcdDisplayModes::mode const & disp_mode ); // Segment index helper function
 	extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
 
 	extern void display_all_off( );

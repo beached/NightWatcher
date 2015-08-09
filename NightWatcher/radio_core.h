@@ -17,91 +17,59 @@
 
 namespace daw {
 	namespace radio {
-		extern void init_fll( uint16_t fsystem, uint16_t ratio );
-
-		//****************************************************************************//
+		extern void init_fll( uint16_t fsystem, uint16_t ratio ); //****************************************************************************//
 		// Set VCore Up
 		//****************************************************************************//
 		template<typename T>
 		uint16_t set_vcore_up( T level ) {
 			uint16_t PMMRIE_backup;
-			uint16_t SVSMHCTL_backup;
-
-			// Open PMM registers for write access
-			PMMCTL0_H = 0xA5;
-
-			// Disable dedicated Interrupts to prevent that needed flags will be cleared
+			uint16_t SVSMHCTL_backup; // Open PMM registers for write access
+			PMMCTL0_H = 0xA5; // Disable dedicated Interrupts to prevent that needed flags will be cleared
 			PMMRIE_backup = PMMRIE;
-			PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE);
-
-			// Set SVM highside to new level and check if a VCore increase is possible
+			PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE); // Set SVM highside to new level and check if a VCore increase is possible
 			SVSMHCTL_backup = SVSMHCTL;
 			PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG);
-			SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
-
-			// Wait until SVM highside is settled
+			SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level); // Wait until SVM highside is settled
 			while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 			// Disable full-performance mode to save energy
-			SVSMHCTL &= ~_HAL_PMM_SVSFP;
-			// Check if a VCore increase is possible
+			SVSMHCTL &= ~_HAL_PMM_SVSFP; // Check if a VCore increase is possible
 			if( (PMMIFG & SVMHIFG) == SVMHIFG ) {			//-> Vcc is to low for a Vcore increase recover the previous settings
 				PMMIFG &= ~SVSMHDLYIFG;
-				SVSMHCTL = SVSMHCTL_backup;
-
-				// Wait until SVM highside is settled
+				SVSMHCTL = SVSMHCTL_backup; // Wait until SVM highside is settled
 				while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 				// Clear all Flags
-				PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
-
-				// backup PMM-Interrupt-Register
-				PMMRIE = PMMRIE_backup;
-
-				// Lock PMM registers for write access
+				PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG); // backup PMM-Interrupt-Register
+				PMMRIE = PMMRIE_backup; // Lock PMM registers for write access
 				PMMCTL0_H = 0x00;
-				return PMM_STATUS_ERROR;	// return: voltage not set
+				return PMM_STATUS_ERROR; // return: voltage not set
 			}
 
 			// Set also SVS highside to new level -> Vcc is high enough for a Vcore increase
-			SVSMHCTL |= SVSHE | (SVSHRVL0 * level);
-
-			// Set SVM low side to new level
-			SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
-
-			// Wait until SVM low side is settled
+			SVSMHCTL |= SVSHE | (SVSHRVL0 * level); // Set SVM low side to new level
+			SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level); // Wait until SVM low side is settled
 			while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 			// Clear already set flags
-			PMMIFG &= ~(SVMLVLRIFG | SVMLIFG);
-
-			// Set VCore to new level
-			PMMCTL0_L = PMMCOREV0 * level;
-
-			// Wait until new level reached
+			PMMIFG &= ~(SVMLVLRIFG | SVMLIFG); // Set VCore to new level
+			PMMCTL0_L = PMMCOREV0 * level; // Wait until new level reached
 			if( PMMIFG & SVMLIFG ) {
 				while( (PMMIFG & SVMLVLRIFG) == 0 ) { /* spin */ }
 			}
 
 			// Set also SVS/SVM low side to new level
 			PMMIFG &= ~SVSMLDLYIFG;
-			SVSMLCTL |= SVSLE | (SVSLRVL0 * level);
-
-			// wait for lowside delay flags
+			SVSMLCTL |= SVSLE | (SVSLRVL0 * level); // wait for lowside delay flags
 			while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 			// Disable SVS/SVM Low
 			// Disable full-performance mode to save energy
-			SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_ + _HAL_PMM_DISABLE_SVML_ + _HAL_PMM_SVSFP);
-
-			// Clear all Flags
-			PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
-			// backup PMM-Interrupt-Register
-			PMMRIE = PMMRIE_backup;
-
-			// Lock PMM registers for write access
+			SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_ + _HAL_PMM_DISABLE_SVML_ + _HAL_PMM_SVSFP); // Clear all Flags
+			PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG); // backup PMM-Interrupt-Register
+			PMMRIE = PMMRIE_backup; // Lock PMM registers for write access
 			PMMCTL0_H = 0x00;
-			return PMM_STATUS_OK;	// return: OK
+			return PMM_STATUS_OK; // return: OK
 		}
 
 		//****************************************************************************//
@@ -109,54 +77,34 @@ namespace daw {
 		//****************************************************************************//
 		template<typename T>
 		uint16_t set_vcore_down( T level ) {
-			uint16_t PMMRIE_backup;
-
-			// Open PMM registers for write access
-			PMMCTL0_H = 0xA5;
-
-			// Disable dedicated Interrupts to prevent that needed flags will be cleared
+			uint16_t PMMRIE_backup; // Open PMM registers for write access
+			PMMCTL0_H = 0xA5; // Disable dedicated Interrupts to prevent that needed flags will be cleared
 			PMMRIE_backup = PMMRIE;
-			PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE);
-
-			// Set SVM high side and SVM low side to new level
+			PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE); // Set SVM high side and SVM low side to new level
 			PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG | SVMLIFG | SVSMLDLYIFG);
 			SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level);
-			SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level);
-
-			// Wait until SVM high side and SVM low side is settled
+			SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level); // Wait until SVM high side and SVM low side is settled
 			while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 			// Set VCore to new level
-			PMMCTL0_L = PMMCOREV0 * level;
-
-			// Set also SVS highside and SVS low side to new level
+			PMMCTL0_L = PMMCOREV0 * level; // Set also SVS highside and SVS low side to new level
 			PMMIFG &= ~(SVSHIFG | SVSMHDLYIFG | SVSLIFG | SVSMLDLYIFG);
 			SVSMHCTL |= SVSHE | SVSHFP | (SVSHRVL0 * level);
-			SVSMLCTL |= SVSLE | SVSLFP | (SVSLRVL0 * level);
-
-			// Wait until SVS high side and SVS low side is settled
+			SVSMLCTL |= SVSLE | SVSLFP | (SVSLRVL0 * level); // Wait until SVS high side and SVS low side is settled
 			while( (PMMIFG & SVSMHDLYIFG) == 0 || (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
 
 			// Disable full-performance mode to save energy
-			SVSMHCTL &= ~_HAL_PMM_SVSFP;
-
-			// Disable SVS/SVM Low
+			SVSMHCTL &= ~_HAL_PMM_SVSFP; // Disable SVS/SVM Low
 			// Disable full-performance mode to save energy
-			SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_ + _HAL_PMM_DISABLE_SVML_ + _HAL_PMM_SVSFP);
-
-			// Clear all Flags
-			PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG);
-
-			// backup PMM-Interrupt-Register
-			PMMRIE = PMMRIE_backup;
-
-			// Lock PMM registers for write access
+			SVSMLCTL &= ~(_HAL_PMM_DISABLE_SVSL_ + _HAL_PMM_DISABLE_SVML_ + _HAL_PMM_SVSFP); // Clear all Flags
+			PMMIFG &= ~(SVMHVLRIFG | SVMHIFG | SVSMHDLYIFG | SVMLVLRIFG | SVMLIFG | SVSMLDLYIFG); // backup PMM-Interrupt-Register
+			PMMRIE = PMMRIE_backup; // Lock PMM registers for write access
 			PMMCTL0_H = 0x00;
 
 			if( (PMMIFG & SVMHIFG) == SVMHIFG ) {
-				return PMM_STATUS_ERROR;	// Highside is still to low for the adjusted VCore Level
+				return PMM_STATUS_ERROR; // Highside is still to low for the adjusted VCore Level
 			} else {
-				return PMM_STATUS_OK;	// Return: OK
+				return PMM_STATUS_OK; // Return: OK
 			}
 		}
 
@@ -167,8 +115,8 @@ namespace daw {
 		uint16_t set_vcore( T level ) {
 			uint16_t status = 0;
 
-			level &= PMMCOREV_3;	// Set Mask for Max. level
-			uint16_t actlevel = (PMMCTL0 & PMMCOREV_3);	// Get actual VCore
+			level &= PMMCOREV_3; // Set Mask for Max. level
+			uint16_t actlevel = (PMMCTL0 & PMMCOREV_3); // Get actual VCore
 
 			while( ((level != actlevel) && (status == 0)) || (level < actlevel) ) {	// step by step increase or decrease
 				if( level > actlevel ) {
@@ -249,12 +197,12 @@ namespace daw {
 			RadioCore( ) : rf_flags( ), rx_buffer( ) { }
 
 			void receive_on( ) {
-				RF1AIES |= BIT9;	// Falling edge of RFIFG9
-				RF1AIFG &= ~BIT9;	// Clear a pending interrupt
-				RF1AIE |= BIT9;	// Enable the interrupt
+				RF1AIES |= BIT9; // Falling edge of RFIFG9
+				RF1AIFG &= ~BIT9; // Clear a pending interrupt
+				RF1AIE |= BIT9; // Enable the interrupt
 
 								// Radio is in IDLE following a TX, so strobe SRX to enter Receive Mode
-				strobe( RF_SRX );	// Strobe SRX
+				strobe( RF_SRX ); // Strobe SRX
 				rf_flags.is_receiving = true;
 			}
 
@@ -265,9 +213,7 @@ namespace daw {
 			typedef void( *config_fn_t )();
 			void init_radio( config_fn_t configure_radio ) {
 				rf_flags.reset( );
-				rx_buffer.clear( );
-
-				// Set the High-Power Mode Request Enable bit so LPM3 can be entered
+				rx_buffer.clear( ); // Set the High-Power Mode Request Enable bit so LPM3 can be entered
 				// with active radio enabled
 				PMMCTL0_H = 0xA5;
 				PMMCTL0_L |= PMMHPMRE_L;
@@ -277,8 +223,8 @@ namespace daw {
 			}
 
 			void receive_off( ) {
-				RF1AIE &= ~BIT9;                          // Disable RX interrupts
-				RF1AIFG &= ~BIT9;                         // Clear pending IFG
+				RF1AIE &= ~BIT9; // Disable RX interrupts
+				RF1AIFG &= ~BIT9; // Clear pending IFG
 
 														  // It is possible that ReceiveOff is called while radio is receiving a packet.
 														  // Therefore, it is necessary to flush the RX FIFO after issuing IDLE strobe
@@ -308,8 +254,7 @@ namespace daw {
 				if( !rf_flags.has_received_packet ) {
 					return 0;
 				}
-				size_t rx_len = radio_read_single_reg( RXBYTES );
-				// For now clear buffer before proceeding and only read up to buffer len bytes
+				size_t rx_len = radio_read_single_reg( RXBYTES ); // For now clear buffer before proceeding and only read up to buffer len bytes
 				rx_buffer.clear( );
 				if( (rf_flags.has_received_packet = rx_len > rx_buffer.capacity( )) ) {
 					rx_len = rx_buffer.capacity( );

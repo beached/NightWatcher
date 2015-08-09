@@ -14,25 +14,17 @@ namespace display {
 	// *************************************************************************************************
 	void lcd_init( ) {
 		// Clear entire display memory
-		LCDBMEMCTL |= LCDCLRBM + LCDCLRM;
-
-		// LCD_FREQ = ACLK/12/8 = 341.3Hz flickers in the sun
+		LCDBMEMCTL |= LCDCLRBM + LCDCLRM; // LCD_FREQ = ACLK/12/8 = 341.3Hz flickers in the sun
 		// LCD_FREQ = ACLK/10/8 = 409.6Hz still flickers in the sun when watch is moving (might be negligible)
 
 		// LCD_FREQ = ACLK/8/8 = 512Hz no flickering, even when watch is moving
 		// Frame frequency = 512Hz/2/4 = 64Hz, LCD mux 4, LCD on
-		LCDBCTL0 = (LCDDIV0 + LCDDIV1 + LCDDIV2) | (LCDPRE0 + LCDPRE1) | LCD4MUX | LCDON;
-
-		// LCB_BLK_FREQ = ACLK/8/4096 = 1Hz
-		LCDBBLKCTL = LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 | LCDBLKMOD0;
-
-		// I/O to COM outputs
+		LCDBCTL0 = (LCDDIV0 + LCDDIV1 + LCDDIV2) | (LCDPRE0 + LCDPRE1) | LCD4MUX | LCDON; // LCB_BLK_FREQ = ACLK/8/4096 = 1Hz
+		LCDBBLKCTL = LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 | LCDBLKMOD0; // I/O to COM outputs
 		P5SEL |= (BIT5 | BIT6 | BIT7);
-		P5DIR |= (BIT5 | BIT6 | BIT7);
-
-		// Activate LCD output
-		LCDBPCTL0 = 0xFFFF;                         // Select LCD segments S0-S15
-		LCDBPCTL1 = 0x00FF;                         // Select LCD segments S16-S22
+		P5DIR |= (BIT5 | BIT6 | BIT7); // Activate LCD output
+		LCDBPCTL0 = 0xFFFF; // Select LCD segments S0-S15
+		LCDBPCTL1 = 0x00FF; // Select LCD segments S16-S22
 
 #ifdef USE_LCD_CHARGE_PUMP
 												// Charge pump voltage generated internally, internal bias (V2-V4) generation
@@ -97,9 +89,7 @@ namespace display {
 			switch( state ) {
 			case LcdDisplayModes::SEG_ON:
 				// Clear segments before writing
-				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-
-				// Set visible segments
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask); // Set visible segments
 				*lcdmem = (uint8_t)(*lcdmem | bits);
 				break;
 			case LcdDisplayModes::SEG_OFF:
@@ -109,45 +99,35 @@ namespace display {
 			case LcdDisplayModes::SEG_ON_BLINK_ON:
 				// Clear visible / blink segments before writing
 				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
-
-				// Set visible / blink segments
+				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask); // Set visible / blink segments
 				*lcdmem = (uint8_t)(*lcdmem | bits);
 				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
 				break;
 			case LcdDisplayModes::SEG_ON_BLINK_OFF:
 				// Clear visible segments before writing
-				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-
-				// Set visible segments
-				*lcdmem = (uint8_t)(*lcdmem | bits);
-
-				// Clear blink segments
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask); // Set visible segments
+				*lcdmem = (uint8_t)(*lcdmem | bits); // Clear blink segments
 				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
 				break;
 			case LcdDisplayModes::SEG_OFF_BLINK_OFF:
 				// Clear segments
-				*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-
-				// Clear blink segments
+				*lcdmem = (uint8_t)(*lcdmem & ~bitmask); // Clear blink segments
 				*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
 			}
 		}
 
-		char * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
+		uint8_t * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 			const size_t result_str_size = 7;
 
-			static daw::Buffer<char, result_str_size + 1> result_str;
+			static daw::Buffer<uint8_t, result_str_size + 1> result_str;
 			result_str.fill_values( '0' );
-			result_str[result_str_size] = '\0';
-
-			// Return empty string if number of digits is invalid (valid range for digits: 1-7)
+			result_str[result_str_size] = '\0'; // Return empty string if number of digits is invalid (valid range for digits: 1-7)
 			if( (digits == 0) || (digits > result_str_size) ) {
 				return result_str.data( );
 			}
 			size_t i = 1;
 			for( ; i < result_str.size( ); ++i ) {
-				result_str[digits - i] += (char)(val % 10);
+				result_str[digits - i] += (uint8_t)(val % 10);
 				val /= 10;
 			}
 
@@ -179,8 +159,7 @@ namespace display {
 	// @return      none
 	// *************************************************************************************************
 	void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, display::LcdDisplayModes::mode const & disp_mode ) {
-		char const * str = itoa( value, digits, blanks );
-		// Display string in blink mode
+		char const * str = (char const *)itoa( value, digits, blanks ); // Display string in blink mode
 		display_chars( segments, str, disp_mode );
 	}
 
@@ -194,15 +173,9 @@ namespace display {
 	void display_symbol( uint8_t symbol, display::LcdDisplayModes::mode const & mode ) {
 		if( symbol <= LCD_SEG_L2_DP ) {
 			// Get LCD memory address for symbol from table
-			uint8_t * lcdmem = (uint8_t *)segments_lcdmem[symbol];
-
-			// Get bits for symbol from table
-			uint8_t bits = segments_bitmask[symbol];
-
-			// Bitmask for symbols equals bits
-			uint8_t bitmask = bits;
-
-			// Write LCD memory
+			uint8_t * lcdmem = (uint8_t *)segments_lcdmem[symbol]; // Get bits for symbol from table
+			uint8_t bits = segments_bitmask[symbol]; // Bitmask for symbols equals bits
+			uint8_t bitmask = bits; // Write LCD memory
 			write_lcd_mem( lcdmem, bits, bitmask, mode );
 		}
 	}
@@ -318,7 +291,7 @@ namespace display {
 	//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
 	// @return      none
 	// *************************************************************************************************
-	void display_char( uint8_t const & segment, unsigned char chr, display::LcdDisplayModes::mode const & mode ) {
+	void display_char( uint8_t const & segment, uint8_t chr, display::LcdDisplayModes::mode const & mode ) {
 		// Write to single 7-segment character
 		if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 			// Get LCD memory address for segment from table
@@ -328,7 +301,7 @@ namespace display {
 			uint8_t bitmask = segments_bitmask[segment]; // Bitmask for character
 
 														 // Get bits from font set
-			chr = (unsigned char)get_font( chr );
+			chr = get_font( chr );
 
 			if( segment >= LCD_SEG_L2_5 ) {
 				if( segment == LCD_SEG_L2_5 && chr != 0 ) {
@@ -363,9 +336,7 @@ namespace display {
 			case LCD_SEG_L1_2_0:	return LCD_SEG_INFO( 3, LCD_SEG_L1_2 );
 			case LCD_SEG_L1_1_0: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_1 );
 			case LCD_SEG_L1_3_1: 	return LCD_SEG_INFO( 3, LCD_SEG_L1_3 );
-			case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_3 );
-
-									// LINE2
+			case LCD_SEG_L1_3_2: 	return LCD_SEG_INFO( 2, LCD_SEG_L1_3 ); // LINE2
 			case LCD_SEG_L2_5_0: return LCD_SEG_INFO( 6, LCD_SEG_L2_5 );
 			case LCD_SEG_L2_4_0: return LCD_SEG_INFO( 5, LCD_SEG_L2_4 );
 			case LCD_SEG_L2_3_0: return LCD_SEG_INFO( 4, LCD_SEG_L2_3 );
@@ -392,21 +363,18 @@ namespace display {
 	void display_chars( uint8_t const & segments, char const * str, display::LcdDisplayModes::mode const & mode ) {
 		// Since segments is limited and static, one could turn this into a template with that as
 		// the parameter and make seg_info static
-		LCD_SEG_INFO const seg_info = find_seg_info( segments );
-
-		// Write to consecutive digits
+		LCD_SEG_INFO const seg_info = find_seg_info( segments ); // Write to consecutive digits
 		for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
 			// Use single character routine to write display memory
 			display_char( seg_info.char_start + i, *(str++), mode );
 		}
 	}
 
-	void display_hex_chars( uint8_t const & segments, char const * const str, display::LcdDisplayModes::mode const & mode ) {
-		char const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+	void display_hex_chars( uint8_t const & segments, uint8_t const * const str, display::LcdDisplayModes::mode const & mode ) {
+		uint8_t const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 		LCD_SEG_INFO const seg_info = find_seg_info( segments );
 		for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
-			char const & curr_byte = *str;
-			// Use single character routine to write display memory
+			uint8_t const & curr_byte = *str; // Use single character routine to write display memory
 			display_char( seg_info.char_start + i, hex_nibble[(curr_byte & 0xF0) >> 4u], mode );
 			if( ++i < seg_info.length ) {
 				display_char( seg_info.char_start + i, hex_nibble[curr_byte & 0x0F], mode );
@@ -532,9 +500,7 @@ namespace display {
 			LCD_SEG_L2_COL1_MEM,
 			LCD_SEG_L2_COL0_MEM,
 			LCD_SEG_L2_DP_MEM,
-	};
-
-	// Table with bit mask for each display element
+	}; // Table with bit mask for each display element
 	uint8_t const segments_bitmask[42] = {
 		(uint8_t)LcdBitMask::LCD_SYMB_AM_MASK,
 		(uint8_t)LcdBitMask::LCD_SYMB_PM_MASK,
