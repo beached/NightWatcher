@@ -1,11 +1,11 @@
 #include "display.h"
 #include <cc430f6137.h>
-#include <string.h>
+#include "nullptr.h"
 #include "buffer.h"
 
 namespace daw {
 	namespace display {
-		using namespace daw::display::defines;
+		using namespace defines;
 		// *************************************************************************************************
 		// @fn          lcd_init
 		// @brief       Erase LCD memory. Init LCD peripheral.
@@ -35,7 +35,7 @@ namespace daw {
 			LCDBPCTL1 = 0x00FF; // Select LCD segments S16-S22
 
 		#ifdef USE_LCD_CHARGE_PUMP
-														// Charge pump voltage generated internally, internal bias (V2-V4) generation
+			// Charge pump voltage generated internally, internal bias (V2-V4) generation
 			LCDBVCTL = LCDCPEN | VLCD_2_72;
 		#endif
 		}
@@ -71,7 +71,7 @@ namespace daw {
 		// *************************************************************************************************
 		void clear_line( uint8_t const & line ) {
 			using namespace display;
-			display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), NULL, SEG_OFF );
+			display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
 			if( line == LINE1 ) {
 				display_symbol( LCD_SEG_L1_DP1, SEG_OFF );
 				display_symbol( LCD_SEG_L1_DP0, SEG_OFF );
@@ -98,47 +98,47 @@ namespace daw {
 				switch( mode ) {
 				case SEG_ON:
 					// Clear segments before writing
-					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+					*lcdmem = static_cast<uint8_t>(*lcdmem & ~bitmask);
 
 					// Set visible segments
-					*lcdmem = (uint8_t)(*lcdmem | bits);
+					*lcdmem = static_cast<uint8_t>(*lcdmem | bits);
 					break;
 				case SEG_OFF:
 					// Clear segments
-					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+					*lcdmem = static_cast<uint8_t>(*lcdmem & ~bitmask);
 					break;
 				case SEG_ON_BLINK_ON:
 					// Clear visible / blink segments before writing
-					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
-					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+					*lcdmem = static_cast<uint8_t>(*lcdmem & ~bitmask);
+					*(lcdmem + 0x20) = static_cast<uint8_t>(*(lcdmem + 0x20) & ~bitmask);
 
 					// Set visible / blink segments
-					*lcdmem = (uint8_t)(*lcdmem | bits);
-					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) | bits);
+					*lcdmem = static_cast<uint8_t>(*lcdmem | bits);
+					*(lcdmem + 0x20) = static_cast<uint8_t>(*(lcdmem + 0x20) | bits);
 					break;
 				case SEG_ON_BLINK_OFF:
 					// Clear visible segments before writing
-					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+					*lcdmem = static_cast<uint8_t>(*lcdmem & ~bitmask);
 
 					// Set visible segments
-					*lcdmem = (uint8_t)(*lcdmem | bits);
+					*lcdmem = static_cast<uint8_t>(*lcdmem | bits);
 
 					// Clear blink segments
-					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+					*(lcdmem + 0x20) = static_cast<uint8_t>(*(lcdmem + 0x20) & ~bitmask);
 					break;
 				case SEG_OFF_BLINK_OFF:
 					// Clear segments
-					*lcdmem = (uint8_t)(*lcdmem & ~bitmask);
+					*lcdmem = static_cast<uint8_t>(*lcdmem & ~bitmask);
 
 					// Clear blink segments
-					*(lcdmem + 0x20) = (uint8_t)(*(lcdmem + 0x20) & ~bitmask);
+					*(lcdmem + 0x20) = static_cast<uint8_t>(*(lcdmem + 0x20) & ~bitmask);
 				}
 			}
 
-			uint8_t * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
+			char const * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
 				const size_t result_str_size = 7;
 
-				static daw::Buffer<uint8_t, result_str_size + 1> result_str;
+				static daw::Buffer<char, result_str_size + 1> result_str;
 				result_str.fill_values( '0' );
 				result_str[result_str_size] = '\0';
 
@@ -148,7 +148,7 @@ namespace daw {
 				}
 				size_t i = 1;
 				for( ; i < result_str.size( ); ++i ) {
-					result_str[digits - i] += (uint8_t)(val % 10);
+					result_str[digits - i] += static_cast<uint8_t>(val % 10);
 					val /= 10;
 				}
 
@@ -180,7 +180,7 @@ namespace daw {
 		// @return      none
 		// *************************************************************************************************
 		void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ) {
-			char const * str = (char const *)itoa( value, digits, blanks );
+			char const * str = itoa( value, digits, blanks );
 			// Display string in blink mode
 			display_chars( segments, str, disp_mode );
 		}
@@ -195,7 +195,7 @@ namespace daw {
 		void display_symbol( uint8_t symbol, LcdDisplayModes const mode ) {
 			if( symbol <= LCD_SEG_L2_DP ) {
 				// Get LCD memory address for symbol from table
-				uint8_t * lcdmem = (uint8_t *)segments_lcdmem[symbol];
+				uint8_t * lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
 
 				// Get bits for symbol from table
 				uint8_t bits = segments_bitmask[symbol];
@@ -323,7 +323,7 @@ namespace daw {
 			// Write to single 7-segment character
 			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 				// Get LCD memory address for segment from table
-				uint8_t * lcdmem = (uint8_t *)segments_lcdmem[segment]; // Pointer to LCD memory
+				uint8_t * lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
 
 																		// Get bitmask for character from table
 				uint8_t bitmask = segments_bitmask[segment]; // Bitmask for character
@@ -480,7 +480,7 @@ namespace daw {
 		// @return      none
 		// *************************************************************************************************
 		void display_all_off( ) {
-			uint8_t * const lcdptr = (uint8_t* const)0x0A20;
+			uint8_t * const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
 			daw::fill( lcdptr, lcdptr + 12, 0x00 );
 		}
 
@@ -532,48 +532,48 @@ namespace daw {
 
 		// Table with bit mask for each display element
 		uint8_t const segments_bitmask[42] = {
-			(uint8_t)LcdBitMask::LCD_SYMB_AM_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_PM_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_ARROW_UP_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_ARROW_DOWN_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_PERCENT_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_TOTAL_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_AVERAGE_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_MAX_MASK,
-			(uint8_t)LcdBitMask::LCD_SYMB_BATTERY_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_FT_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_K_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_M_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_I_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_PER_S_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_PER_H_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L1_DEGREE_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L2_KCAL_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L2_KM_MASK,
-			(uint8_t)LcdBitMask::LCD_UNIT_L2_MI_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_HEART_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_STOPWATCH_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_RECORD_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_ALARM_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_BEEPER1_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_BEEPER2_MASK,
-			(uint8_t)LcdBitMask::LCD_ICON_BEEPER3_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_3_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_2_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_1_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_0_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_COL_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_DP1_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L1_DP0_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_5_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_4_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_3_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_2_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_1_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_0_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_COL1_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_COL0_MASK,
-			(uint8_t)LcdBitMask::LCD_SEG_L2_DP_MASK,
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AM_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PM_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_UP_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_DOWN_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PERCENT_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_TOTAL_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AVERAGE_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_MAX_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_BATTERY_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_FT_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_K_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_M_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_I_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_S_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_H_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_DEGREE_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KCAL_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KM_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_MI_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_HEART_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_STOPWATCH_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_RECORD_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_ALARM_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER1_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER2_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER3_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_3_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_2_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_1_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_0_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_COL_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP1_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP0_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_5_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_4_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_3_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_2_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_1_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_0_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL1_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL0_MASK),
+			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_DP_MASK)
 		};
 	}
 }	// namespace daw
