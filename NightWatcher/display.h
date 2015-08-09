@@ -110,63 +110,63 @@ namespace daw {
 			uint8_t const LCD_SEG_L2_4_3 = 99;
 
 			// LCD controller memory map
-			uint8_t * const LCD_MEM_1 = (uint8_t * const)0x0A20;
-			uint8_t * const LCD_MEM_2 = (uint8_t * const)0x0A21;
-			uint8_t * const LCD_MEM_3 = (uint8_t * const)0x0A22;
-			uint8_t * const LCD_MEM_4 = (uint8_t * const)0x0A23;
-			uint8_t * const LCD_MEM_5 = (uint8_t * const)0x0A24;
-			uint8_t * const LCD_MEM_6 = (uint8_t * const)0x0A25;
-			uint8_t * const LCD_MEM_7 = (uint8_t * const)0x0A26;
-			uint8_t * const LCD_MEM_8 = (uint8_t * const)0x0A27;
-			uint8_t * const LCD_MEM_9 = (uint8_t * const)0x0A28;
-			uint8_t * const LCD_MEM_10 = (uint8_t * const)0x0A29;
-			uint8_t * const LCD_MEM_11 = (uint8_t * const)0x0A2A;
-			uint8_t * const LCD_MEM_12 = (uint8_t * const)0x0A2B;
+			uint8_t* const LCD_MEM_1 = reinterpret_cast<uint8_t * const>( 0x0A20 );
+			uint8_t* const LCD_MEM_2 = reinterpret_cast<uint8_t * const>( 0x0A21 );
+			uint8_t* const LCD_MEM_3 = reinterpret_cast<uint8_t * const>( 0x0A22 );
+			uint8_t* const LCD_MEM_4 = reinterpret_cast<uint8_t * const>( 0x0A23 );
+			uint8_t* const LCD_MEM_5 = reinterpret_cast<uint8_t * const>( 0x0A24 );
+			uint8_t* const LCD_MEM_6 = reinterpret_cast<uint8_t * const >(0x0A25);
+			uint8_t* const LCD_MEM_7 = reinterpret_cast<uint8_t * const >(0x0A26);
+			uint8_t* const LCD_MEM_8 = reinterpret_cast<uint8_t * const >(0x0A27);
+			uint8_t* const LCD_MEM_9 = reinterpret_cast<uint8_t * const >(0x0A28);
+			uint8_t* const LCD_MEM_10 = reinterpret_cast<uint8_t * const >(0x0A29);
+			uint8_t* const LCD_MEM_11 = reinterpret_cast<uint8_t * const >(0x0A2A);
+			uint8_t* const LCD_MEM_12 = reinterpret_cast<uint8_t * const >(0x0A2B);
 
 			// Memory assignment
-			uint8_t * const LCD_SEG_L1_0_MEM = LCD_MEM_6;
-			uint8_t * const LCD_SEG_L1_1_MEM = LCD_MEM_4;
-			uint8_t * const LCD_SEG_L1_2_MEM = LCD_MEM_3;
-			uint8_t * const LCD_SEG_L1_3_MEM = LCD_MEM_2;
-			uint8_t * const LCD_SEG_L1_COL_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SEG_L1_DP1_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SEG_L1_DP0_MEM = LCD_MEM_5;
-			uint8_t * const LCD_SEG_L2_0_MEM = LCD_MEM_8;
-			uint8_t * const LCD_SEG_L2_1_MEM = LCD_MEM_9;
-			uint8_t * const LCD_SEG_L2_2_MEM = LCD_MEM_10;
-			uint8_t * const LCD_SEG_L2_3_MEM = LCD_MEM_11;
-			uint8_t * const LCD_SEG_L2_4_MEM = LCD_MEM_12;
-			uint8_t * const LCD_SEG_L2_5_MEM = LCD_MEM_12;
-			uint8_t * const LCD_SEG_L2_COL1_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SEG_L2_COL0_MEM = LCD_MEM_5;
-			uint8_t * const LCD_SEG_L2_DP_MEM = LCD_MEM_9;
-			uint8_t * const LCD_SYMB_AM_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SYMB_PM_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SYMB_ARROW_UP_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SYMB_ARROW_DOWN_MEM = LCD_MEM_1;
-			uint8_t * const LCD_SYMB_PERCENT_MEM = LCD_MEM_5;
-			uint8_t * const LCD_SYMB_TOTAL_MEM = LCD_MEM_11;
-			uint8_t * const LCD_SYMB_AVERAGE_MEM = LCD_MEM_10;
-			uint8_t * const LCD_SYMB_MAX_MEM = LCD_MEM_8;
-			uint8_t * const LCD_SYMB_BATTERY_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L1_FT_MEM = LCD_MEM_5;
-			uint8_t * const LCD_UNIT_L1_K_MEM = LCD_MEM_5;
-			uint8_t * const LCD_UNIT_L1_M_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L1_I_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L1_PER_S_MEM = LCD_MEM_5;
-			uint8_t * const LCD_UNIT_L1_PER_H_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L1_DEGREE_MEM = LCD_MEM_5;
-			uint8_t * const LCD_UNIT_L2_KCAL_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L2_KM_MEM = LCD_MEM_7;
-			uint8_t * const LCD_UNIT_L2_MI_MEM = LCD_MEM_7;
-			uint8_t * const LCD_ICON_HEART_MEM = LCD_MEM_2;
-			uint8_t * const LCD_ICON_STOPWATCH_MEM = LCD_MEM_3;
-			uint8_t * const LCD_ICON_RECORD_MEM = LCD_MEM_1;
-			uint8_t * const LCD_ICON_ALARM_MEM = LCD_MEM_4;
-			uint8_t * const LCD_ICON_BEEPER1_MEM = LCD_MEM_5;
-			uint8_t * const LCD_ICON_BEEPER2_MEM = LCD_MEM_6;
-			uint8_t * const LCD_ICON_BEEPER3_MEM = LCD_MEM_7;
-		}	// namespace defines
+			uint8_t* const LCD_SEG_L1_0_MEM = LCD_MEM_6;
+			uint8_t* const LCD_SEG_L1_1_MEM = LCD_MEM_4;
+			uint8_t* const LCD_SEG_L1_2_MEM = LCD_MEM_3;
+			uint8_t* const LCD_SEG_L1_3_MEM = LCD_MEM_2;
+			uint8_t* const LCD_SEG_L1_COL_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SEG_L1_DP1_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SEG_L1_DP0_MEM = LCD_MEM_5;
+			uint8_t* const LCD_SEG_L2_0_MEM = LCD_MEM_8;
+			uint8_t* const LCD_SEG_L2_1_MEM = LCD_MEM_9;
+			uint8_t* const LCD_SEG_L2_2_MEM = LCD_MEM_10;
+			uint8_t* const LCD_SEG_L2_3_MEM = LCD_MEM_11;
+			uint8_t* const LCD_SEG_L2_4_MEM = LCD_MEM_12;
+			uint8_t* const LCD_SEG_L2_5_MEM = LCD_MEM_12;
+			uint8_t* const LCD_SEG_L2_COL1_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SEG_L2_COL0_MEM = LCD_MEM_5;
+			uint8_t* const LCD_SEG_L2_DP_MEM = LCD_MEM_9;
+			uint8_t* const LCD_SYMB_AM_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SYMB_PM_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SYMB_ARROW_UP_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SYMB_ARROW_DOWN_MEM = LCD_MEM_1;
+			uint8_t* const LCD_SYMB_PERCENT_MEM = LCD_MEM_5;
+			uint8_t* const LCD_SYMB_TOTAL_MEM = LCD_MEM_11;
+			uint8_t* const LCD_SYMB_AVERAGE_MEM = LCD_MEM_10;
+			uint8_t* const LCD_SYMB_MAX_MEM = LCD_MEM_8;
+			uint8_t* const LCD_SYMB_BATTERY_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L1_FT_MEM = LCD_MEM_5;
+			uint8_t* const LCD_UNIT_L1_K_MEM = LCD_MEM_5;
+			uint8_t* const LCD_UNIT_L1_M_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L1_I_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L1_PER_S_MEM = LCD_MEM_5;
+			uint8_t* const LCD_UNIT_L1_PER_H_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L1_DEGREE_MEM = LCD_MEM_5;
+			uint8_t* const LCD_UNIT_L2_KCAL_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L2_KM_MEM = LCD_MEM_7;
+			uint8_t* const LCD_UNIT_L2_MI_MEM = LCD_MEM_7;
+			uint8_t* const LCD_ICON_HEART_MEM = LCD_MEM_2;
+			uint8_t* const LCD_ICON_STOPWATCH_MEM = LCD_MEM_3;
+			uint8_t* const LCD_ICON_RECORD_MEM = LCD_MEM_1;
+			uint8_t* const LCD_ICON_ALARM_MEM = LCD_MEM_4;
+			uint8_t* const LCD_ICON_BEEPER1_MEM = LCD_MEM_5;
+			uint8_t* const LCD_ICON_BEEPER2_MEM = LCD_MEM_6;
+			uint8_t* const LCD_ICON_BEEPER3_MEM = LCD_MEM_7;
+		} // namespace defines
 
 		// Constants defined in library
 		extern uint8_t* const segments_lcdmem[42];
@@ -245,18 +245,19 @@ namespace daw {
 		extern void lcd_init( );
 		extern void clear_display( );
 		extern void clear_display_all( );
-		extern void clear_line( uint8_t const & line ); // Blinking function
+		extern void clear_line( uint8_t const& line ); // Blinking function
 		extern void start_blink( );
 		extern void stop_blink( );
 		extern void clear_blink_mem( );
 		extern void set_blink_rate( uint8_t bits ); // Character / symbol draw functions
-		extern void display_char( uint8_t const & segment, uint8_t chr, LcdDisplayModes const mode );
-		extern void display_chars( uint8_t const & segments, char const * const str, LcdDisplayModes const mode );
-		extern void display_hex_chars( uint8_t const & segments, uint8_t const * const str, LcdDisplayModes const mode );
+		extern void display_char( uint8_t const& segment, uint8_t chr, LcdDisplayModes const mode );
+		extern void display_chars( uint8_t const& segments, char const* const str, LcdDisplayModes const mode );
+		extern void display_hex_chars( uint8_t const& segments, uint8_t const* const str, LcdDisplayModes const mode );
 		extern void display_symbol( uint8_t symbol, LcdDisplayModes const mode ); // Set_value display functions
-		extern void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ); // Segment index helper function
+		extern void display_value( uint8_t const& segments, uint32_t const& value, uint8_t const& digits, uint8_t const& blanks, LcdDisplayModes const disp_mode ); // Segment index helper function
 		extern uint8_t switch_seg( uint8_t line, uint8_t index1, uint8_t index2 );
 
 		extern void display_all_off( );
 	} // namespace display
-}	// namespace daw
+} // namespace daw
+

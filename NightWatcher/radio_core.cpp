@@ -8,18 +8,18 @@ namespace daw {
 		#define st(x)      do { x } while (__LINE__ == -1)
 		#endif	// st
 
-					// Select source for MCLK and SMCLK e.g. SELECT_MCLK_SMCLK(SELM__DCOCLK + SELS__DCOCLK)
+			// Select source for MCLK and SMCLK e.g. SELECT_MCLK_SMCLK(SELM__DCOCLK + SELS__DCOCLK)
 		#ifndef SELECT_MCLK_SMCLK
 		#define SELECT_MCLK_SMCLK(sources) st(UCSCTL4 = (UCSCTL4 & ~(SELM_7 + SELS_7)) | (sources);)
 		#endif	//SELECT_MCLK_SMCLK
 
-		//====================================================================
-		/**
-		* Initializes FLL of the UCS
-		*
-		* \param fsystem  required system frequency (MCLK) in kHz
-		* \param ratio    ratio between fsystem and FLLREFCLK
-		*/
+			//====================================================================
+			/**
+			* Initializes FLL of the UCS
+			*
+			* \param fsystem  required system frequency (MCLK) in kHz
+			* \param ratio    ratio between fsystem and FLLREFCLK
+			*/
 			void init_fll( uint16_t fsystem, uint16_t ratio ) {
 				uint16_t d, dco_div_bits;
 				uint16_t mode = 0; // save actual state of FLL loop control
@@ -71,7 +71,7 @@ namespace daw {
 				if( mode == 1 ) {                          		  // fsystem > 16000
 					SELECT_MCLK_SMCLK( SELM__DCOCLK + SELS__DCOCLK ); // select DCOCLK
 				} else {
-					SELECT_MCLK_SMCLK( SELM__DCOCLKDIV + SELS__DCOCLKDIV ); // selcet DCODIVCLK
+					SELECT_MCLK_SMCLK( SELM__DCOCLKDIV + SELS__DCOCLKDIV ); // select DCODIVCLK
 				}
 				__bis_SR_register( globalInterruptState ); // restore previous state
 			} // End of fll_init()
@@ -81,17 +81,17 @@ namespace daw {
 				uint16_t SVSMHCTL_backup; // Open PMM registers for write access
 				PMMCTL0_H = 0xA5; // Disable dedicated Interrupts to prevent that needed flags will be cleared
 				PMMRIE_backup = PMMRIE;
-				PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE); // Set SVM highside to new level and check if a VCore increase is possible
+				PMMRIE &= ~(SVSMHDLYIE | SVSMLDLYIE | SVMLVLRIE | SVMHVLRIE | SVMHVLRPE); // Set SVM high side to new level and check if a VCore increase is possible
 				SVSMHCTL_backup = SVSMHCTL;
 				PMMIFG &= ~(SVMHIFG | SVSMHDLYIFG);
-				SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level); // Wait until SVM highside is settled
+				SVSMHCTL = SVMHE | SVMHFP | (SVSMHRRL0 * level); // Wait until SVM high side is settled
 				while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 				// Disable full-performance mode to save energy
 				SVSMHCTL &= ~_HAL_PMM_SVSFP; // Check if a VCore increase is possible
 				if( (PMMIFG & SVMHIFG) == SVMHIFG ) {			//-> Vcc is to low for a Vcore increase recover the previous settings
 					PMMIFG &= ~SVSMHDLYIFG;
-					SVSMHCTL = SVSMHCTL_backup; // Wait until SVM highside is settled
+					SVSMHCTL = SVSMHCTL_backup; // Wait until SVM high side is settled
 					while( (PMMIFG & SVSMHDLYIFG) == 0 ) { /* spin */ }
 
 					// Clear all Flags
@@ -101,7 +101,7 @@ namespace daw {
 					return PMM_STATUS_ERROR; // return: voltage not set
 				}
 
-				// Set also SVS highside to new level -> Vcc is high enough for a Vcore increase
+				// Set also SVS high side to new level -> Vcc is high enough for a Vcore increase
 				SVSMHCTL |= SVSHE | (SVSHRVL0 * level); // Set SVM low side to new level
 				SVSMLCTL = SVMLE | SVMLFP | (SVSMLRRL0 * level); // Wait until SVM low side is settled
 				while( (PMMIFG & SVSMLDLYIFG) == 0 ) { /* spin */ }
@@ -156,10 +156,10 @@ namespace daw {
 				PMMCTL0_H = 0x00;
 
 				if( (PMMIFG & SVMHIFG) == SVMHIFG ) {
-					return PMM_STATUS_ERROR; // Highside is still to low for the adjusted VCore Level
-				} else {
-					return PMM_STATUS_OK; // Return: OK
+					return PMM_STATUS_ERROR; // High side is still to low for the adjusted VCore Level
 				}
+
+				return PMM_STATUS_OK; // Return: OK
 			}
 
 			//****************************************************************************//
@@ -171,7 +171,7 @@ namespace daw {
 				level &= PMMCOREV_3; // Set Mask for Max. level
 				uint16_t actlevel = (PMMCTL0 & PMMCOREV_3); // Get actual VCore
 
-				while( ((level != actlevel) && (status == 0)) || (level < actlevel) ) {	// step by step increase or decrease
+				while( (level != actlevel && status == 0) || level < actlevel ) {	// step by step increase or decrease
 					if( level > actlevel ) {
 						status = set_vcore_up( ++actlevel );
 					} else {
@@ -183,7 +183,7 @@ namespace daw {
 
 			uint8_t strobe( uint8_t const cmd ) {
 				uint8_t status_byte = 0;
-				if( (cmd == 0xBD) || ((cmd >= RF_SRES) && (cmd <= RF_SNOP)) ) {
+				if( cmd == 0xBD || (cmd >= RF_SRES && cmd <= RF_SNOP) ) {
 					// Clear the Status read flag
 					RF1AIFCTL1 &= ~(RFSTATIFG); // Wait for radio to be ready for next instruction
 					while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }

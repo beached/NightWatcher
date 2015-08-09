@@ -21,18 +21,18 @@ namespace {
 		}
 		switch( count ) {
 		case 0:
-			daw::display::display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_OFF );
+			display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_OFF );
 			break;
 		case 1:
-			daw::display::display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_ON );
+			display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_ON );
 			break;
 		case 2:
-			daw::display::display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_OFF );
-			daw::display::display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_ON );
+			display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_OFF );
+			display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_ON );
 			break;
 		case 3:
-			daw::display::display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_OFF );
-			daw::display::display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_ON );
+			display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_OFF );
+			display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_ON );
 			break;
 		}
 	}
@@ -45,7 +45,7 @@ namespace {
 
 		daw::display::lcd_init( );
 		daw::display::clear_display( );
-		daw::display::display_chars( daw::display::defines::LCD_SEG_LINE1_START, "On", daw::display::SEG_ON ); //init_timer( );
+		display_chars( daw::display::defines::LCD_SEG_LINE1_START, "On", daw::display::SEG_ON ); //init_timer( );
 		radio.init_radio( daw::radio::medtronic::radio_setup_916MHz );
 	}
 
@@ -101,8 +101,8 @@ namespace {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		__enable_interrupt( ); // Display glucose or something
-		daw::display::display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, (uint8_t const *)daw::radio::medtronic::radio_data_buffer.data( ), daw::display::SEG_ON );
-		daw::display::display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, (uint8_t  const *)(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
+		display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( )), daw::display::SEG_ON );
+		display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
 		current_state = state_waiting_for_interrupt;
 	}
 }	// namespace anonymous

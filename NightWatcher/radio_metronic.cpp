@@ -13,7 +13,7 @@ namespace daw {
 			}
 
 			void radio_setup_916MHz( ) {
-				using namespace daw::radio::core;
+				using namespace core;
 				radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
 				radio_write_single_reg( SYNC1, 0xFF ); //Sync Word, High Byte
 				radio_write_single_reg( SYNC0, 0x00 ); //Sync Word, Low Byte
@@ -73,7 +73,7 @@ namespace daw {
 						}
 					}
 				}
-				daw::Array<uint8_t, 256> crc_table( crc_init );
+				Array<uint8_t, 256> crc_table( crc_init );
 
 				struct Packet {
 					size_t data_start_idx;
@@ -92,7 +92,7 @@ namespace daw {
 				size_t packet_count = 0;
 				size_t packet_head_idx = 0;
 
-				daw::Buffer<Packet, MAX_PACKETS> packets;
+				Buffer<Packet, MAX_PACKETS> packets;
 
 				size_t data_buffer_bytes_used = 0;
 				uint8_t buffer_overflow_count = 0;
@@ -139,7 +139,7 @@ namespace daw {
 
 				void finish_incoming_packet( ) {
 					// 		uint16_t packet_crc = 0;
-					packets[packet_head_idx].rssi = daw::radio::core::radio_read_single_reg( RSSI );
+					packets[packet_head_idx].rssi = core::radio_read_single_reg( RSSI );
 					packets[packet_head_idx].packet_number = packet_number++;
 					{
 						uint8_t crc = 0;
