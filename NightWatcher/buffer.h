@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include "algorithm.h"
 #include "array.h"
 

@@ -1,9 +1,7 @@
 #include "display.h"
 #include <cc430f6137.h>
 #include <string.h>
-#include <limits.h>
 #include "buffer.h"
-#include "array.h"
 
 namespace daw {
 	namespace display {

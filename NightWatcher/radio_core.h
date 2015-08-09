@@ -2,8 +2,6 @@
 
 #include <cc430f6137.h>
 #include <stdint.h>
-#include <stddef.h>
-#include <string.h>
 #include "buffer.h"
 #include "algorithm.h"
 

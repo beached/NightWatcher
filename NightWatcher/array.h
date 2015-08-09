@@ -1,26 +1,25 @@
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
 #include "algorithm.h"
+#include <stddef.h>
 
 namespace daw {
 	template<typename T, size_t ARRAY_SIZE>
 	struct Array {
 		typedef T value_type;
 		typedef T* iterator;
-		typedef T const * const_iterator;
+		typedef T const* const_iterator;
 		typedef T& reference;
-		typedef T const & const_reference;
+		typedef T const& const_reference;
 		typedef size_t size_type;
 
-		typedef void( *init_fn )(T* const arry, size_t const & size_of);
+		typedef void ( *init_fn )( T* const arry, size_t const& size_of );
 	private:
 		value_type m_values[ARRAY_SIZE];
 	public:
 		Array( ): m_values( ) { }
 
-		Array( T const & value ): m_values( ) {
+		Array( T const& value ): m_values( ) {
 			daw::fill( m_values, m_values + ARRAY_SIZE, value );
 		}
 
@@ -28,7 +27,7 @@ namespace daw {
 			init_function( m_values, ARRAY_SIZE );
 		}
 
-		Array & operator=( Array const & other ) {
+		Array& operator=( Array const& other ) {
 			if( this != &other ) {
 				daw::copy( other.begin( ), other.end( ), begin( ) );
 			}
@@ -63,19 +62,19 @@ namespace daw {
 			return m_values + ARRAY_SIZE;
 		}
 
-		reference operator[]( size_t const & pos ) {
+		reference operator[]( size_t const& pos ) {
 			return m_values[pos];
 		}
 
-		const_reference operator[]( size_t const & pos ) const {
+		const_reference operator[]( size_t const& pos ) const {
 			return m_values[pos];
 		}
 
-		value_type * data( ) {
+		value_type* data( ) {
 			return m_values;
 		}
 
-		value_type const * data( ) const {
+		value_type const* data( ) const {
 			return m_values;
 		}
 
