@@ -12,31 +12,53 @@ namespace {
 		WDTCTL = WDTPW | WDTHOLD;
 	}
 
-	void toggle_net_activity( ) {
-		using namespace daw::display::defines;
-		static uint8_t count = 1;
-		if( count > 3 ) {
-			count = 1;
+#pragma region NetActivity
+	class NetActivity {
+		static void net_state_off( NetActivity & );
+		static void net_state_1( NetActivity & );
+		static void net_state_2( NetActivity & );
+		static void net_state_3( NetActivity & );
+
+		typedef void( *net_state_fn )(NetActivity &);
+		net_state_fn m_current_net_state;
+	public:
+		NetActivity( ): m_current_net_state( net_state_off ) { }
+
+		void current_state( ) {
+			m_current_net_state( *this );
 		}
-		switch( count ) {
-		case 0:
-			display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_OFF );
-			break;
-		case 1:
-			display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_ON );
-			break;
-		case 2:
-			display_symbol( LCD_ICON_BEEPER1, daw::display::SEG_OFF );
-			display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_ON );
-			break;
-		case 3:
-			display_symbol( LCD_ICON_BEEPER2, daw::display::SEG_OFF );
-			display_symbol( LCD_ICON_BEEPER3, daw::display::SEG_ON );
-			break;
-		}
+	};
+
+	void NetActivity::net_state_off( NetActivity & self ) {
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
+		self.m_current_net_state = net_state_1;
 	}
 
+	void NetActivity::net_state_1( NetActivity & self ) {
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_ON );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
+		self.m_current_net_state = net_state_2;
+	}
+
+	void NetActivity::net_state_2( NetActivity & self ) {
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_ON );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
+		self.m_current_net_state = net_state_3;
+	}
+
+	void NetActivity::net_state_3( NetActivity & self ) {
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
+		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_ON );
+		self.m_current_net_state = net_state_1;
+	}
+#pragma endregion 
 	daw::radio::core::RadioCore<256> radio;
+	NetActivity net_activity;
 
 	void setup_hardware( ) {
 		daw::radio::core::set_vcore( 2u );
@@ -77,6 +99,7 @@ namespace {
 	}
 
 	void state_received_data( ) {
+		net_activity.current_state( );
 		auto const data_size = radio.receive_data( );
 		if( 0 < data_size ) {
 			current_state = state_process_data;
@@ -87,7 +110,6 @@ namespace {
 
 	void state_process_data( ) {
 		if( radio.has_data( ) ) {
-			toggle_net_activity( );
 			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
 			radio.reset_rx_buffer( );
 			current_state = state_display_data;

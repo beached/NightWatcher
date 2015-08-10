@@ -14,7 +14,7 @@ MACOS_FRAMEWORKS :=
 LINUX_PACKAGES := 
 
 CFLAGS := -ggdb -ffunction-sections -O3
-CXXFLAGS := -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O3
+CXXFLAGS := -ggdb -ffunction-sections -fno-exceptions -fno-rtti -O3  -std=c++0x
 ASFLAGS := 
 LDFLAGS := -Wl,-gc-sections
 COMMONFLAGS := 

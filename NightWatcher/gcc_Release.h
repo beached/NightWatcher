@@ -22,6 +22,7 @@
 #define __LDBL_MAX__ 3.40282347e+38L
 #define __UINTMAX_TYPE__ long long unsigned int
 #define __DEC32_EPSILON__ 1E-6DF
+#define __OPTIMIZE__ 1
 #define __LDBL_MAX_EXP__ 128
 #define __WINT_MIN__ 0U
 #define __SCHAR_MAX__ 127
@@ -29,6 +30,7 @@
 #define __DBL_DIG__ 6
 #define __SIZEOF_INT__ 2
 #define __SIZEOF_POINTER__ 2
+#define NDEBUG 1
 #define __USER_LABEL_PREFIX__ 
 #define __STDC_HOSTED__ 1
 #define __LDBL_HAS_INFINITY__ 1
@@ -40,6 +42,7 @@
 #define __MSP430_MPY32__ 51
 #define __SIZEOF_LONG__ 4
 #define __DECIMAL_DIG__ 9
+#define RELEASE 1
 #define __LDBL_HAS_QUIET_NAN__ 1
 #define __GNUC__ 4
 #define __FLT_HAS_DENORM__ 1
@@ -50,6 +53,7 @@
 #define __MSP430_MPY__ 51
 #define __DEC32_MIN_EXP__ (-94)
 #define __MSP430_MPY16__ 51
+#define __STRICT_ANSI__ 1
 #define __LDBL_HAS_DENORM__ 1
 //VS2005-2012 treats all files as C++, while VS2013+ can treat C files correctly.
 #if _MSC_VER < 1800 || defined(__cplusplus)
@@ -76,7 +80,6 @@
 #define __DEC128_MIN__ 1E-6143DL
 #define __REGISTER_PREFIX__ 
 #define __DBL_HAS_DENORM__ 1
-#define __NO_INLINE__ 1
 #define __FLT_MANT_DIG__ 24
 #define __VERSION__ "4.6.3 20120301 (mspgcc dev 20120311)"
 #define MSP430_HAS_HWMUL 1
@@ -135,7 +138,6 @@
 #define __LDBL_DENORM_MIN__ 1.40129846e-45L
 #define __STDC__ 1
 #define __PTRDIFF_TYPE__ long int
-#define MSP430 1
 #define __DEC64_SUBNORMAL_MIN__ 0.000000000000001E-383DD
 #define __DEC128_MANT_DIG__ 34
 #define __LDBL_MIN_10_EXP__ (-37)
@@ -144,8 +146,6 @@
 #define __LDBL_DIG__ 6
 #define __FLT_DECIMAL_DIG__ 9
 #define __GNUC_GNU_INLINE__ 1
-#define NDEBUG 
-#define RELEASE 
 #endif
 
 // --- Include directories begin --- //

@@ -70,15 +70,15 @@ namespace daw {
 		// *************************************************************************************************
 		void clear_line( uint8_t const & line ) {
 			using namespace display;
-			display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
+			display_chars( switch_seg( line, LcdSymbols::LCD_SEG_L1_3_0, LcdSymbols::LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
 			if( LINE1 == line ) {
-				display_symbol( LCD_SEG_L1_DP1, SEG_OFF );
-				display_symbol( LCD_SEG_L1_DP0, SEG_OFF );
-				display_symbol( LCD_SEG_L1_COL, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L1_DP1, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L1_DP0, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L1_COL, SEG_OFF );
 			} else { // line == LINE2
-				display_symbol( LCD_SEG_L2_DP, SEG_OFF );
-				display_symbol( LCD_SEG_L2_COL1, SEG_OFF );
-				display_symbol( LCD_SEG_L2_COL0, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L2_DP, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L2_COL1, SEG_OFF );
+				display_symbol( LcdSymbols::LCD_SEG_L2_COL0, SEG_OFF );
 			}
 		}
 
@@ -190,16 +190,16 @@ namespace daw {
 		//				uint8_t state		SEG_ON, SEG_OFF, SEG_BLINK
 		// @return      none
 		// *************************************************************************************************
-		void display_symbol( uint8_t symbol, LcdDisplayModes const mode ) {
-			if( symbol <= LCD_SEG_L2_DP ) {
+		void display_symbol( defines::LcdSymbols const & symbol, LcdDisplayModes const mode ) {
+			if( symbol <= LcdSymbols::LCD_SEG_L2_DP ) {
 				// Get LCD memory address for symbol from table
-				uint8_t * lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
+				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
 
 				// Get bits for symbol from table
-				uint8_t bits = segments_bitmask[symbol];
+				auto bits = segments_bitmask[symbol];
 
 				// Bitmask for symbols equals bits
-				uint8_t bitmask = bits;
+				auto bitmask = bits;
 
 				// Write LCD memory
 				write_lcd_mem( lcdmem, bits, bitmask, mode );
@@ -478,54 +478,54 @@ namespace daw {
 		// @return      none
 		// *************************************************************************************************
 		void display_all_off( ) {
-			uint8_t * const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
+			auto const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
 			daw::fill( lcdptr, lcdptr + 12, 0x00 );
 		}
 
 		// Table with memory address for each display element
 		uint8_t* const segments_lcdmem[42] = {
-			LCD_SYMB_AM_MEM,
-			LCD_SYMB_PM_MEM,
-			LCD_SYMB_ARROW_UP_MEM,
-			LCD_SYMB_ARROW_DOWN_MEM,
-			LCD_SYMB_PERCENT_MEM,
-			LCD_SYMB_TOTAL_MEM,
-			LCD_SYMB_AVERAGE_MEM,
-			LCD_SYMB_MAX_MEM,
-			LCD_SYMB_BATTERY_MEM,
-			LCD_UNIT_L1_FT_MEM,
-			LCD_UNIT_L1_K_MEM,
-			LCD_UNIT_L1_M_MEM,
-			LCD_UNIT_L1_I_MEM,
-			LCD_UNIT_L1_PER_S_MEM,
-			LCD_UNIT_L1_PER_H_MEM,
-			LCD_UNIT_L1_DEGREE_MEM,
-			LCD_UNIT_L2_KCAL_MEM,
-			LCD_UNIT_L2_KM_MEM,
-			LCD_UNIT_L2_MI_MEM,
-			LCD_ICON_HEART_MEM,
-			LCD_ICON_STOPWATCH_MEM,
-			LCD_ICON_RECORD_MEM,
-			LCD_ICON_ALARM_MEM,
-			LCD_ICON_BEEPER1_MEM,
-			LCD_ICON_BEEPER2_MEM,
-			LCD_ICON_BEEPER3_MEM,
-			LCD_SEG_L1_3_MEM,
-			LCD_SEG_L1_2_MEM,
-			LCD_SEG_L1_1_MEM,
-			LCD_SEG_L1_0_MEM,
-			LCD_SEG_L1_COL_MEM,
-			LCD_SEG_L1_DP1_MEM,
-			LCD_SEG_L1_DP0_MEM,
-			LCD_SEG_L2_5_MEM,
-			LCD_SEG_L2_4_MEM,
-			LCD_SEG_L2_3_MEM,
-			LCD_SEG_L2_2_MEM,
-			LCD_SEG_L2_1_MEM,
-			LCD_SEG_L2_0_MEM,
-			LCD_SEG_L2_COL1_MEM,
-			LCD_SEG_L2_COL0_MEM,
-			LCD_SEG_L2_DP_MEM,
+			LCDMemoryAssignment::LCD_SYMB_AM_MEM,
+			LCDMemoryAssignment::LCD_SYMB_PM_MEM,
+			LCDMemoryAssignment::LCD_SYMB_ARROW_UP_MEM,
+			LCDMemoryAssignment::LCD_SYMB_ARROW_DOWN_MEM,
+			LCDMemoryAssignment::LCD_SYMB_PERCENT_MEM,
+			LCDMemoryAssignment::LCD_SYMB_TOTAL_MEM,
+			LCDMemoryAssignment::LCD_SYMB_AVERAGE_MEM,
+			LCDMemoryAssignment::LCD_SYMB_MAX_MEM,
+			LCDMemoryAssignment::LCD_SYMB_BATTERY_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_FT_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_K_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_M_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_I_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_PER_S_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_PER_H_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L1_DEGREE_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L2_KCAL_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L2_KM_MEM,
+			LCDMemoryAssignment::LCD_UNIT_L2_MI_MEM,
+			LCDMemoryAssignment::LCD_ICON_HEART_MEM,
+			LCDMemoryAssignment::LCD_ICON_STOPWATCH_MEM,
+			LCDMemoryAssignment::LCD_ICON_RECORD_MEM,
+			LCDMemoryAssignment::LCD_ICON_ALARM_MEM,
+			LCDMemoryAssignment::LCD_ICON_BEEPER1_MEM,
+			LCDMemoryAssignment::LCD_ICON_BEEPER2_MEM,
+			LCDMemoryAssignment::LCD_ICON_BEEPER3_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_3_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_2_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_1_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_0_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_COL_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_DP1_MEM,
+			LCDMemoryAssignment::LCD_SEG_L1_DP0_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_5_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_4_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_3_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_2_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_1_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_0_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_COL1_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_COL0_MEM,
+			LCDMemoryAssignment::LCD_SEG_L2_DP_MEM,
 		};
 
 		// Table with bit mask for each display element
