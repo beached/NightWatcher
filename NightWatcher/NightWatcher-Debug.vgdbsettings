@@ -57,7 +57,7 @@
         <PendingBreakpointsSupported>false</PendingBreakpointsSupported>
         <SupportTargetCommand>false</SupportTargetCommand>
       </Features>
-      <DisableDisassembly>false</DisableDisassembly>
+      <DisableDisassembly>true</DisableDisassembly>
       <ExamineMemoryWithXCommand>false</ExamineMemoryWithXCommand>
       <StepIntoNewInstanceEntry>main</StepIntoNewInstanceEntry>
       <ExamineRegistersInRawFormat>true</ExamineRegistersInRawFormat>
@@ -83,7 +83,7 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.msp430proxy.verbose</Key>
-          <Value>--verbose</Value>
+          <Value />
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.msp430proxy.interface</Key>
@@ -99,7 +99,7 @@
         </KeyValue>
       </Entries>
     </DebugMethodProperties>
-    <SemihostingSupport>Auto</SemihostingSupport>
+    <SemihostingSupport>Disabled</SemihostingSupport>
     <StepIntoEntryPoint>false</StepIntoEntryPoint>
     <ReloadFirmwareOnReset>false</ReloadFirmwareOnReset>
   </Debug>

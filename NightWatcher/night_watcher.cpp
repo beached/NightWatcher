@@ -24,7 +24,7 @@ namespace {
 	public:
 		NetActivity( ): m_current_net_state( net_state_off ) { }
 
-		void current_state( ) {
+		void tick( ) {
 			m_current_net_state( *this );
 		}
 	};
@@ -56,11 +56,11 @@ namespace {
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_ON );
 		self.m_current_net_state = net_state_1;
 	}
-#pragma endregion 
+#pragma endregion
 	daw::radio::core::RadioCore<256> radio;
 	NetActivity net_activity;
 
-	void setup_hardware( ) {
+	inline void setup_hardware( ) {
 		daw::radio::core::set_vcore( 2u );
 		daw::radio::core::init_fll( 8500000 / 1000, 8500000 / 32768 );
 
@@ -70,26 +70,35 @@ namespace {
 		radio.init_radio( daw::radio::medtronic::radio_setup_916MHz );
 	}
 
-	typedef void( *state_function_ptr )();
-	state_function_ptr current_state = nullptr;
+#pragma region ProgramState
+	class ProgramState {
+		typedef void( *state_function_ptr )(ProgramState &);
+		state_function_ptr current_state;
 
-	void state_waiting_for_interrupt( );
-	void state_received_data( );
-	void state_process_data( );
-	void state_display_data( );
-	void state_button_pushed( );
+		static void state_waiting_for_interrupt( ProgramState & );
+		static void state_received_data( ProgramState & );
+		static void state_process_data( ProgramState & );
+		static void state_display_data( ProgramState & );
+		static void state_button_pushed( ProgramState & );
+	public:
+		ProgramState( ): current_state( state_waiting_for_interrupt ) { }
 
-	void state_button_pushed( ) {
-		current_state = state_waiting_for_interrupt;
+		void tick( ) {
+			current_state( *this );
+		}
+	};
+
+	void ProgramState::state_button_pushed( ProgramState & self ) {
+		self.current_state = state_waiting_for_interrupt;
 	}
 
-	void state_waiting_for_interrupt( ) {
+	void ProgramState::state_waiting_for_interrupt( ProgramState & self ) {
 		radio.receive_on( );
 		__enable_interrupt( );
 		low_power_mode( );
 		__no_operation( );
 		if( radio.data_pending( ) ) {
-			current_state = state_received_data;
+			self.current_state = state_received_data;
 		}
 		/*
 		if( button_push ) {
@@ -98,44 +107,45 @@ namespace {
 		*/
 	}
 
-	void state_received_data( ) {
-		net_activity.current_state( );
+	void ProgramState::state_received_data( ProgramState & self ) {
+		net_activity.tick( );
 		auto const data_size = radio.receive_data( );
 		if( 0 < data_size ) {
-			current_state = state_process_data;
+			self.current_state = state_process_data;
 		} else {
-			current_state = state_waiting_for_interrupt;
+			self.current_state = state_waiting_for_interrupt;
 		}
 	}
 
-	void state_process_data( ) {
+	void ProgramState::state_process_data( ProgramState & self ) {
 		if( radio.has_data( ) ) {
 			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
 			radio.reset_rx_buffer( );
-			current_state = state_display_data;
+			self.current_state = state_display_data;
 		} else {
-			current_state = state_waiting_for_interrupt;
+			self.current_state = state_waiting_for_interrupt;
 		}
 	}
 
-	void state_display_data( ) {
+	void ProgramState::state_display_data( ProgramState & self ) {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
 		__enable_interrupt( ); // Display glucose or something
 		display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( )), daw::display::SEG_ON );
 		display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
-		current_state = state_waiting_for_interrupt;
+		self.current_state = state_waiting_for_interrupt;
 	}
+#pragma endregion
 }	// namespace anonymous
 
 int main( ) {
 	// Setup
 	disable_watchdog( );
-	current_state = state_waiting_for_interrupt;
+	ProgramState program_state;
 	setup_hardware( );
 
 	while( true ) {
-		current_state( );
+		program_state.tick( );
 	}
 }
 
