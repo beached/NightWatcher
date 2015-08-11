@@ -40,6 +40,12 @@
     <ClCompile Include="radio_metronic.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="radio_config.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="new.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -73,6 +79,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="algorithm.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="radio_config.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="new.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

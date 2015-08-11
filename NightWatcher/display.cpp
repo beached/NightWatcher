@@ -59,9 +59,9 @@ namespace daw {
 			}
 
 			char const * itoa( uint32_t val, uint8_t const & digits, uint8_t blanks ) {
-				size_t const result_str_size = 7;
-
+				static size_t const result_str_size = 7;
 				static Buffer<char, result_str_size + 1> result_str( '0' );
+
 				result_str[result_str_size] = '\0';
 
 				// Return empty string if number of digits is invalid (valid range for digits: 1-7)
@@ -575,5 +575,5 @@ namespace daw {
 			auto const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
 			fill( lcdptr, lcdptr + 12, 0x00 );
 		}
-	}
-}	// namespace daw
+		}
+	}	// namespace daw

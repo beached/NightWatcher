@@ -4,6 +4,7 @@
 #include "display.h"
 #include "radio_core.h"
 #include "radio_medtronic.h"
+#include "radio_config.h"
 
 #define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
 #define low_power_mode_off_on_exit( ) LPM3_EXIT;
@@ -19,13 +20,13 @@ namespace {
 		static void net_state_2( NetActivity & );
 		static void net_state_3( NetActivity & );
 
-		typedef void( *net_state_fn )(NetActivity &);
-		net_state_fn m_current_net_state;
+		typedef void( *state_function_ptr )(NetActivity &);
+		state_function_ptr state_function;
 	public:
-		NetActivity( ): m_current_net_state( net_state_off ) { }
+		NetActivity( ): state_function( net_state_off ) { }
 
 		void tick( ) {
-			m_current_net_state( *this );
+			state_function( *this );
 		}
 	};
 
@@ -33,30 +34,31 @@ namespace {
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
-		self.m_current_net_state = net_state_1;
+		self.state_function = net_state_1;
 	}
 
 	void NetActivity::net_state_1( NetActivity & self ) {
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_ON );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
-		self.m_current_net_state = net_state_2;
+		self.state_function = net_state_2;
 	}
 
 	void NetActivity::net_state_2( NetActivity & self ) {
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_ON );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_OFF );
-		self.m_current_net_state = net_state_3;
+		self.state_function = net_state_3;
 	}
 
 	void NetActivity::net_state_3( NetActivity & self ) {
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER1, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER2, daw::display::SEG_OFF );
 		display_symbol( daw::display::defines::LCD_ICON_BEEPER3, daw::display::SEG_ON );
-		self.m_current_net_state = net_state_1;
+		self.state_function = net_state_1;
 	}
 #pragma endregion
+
 	daw::radio::core::RadioCore<256> radio;
 	NetActivity net_activity;
 
@@ -73,7 +75,7 @@ namespace {
 #pragma region ProgramState
 	class ProgramState {
 		typedef void( *state_function_ptr )(ProgramState &);
-		state_function_ptr current_state;
+		state_function_ptr state_function;
 
 		static void state_waiting_for_interrupt( ProgramState & );
 		static void state_received_data( ProgramState & );
@@ -81,15 +83,15 @@ namespace {
 		static void state_display_data( ProgramState & );
 		static void state_button_pushed( ProgramState & );
 	public:
-		ProgramState( ): current_state( state_waiting_for_interrupt ) { }
+		ProgramState( ): state_function( state_waiting_for_interrupt ) { }
 
 		void tick( ) {
-			current_state( *this );
+			state_function( *this );
 		}
 	};
 
 	void ProgramState::state_button_pushed( ProgramState & self ) {
-		self.current_state = state_waiting_for_interrupt;
+		self.state_function = state_waiting_for_interrupt;
 	}
 
 	void ProgramState::state_waiting_for_interrupt( ProgramState & self ) {
@@ -98,7 +100,7 @@ namespace {
 		low_power_mode( );	// This will put MCU to sleep and wait for interrupt
 		__no_operation( );
 		if( radio.data_pending( ) ) {
-			self.current_state = state_received_data;
+			self.state_function = state_received_data;
 		}
 		/*
 		if( button_push ) {
@@ -110,10 +112,10 @@ namespace {
 	void ProgramState::state_received_data( ProgramState & self ) {
 		net_activity.tick( );
 		auto const data_size = radio.receive_data( );
-		if( 0 < data_size ) {
-			self.current_state = state_process_data;
+		if( data_size > 0 ) {
+			self.state_function = state_process_data;
 		} else {
-			self.current_state = state_waiting_for_interrupt;
+			self.state_function = state_waiting_for_interrupt;
 		}
 	}
 
@@ -121,20 +123,24 @@ namespace {
 		if( radio.has_data( ) ) {
 			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
 			radio.reset_rx_buffer( );
-			self.current_state = state_display_data;
+			self.state_function = state_display_data;
 		} else {
-			self.current_state = state_waiting_for_interrupt;
+			self.state_function = state_waiting_for_interrupt;
 		}
 	}
 
 	void ProgramState::state_display_data( ProgramState & self ) {
 		// Allow radio traffic.  We are done with the radio buffer and
-		radio.receive_on( );
-		__enable_interrupt( );
+		using namespace daw::display;
 		// Display glucose or something
-		display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( )), daw::display::SEG_ON );
-		display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
-		self.current_state = state_waiting_for_interrupt;
+		if( !radio.rx_array( ).empty( ) ) {
+			display_hex_chars( defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(radio.rx_array( ).data( )), SEG_ON );
+			display_hex_chars( defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(radio.rx_array( ).data( ) + 4), SEG_ON );
+		} else {
+			display_chars( defines::LCD_SEG_LINE1_START, "Err", SEG_ON );
+			display_value( defines::LCD_SEG_LINE2_START, daw::radio::medtronic::symbol_error_count, 5, 0, SEG_ON );
+		}
+		self.state_function = state_waiting_for_interrupt;
 	}
 #pragma endregion
 }	// namespace anonymous
@@ -150,10 +156,8 @@ int main( ) {
 	}
 }
 
-#define __even_in_range( x, y ) (x)
-
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
-	switch( __even_in_range( RF1AIV, 32 ) ) {	// Prioritizing Radio Core Interrupt
+	switch( RF1AIV ) {	// Prioritizing Radio Core Interrupt
 	case  0: break; // No RF core interrupt pending
 	case  2: break; // RFIFG0
 	case  4:								// RFIFG1
