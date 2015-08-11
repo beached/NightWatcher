@@ -9,8 +9,10 @@ namespace daw {
 	namespace display {
 		namespace defines {
 			// Definitions for line access
-			uint8_t const LINE1 = 1;
-			uint8_t const LINE2 = 2;
+			enum LCDLineAccess: uint8_t {
+				LINE1 = 1,
+				LINE2 = 2
+			};
 
 			// ------------------------------------------
 			// LCD symbols for easier access
@@ -163,10 +165,6 @@ namespace daw {
 				uint8_t * const LCD_ICON_BEEPER3_MEM = LCDMemoryMap::LCD_MEM_7;
 			}
 		} // namespace defines
-
-		// Constants defined in library
-		extern uint8_t* const segments_lcdmem[42];
-		extern uint8_t const segments_bitmask[42];
 
 		enum LcdDisplayModes: uint8_t {
 			SEG_OFF = 0,

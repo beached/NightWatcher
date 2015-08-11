@@ -62,7 +62,7 @@ namespace {
 
 	inline void setup_hardware( ) {
 		daw::radio::core::set_vcore( 2u );
-		daw::radio::core::init_fll( 8500000 / 1000, 8500000 / 32768 );
+		daw::radio::core::init_fll( 8500000u / 1000u, 8500000u / 32768u );
 
 		daw::display::lcd_init( );
 		daw::display::clear_display( );

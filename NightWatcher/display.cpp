@@ -5,82 +5,6 @@
 namespace daw {
 	namespace display {
 		using namespace defines;
-		// *************************************************************************************************
-		// @fn          lcd_init
-		// @brief       Erase LCD memory. Init LCD peripheral.
-		// @param      	none
-		// @return      none
-		// *************************************************************************************************
-		void lcd_init( ) {
-			// Clear entire display memory
-			LCDBMEMCTL |= LCDCLRBM + LCDCLRM;
-
-			// LCD_FREQ = ACLK/12/8 = 341.3Hz flickers in the sun
-			// LCD_FREQ = ACLK/10/8 = 409.6Hz still flickers in the sun when watch is moving (might be negligible)
-
-			// LCD_FREQ = ACLK/8/8 = 512Hz no flickering, even when watch is moving
-			// Frame frequency = 512Hz/2/4 = 64Hz, LCD mux 4, LCD on
-			LCDBCTL0 = (LCDDIV0 + LCDDIV1 + LCDDIV2) | (LCDPRE0 + LCDPRE1) | LCD4MUX | LCDON;
-
-			// LCB_BLK_FREQ = ACLK/8/4096 = 1Hz
-			LCDBBLKCTL = LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 | LCDBLKMOD0;
-
-			// I/O to COM outputs
-			P5SEL |= (BIT5 | BIT6 | BIT7);
-			P5DIR |= (BIT5 | BIT6 | BIT7);
-
-			// Activate LCD output
-			LCDBPCTL0 = 0xFFFF; // Select LCD segments S0-S15
-			LCDBPCTL1 = 0x00FF; // Select LCD segments S16-S22
-
-		#ifdef USE_LCD_CHARGE_PUMP
-			// Charge pump voltage generated internally, internal bias (V2-V4) generation
-			LCDBVCTL = LCDCPEN | VLCD_2_72;
-		#endif
-		}
-
-		// *************************************************************************************************
-		// @fn          clear_display_all
-		// @brief       Erase LINE1 and LINE2 segments. Clear also function-specific content.
-		// @param      	none
-		// @return      none
-		// *************************************************************************************************
-		void clear_display_all( ) {
-			// Clear generic content
-			clear_line( LINE1 );
-			clear_line( LINE2 );
-		}
-
-		// *************************************************************************************************
-		// @fn          clear_display
-		// @brief       Erase LINE1 and LINE2 segments. Keep icons.
-		// @param      	none
-		// @return      none
-		// *************************************************************************************************
-		void clear_display( ) {
-			clear_line( LINE1 );
-			clear_line( LINE2 );
-		}
-
-		// *************************************************************************************************
-		// @fn          clear_line
-		// @brief       Erase segments of a given line.
-		// @param      	uint8_t line	LINE1, LINE2
-		// @return      none
-		// *************************************************************************************************
-		void clear_line( uint8_t const & line ) {
-			using namespace display;
-			display_chars( switch_seg( line, LcdSymbols::LCD_SEG_L1_3_0, LcdSymbols::LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
-			if( LINE1 == line ) {
-				display_symbol( LcdSymbols::LCD_SEG_L1_DP1, SEG_OFF );
-				display_symbol( LcdSymbols::LCD_SEG_L1_DP0, SEG_OFF );
-				display_symbol( LcdSymbols::LCD_SEG_L1_COL, SEG_OFF );
-			} else { // line == LINE2
-				display_symbol( LcdSymbols::LCD_SEG_L2_DP, SEG_OFF );
-				display_symbol( LcdSymbols::LCD_SEG_L2_COL1, SEG_OFF );
-				display_symbol( LcdSymbols::LCD_SEG_L2_COL0, SEG_OFF );
-			}
-		}
 
 		namespace {
 			// *************************************************************************************************
@@ -167,183 +91,110 @@ namespace daw {
 				value = ((value << 4) & 0xF0) | ((value >> 4) & 0x0F);
 				return value;
 			}
-		}	// namespace anonymous
-		// *************************************************************************************************
-		// @fn          display_value
-		// @brief       Generic decimal display routine. Used exclusively by set_value function.
-		// @param       uint8_t segments		LCD segments where value is displayed
-		//				u32 value			Integer value to be displayed
-		//				uint8_t digits			Number of digits to convert
-		//				uint8_t blanks			Number of leadings blanks in itoa result string
-		// @return      none
-		// *************************************************************************************************
-		void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ) {
-			auto const str = itoa( value, digits, blanks );
-			// Display string in blink mode
-			display_chars( segments, str, disp_mode );
-		}
 
-		// *************************************************************************************************
-		// @fn          display_symbol
-		// @brief       Switch symbol on or off on LCD.
-		// @param       uint8_t symbol		A valid LCD symbol (index 0..42)
-		//				uint8_t state		SEG_ON, SEG_OFF, SEG_BLINK
-		// @return      none
-		// *************************************************************************************************
-		void display_symbol( defines::LcdSymbols const & symbol, LcdDisplayModes const mode ) {
-			if( symbol <= LcdSymbols::LCD_SEG_L2_DP ) {
-				// Get LCD memory address for symbol from table
-				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
-
-				// Get bits for symbol from table
-				auto bits = segments_bitmask[symbol];
-
-				// Bitmask for symbols equals bits
-				auto bitmask = bits;
-
-				// Write LCD memory
-				write_lcd_mem( lcdmem, bits, bitmask, mode );
-			}
-		}
-
-		uint8_t get_font( uint8_t const character ) {
-			/*
-			LCD Display has the following segment assignments
-			A
-			*****
-			*   *
-			F*   *B
-			*   *
-			* G *
-			*****
-			*   *
-			E*   *C
-			*   *
-			*   *
-			*****
-			D
-			*/
-			switch( character ) {
-			case 0:
-			case '0': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
-			case 1:
-			case '1': return SEG_B | SEG_C;
-			case 'z':
-			case 'Z':
-			case 2:
-			case '2': return SEG_A | SEG_B | SEG_D | SEG_E | SEG_G;
-			case 3:
-			case '3': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_G;
-			case 4:
-			case '4': return SEG_B | SEG_C | SEG_F | SEG_G;
-			case 5:
-			case '5': return SEG_A | SEG_C | SEG_D | SEG_F | SEG_G;
-			case 6:
-			case '6': return SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-			case 7:
-			case '7': return SEG_A | SEG_B | SEG_C;
-			case 8:
-			case '8': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-			case 'q':
-			case 'Q':
-			case 9:
-			case '9': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G;
-			case 'A': return SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
-			case 'b':
-			case 'B': return SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-			case 'c': return SEG_D | SEG_E | SEG_G;
-			case 'C': return SEG_A | SEG_D | SEG_E | SEG_F;
-			case 'd':
-			case 'D': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_G;
-			case 'e':
-			case 'E': return SEG_A | SEG_D | SEG_E | SEG_F | SEG_G;
-			case 'f':
-			case 'F': return SEG_A | SEG_E | SEG_F | SEG_G;
-			case 'g':
-			case 'G': return SEG_A | SEG_C | SEG_D | SEG_E | SEG_F;
-			case 'h': return SEG_C | SEG_E | SEG_F | SEG_G;
-			case 'x':
-			case 'X':
-			case 'H': return SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
-			case 'i': return SEG_E;
-			case 'I': return SEG_E | SEG_F;
-			case 'j':
-			case 'J': return SEG_B | SEG_C | SEG_D | SEG_F;
-			case 'k':
-			case 'K': return SEG_A | SEG_C | SEG_E | SEG_F | SEG_G;
-			case 'l':
-			case 'L': return SEG_D | SEG_E | SEG_F;
-			case 'm':
-			case 'M': return SEG_A | SEG_C | SEG_E;
-			case 'n': return SEG_C | SEG_E | SEG_G;
-			case 'N': return SEG_A | SEG_B | SEG_C | SEG_E | SEG_F;
-			case 'o': return SEG_C | SEG_D | SEG_E | SEG_G;
-			case 'O': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
-			case 'p':
-			case 'P': return SEG_A | SEG_B | SEG_E | SEG_F | SEG_G;
-			case 'r':
-			case 'R': return SEG_E | SEG_G;
-			case 's':
-			case 'S': return SEG_A | SEG_C | SEG_D | SEG_F | SEG_G;
-			case 't':
-			case 'T': return SEG_D | SEG_E | SEG_F | SEG_G;
-			case 'u':
-			case 'v': return SEG_C | SEG_D | SEG_E;
-			case 'U':
-			case 'V': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
-			case 'w':
-			case 'W': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
-			case 'y':
-			case 'Y': return SEG_B | SEG_C | SEG_D | SEG_F | SEG_G;
-			case '-': return SEG_G;
-			case '_': return SEG_D;
-			case '(':
-			case '[':
-			case '<': return SEG_A | SEG_D | SEG_E | SEG_F;
-			case ')':
-			case ']':
-			case '>': return SEG_A | SEG_B | SEG_C | SEG_D;
-			case '?': return SEG_A | SEG_B | SEG_E | SEG_G;
-			default:
-				return 0;
-			}
-		}
-
-		// *************************************************************************************************
-		// @fn          display_char
-		// @brief       Write to 7-segment characters.
-		// @param       uint8_t segment		A valid LCD segment
-		//				uint8_t chr			Character to display
-		//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
-		// @return      none
-		// *************************************************************************************************
-		void display_char( uint8_t const & segment, uint8_t chr, LcdDisplayModes const mode ) {
-			// Write to single 7-segment character
-			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
-				// Get LCD memory address for segment from table
-				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
-
-																		// Get bitmask for character from table
-				auto bitmask = segments_bitmask[segment]; // Bitmask for character
-
-															 // Get bits from font set
-				chr = get_font( chr );
-
-				if( segment >= LCD_SEG_L2_5 ) {
-					if( segment == LCD_SEG_L2_5 && chr != 0 ) {
-						chr = BIT7;
-					} else {
-						// When addressing LINE2 7-segment characters need to swap high- and low-nibble,
-						// because LCD COM/SEG assignment is mirrored against LINE1
-						chr = swap_nibble( chr );
-					}
+			uint8_t get_font( uint8_t const character ) {
+				/*
+				LCD Display has the following segment assignments
+				A
+				*****
+				*   *
+				F*   *B
+				*   *
+				* G *
+				*****
+				*   *
+				E*   *C
+				*   *
+				*   *
+				*****
+				D
+				*/
+				switch( character ) {
+				case 0:
+				case '0': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
+				case 1:
+				case '1': return SEG_B | SEG_C;
+				case 'z':
+				case 'Z':
+				case 2:
+				case '2': return SEG_A | SEG_B | SEG_D | SEG_E | SEG_G;
+				case 3:
+				case '3': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_G;
+				case 4:
+				case '4': return SEG_B | SEG_C | SEG_F | SEG_G;
+				case 5:
+				case '5': return SEG_A | SEG_C | SEG_D | SEG_F | SEG_G;
+				case 6:
+				case '6': return SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
+				case 7:
+				case '7': return SEG_A | SEG_B | SEG_C;
+				case 8:
+				case '8': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
+				case 'q':
+				case 'Q':
+				case 9:
+				case '9': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G;
+				case 'A': return SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
+				case 'b':
+				case 'B': return SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
+				case 'c': return SEG_D | SEG_E | SEG_G;
+				case 'C': return SEG_A | SEG_D | SEG_E | SEG_F;
+				case 'd':
+				case 'D': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_G;
+				case 'e':
+				case 'E': return SEG_A | SEG_D | SEG_E | SEG_F | SEG_G;
+				case 'f':
+				case 'F': return SEG_A | SEG_E | SEG_F | SEG_G;
+				case 'g':
+				case 'G': return SEG_A | SEG_C | SEG_D | SEG_E | SEG_F;
+				case 'h': return SEG_C | SEG_E | SEG_F | SEG_G;
+				case 'x':
+				case 'X':
+				case 'H': return SEG_B | SEG_C | SEG_E | SEG_F | SEG_G;
+				case 'i': return SEG_E;
+				case 'I': return SEG_E | SEG_F;
+				case 'j':
+				case 'J': return SEG_B | SEG_C | SEG_D | SEG_F;
+				case 'k':
+				case 'K': return SEG_A | SEG_C | SEG_E | SEG_F | SEG_G;
+				case 'l':
+				case 'L': return SEG_D | SEG_E | SEG_F;
+				case 'm':
+				case 'M': return SEG_A | SEG_C | SEG_E;
+				case 'n': return SEG_C | SEG_E | SEG_G;
+				case 'N': return SEG_A | SEG_B | SEG_C | SEG_E | SEG_F;
+				case 'o': return SEG_C | SEG_D | SEG_E | SEG_G;
+				case 'O': return SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
+				case 'p':
+				case 'P': return SEG_A | SEG_B | SEG_E | SEG_F | SEG_G;
+				case 'r':
+				case 'R': return SEG_E | SEG_G;
+				case 's':
+				case 'S': return SEG_A | SEG_C | SEG_D | SEG_F | SEG_G;
+				case 't':
+				case 'T': return SEG_D | SEG_E | SEG_F | SEG_G;
+				case 'u':
+				case 'v': return SEG_C | SEG_D | SEG_E;
+				case 'U':
+				case 'V': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_F;
+				case 'w':
+				case 'W': return SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;
+				case 'y':
+				case 'Y': return SEG_B | SEG_C | SEG_D | SEG_F | SEG_G;
+				case '-': return SEG_G;
+				case '_': return SEG_D;
+				case '(':
+				case '[':
+				case '<': return SEG_A | SEG_D | SEG_E | SEG_F;
+				case ')':
+				case ']':
+				case '>': return SEG_A | SEG_B | SEG_C | SEG_D;
+				case '?': return SEG_A | SEG_B | SEG_E | SEG_G;
+				default:
+					return 0;
 				}
-
-				// Physically write to LCD memory
-				write_lcd_mem( lcdmem, chr, bitmask, mode );
 			}
-		}
-		namespace {
+
 			struct LCD_SEG_INFO {
 				uint8_t length;
 				uint8_t char_start;
@@ -378,6 +229,249 @@ namespace daw {
 				default:
 					return LCD_SEG_INFO( 0, 0 );
 				}
+			}
+
+			// Table with memory address for each display element
+			uint8_t * const segments_lcdmem[42] = {
+				LCDMemoryAssignment::LCD_SYMB_AM_MEM,
+				LCDMemoryAssignment::LCD_SYMB_PM_MEM,
+				LCDMemoryAssignment::LCD_SYMB_ARROW_UP_MEM,
+				LCDMemoryAssignment::LCD_SYMB_ARROW_DOWN_MEM,
+				LCDMemoryAssignment::LCD_SYMB_PERCENT_MEM,
+				LCDMemoryAssignment::LCD_SYMB_TOTAL_MEM,
+				LCDMemoryAssignment::LCD_SYMB_AVERAGE_MEM,
+				LCDMemoryAssignment::LCD_SYMB_MAX_MEM,
+				LCDMemoryAssignment::LCD_SYMB_BATTERY_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_FT_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_K_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_M_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_I_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_PER_S_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_PER_H_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L1_DEGREE_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L2_KCAL_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L2_KM_MEM,
+				LCDMemoryAssignment::LCD_UNIT_L2_MI_MEM,
+				LCDMemoryAssignment::LCD_ICON_HEART_MEM,
+				LCDMemoryAssignment::LCD_ICON_STOPWATCH_MEM,
+				LCDMemoryAssignment::LCD_ICON_RECORD_MEM,
+				LCDMemoryAssignment::LCD_ICON_ALARM_MEM,
+				LCDMemoryAssignment::LCD_ICON_BEEPER1_MEM,
+				LCDMemoryAssignment::LCD_ICON_BEEPER2_MEM,
+				LCDMemoryAssignment::LCD_ICON_BEEPER3_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_3_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_2_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_1_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_0_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_COL_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_DP1_MEM,
+				LCDMemoryAssignment::LCD_SEG_L1_DP0_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_5_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_4_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_3_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_2_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_1_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_0_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_COL1_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_COL0_MEM,
+				LCDMemoryAssignment::LCD_SEG_L2_DP_MEM
+			};
+
+			// Table with bit mask for each display element
+			uint8_t const segments_bitmask[42] = {
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AM_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PM_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_UP_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_DOWN_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PERCENT_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_TOTAL_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AVERAGE_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_MAX_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SYMB_BATTERY_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_FT_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_K_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_M_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_I_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_S_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_H_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_DEGREE_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KCAL_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KM_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_MI_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_HEART_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_STOPWATCH_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_RECORD_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_ALARM_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER1_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER2_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER3_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_3_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_2_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_1_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_0_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_COL_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP1_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP0_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_5_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_4_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_3_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_2_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_1_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_0_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL1_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL0_MASK),
+				static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_DP_MASK)
+			};
+		}	// namespace anonymous
+
+		// *************************************************************************************************
+		// @fn          lcd_init
+		// @brief       Erase LCD memory. Init LCD peripheral.
+		// @param      	none
+		// @return      none
+		// *************************************************************************************************
+		void lcd_init( ) {
+			// Clear entire display memory
+			LCDBMEMCTL |= LCDCLRBM + LCDCLRM;
+
+			// LCD_FREQ = ACLK/12/8 = 341.3Hz flickers in the sun
+			// LCD_FREQ = ACLK/10/8 = 409.6Hz still flickers in the sun when watch is moving (might be negligible)
+
+			// LCD_FREQ = ACLK/8/8 = 512Hz no flickering, even when watch is moving
+			// Frame frequency = 512Hz/2/4 = 64Hz, LCD mux 4, LCD on
+			LCDBCTL0 = (LCDDIV0 + LCDDIV1 + LCDDIV2) | (LCDPRE0 + LCDPRE1) | LCD4MUX | LCDON;
+
+			// LCB_BLK_FREQ = ACLK/8/4096 = 1Hz
+			LCDBBLKCTL = LCDBLKPRE0 | LCDBLKPRE1 | LCDBLKDIV0 | LCDBLKDIV1 | LCDBLKDIV2 | LCDBLKMOD0;
+
+			// I/O to COM outputs
+			P5SEL |= (BIT5 | BIT6 | BIT7);
+			P5DIR |= (BIT5 | BIT6 | BIT7);
+
+			// Activate LCD output
+			LCDBPCTL0 = 0xFFFF; // Select LCD segments S0-S15
+			LCDBPCTL1 = 0x00FF; // Select LCD segments S16-S22
+
+		#ifdef USE_LCD_CHARGE_PUMP
+			// Charge pump voltage generated internally, internal bias (V2-V4) generation
+			LCDBVCTL = LCDCPEN | VLCD_2_72;
+		#endif
+		}
+
+		// *************************************************************************************************
+		// @fn          clear_display_all
+		// @brief       Erase LINE1 and LINE2 segments. Clear also function-specific content.
+		// @param      	none
+		// @return      none
+		// *************************************************************************************************
+		void clear_display_all( ) {
+			// Clear generic content
+			clear_line( LINE1 );
+			clear_line( LINE2 );
+		}
+
+		// *************************************************************************************************
+		// @fn          clear_display
+		// @brief       Erase LINE1 and LINE2 segments. Keep icons.
+		// @param      	none
+		// @return      none
+		// *************************************************************************************************
+		void clear_display( ) {
+			clear_line( LINE1 );
+			clear_line( LINE2 );
+		}
+
+		// *************************************************************************************************
+		// @fn          clear_line
+		// @brief       Erase segments of a given line.
+		// @param      	uint8_t line	LINE1, LINE2
+		// @return      none
+		// *************************************************************************************************
+		void clear_line( uint8_t const & line ) {
+			using namespace display;
+			display_chars( switch_seg( line, LCD_SEG_L1_3_0, LCD_SEG_L2_5_0 ), nullptr, SEG_OFF );
+			if( LINE1 == line ) {
+				display_symbol( LCD_SEG_L1_DP1, SEG_OFF );
+				display_symbol( LCD_SEG_L1_DP0, SEG_OFF );
+				display_symbol( LCD_SEG_L1_COL, SEG_OFF );
+			} else { // line == LINE2
+				display_symbol( LCD_SEG_L2_DP, SEG_OFF );
+				display_symbol( LCD_SEG_L2_COL1, SEG_OFF );
+				display_symbol( LCD_SEG_L2_COL0, SEG_OFF );
+			}
+		}
+
+		// *************************************************************************************************
+		// @fn          display_value
+		// @brief       Generic decimal display routine. Used exclusively by set_value function.
+		// @param       uint8_t segments		LCD segments where value is displayed
+		//				u32 value			Integer value to be displayed
+		//				uint8_t digits			Number of digits to convert
+		//				uint8_t blanks			Number of leadings blanks in itoa result string
+		// @return      none
+		// *************************************************************************************************
+		void display_value( uint8_t const & segments, uint32_t const & value, uint8_t const & digits, uint8_t const & blanks, LcdDisplayModes const disp_mode ) {
+			auto const str = itoa( value, digits, blanks );
+			// Display string in blink mode
+			display_chars( segments, str, disp_mode );
+		}
+
+		// *************************************************************************************************
+		// @fn          display_symbol
+		// @brief       Switch symbol on or off on LCD.
+		// @param       uint8_t symbol		A valid LCD symbol (index 0..42)
+		//				uint8_t state		SEG_ON, SEG_OFF, SEG_BLINK
+		// @return      none
+		// *************************************************************************************************
+		void display_symbol( LcdSymbols const & symbol, LcdDisplayModes const mode ) {
+			if( symbol <= LCD_SEG_L2_DP ) {
+				// Get LCD memory address for symbol from table
+				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
+
+				// Get bits for symbol from table
+				auto bits = segments_bitmask[symbol];
+
+				// Bitmask for symbols equals bits
+				auto bitmask = bits;
+
+				// Write LCD memory
+				write_lcd_mem( lcdmem, bits, bitmask, mode );
+			}
+		}
+
+		// *************************************************************************************************
+		// @fn          display_char
+		// @brief       Write to 7-segment characters.
+		// @param       uint8_t segment		A valid LCD segment
+		//				uint8_t chr			Character to display
+		//				uint8_t mode		SEG_ON, SEG_OFF, SEG_BLINK
+		// @return      none
+		// *************************************************************************************************
+
+		void display_char( uint8_t const & segment, uint8_t chr, LcdDisplayModes const mode ) {
+			// Write to single 7-segment character
+			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
+				// Get LCD memory address for segment from table
+				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
+
+																		// Get bitmask for character from table
+				auto bitmask = segments_bitmask[segment]; // Bitmask for character
+
+															 // Get bits from font set
+				chr = get_font( chr );
+
+				if( segment >= LCD_SEG_L2_5 ) {
+					if( segment == LCD_SEG_L2_5 && chr != 0 ) {
+						chr = BIT7;
+					} else {
+						// When addressing LINE2 7-segment characters need to swap high- and low-nibble,
+						// because LCD COM/SEG assignment is mirrored against LINE1
+						chr = swap_nibble( chr );
+					}
+				}
+
+				// Physically write to LCD memory
+				write_lcd_mem( lcdmem, chr, bitmask, mode );
 			}
 		}
 		// *************************************************************************************************
@@ -479,99 +573,7 @@ namespace daw {
 		// *************************************************************************************************
 		void display_all_off( ) {
 			auto const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
-			daw::fill( lcdptr, lcdptr + 12, 0x00 );
+			fill( lcdptr, lcdptr + 12, 0x00 );
 		}
-
-		// Table with memory address for each display element
-		uint8_t* const segments_lcdmem[42] = {
-			LCDMemoryAssignment::LCD_SYMB_AM_MEM,
-			LCDMemoryAssignment::LCD_SYMB_PM_MEM,
-			LCDMemoryAssignment::LCD_SYMB_ARROW_UP_MEM,
-			LCDMemoryAssignment::LCD_SYMB_ARROW_DOWN_MEM,
-			LCDMemoryAssignment::LCD_SYMB_PERCENT_MEM,
-			LCDMemoryAssignment::LCD_SYMB_TOTAL_MEM,
-			LCDMemoryAssignment::LCD_SYMB_AVERAGE_MEM,
-			LCDMemoryAssignment::LCD_SYMB_MAX_MEM,
-			LCDMemoryAssignment::LCD_SYMB_BATTERY_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_FT_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_K_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_M_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_I_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_PER_S_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_PER_H_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L1_DEGREE_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L2_KCAL_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L2_KM_MEM,
-			LCDMemoryAssignment::LCD_UNIT_L2_MI_MEM,
-			LCDMemoryAssignment::LCD_ICON_HEART_MEM,
-			LCDMemoryAssignment::LCD_ICON_STOPWATCH_MEM,
-			LCDMemoryAssignment::LCD_ICON_RECORD_MEM,
-			LCDMemoryAssignment::LCD_ICON_ALARM_MEM,
-			LCDMemoryAssignment::LCD_ICON_BEEPER1_MEM,
-			LCDMemoryAssignment::LCD_ICON_BEEPER2_MEM,
-			LCDMemoryAssignment::LCD_ICON_BEEPER3_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_3_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_2_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_1_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_0_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_COL_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_DP1_MEM,
-			LCDMemoryAssignment::LCD_SEG_L1_DP0_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_5_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_4_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_3_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_2_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_1_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_0_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_COL1_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_COL0_MEM,
-			LCDMemoryAssignment::LCD_SEG_L2_DP_MEM,
-		};
-
-		// Table with bit mask for each display element
-		uint8_t const segments_bitmask[42] = {
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AM_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PM_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_UP_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_ARROW_DOWN_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_PERCENT_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_TOTAL_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_AVERAGE_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_MAX_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SYMB_BATTERY_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_FT_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_K_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_M_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_I_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_S_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_PER_H_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L1_DEGREE_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KCAL_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_KM_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_UNIT_L2_MI_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_HEART_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_STOPWATCH_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_RECORD_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_ALARM_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER1_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER2_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_ICON_BEEPER3_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_3_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_2_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_1_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_0_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_COL_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP1_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L1_DP0_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_5_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_4_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_3_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_2_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_1_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_0_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL1_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_COL0_MASK),
-			static_cast<uint8_t>(LcdBitMask::LCD_SEG_L2_DP_MASK)
-		};
 	}
 }	// namespace daw
