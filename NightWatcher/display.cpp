@@ -494,10 +494,10 @@ namespace daw {
 			}
 		}
 
-		void display_hex_chars( uint8_t const & segments, uint8_t const * const str, LcdDisplayModes const mode ) {
+		void display_hex_chars( uint8_t const & segments, uint8_t const * str, LcdDisplayModes const mode ) {
 			uint8_t const hex_nibble[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 			auto const seg_info = find_seg_info( segments );
-			for( uint8_t i = 0; i < seg_info.length && *str; i++ ) {
+			for( uint8_t i = 0; i < seg_info.length && *str; ++i, ++str ) {
 				auto const & curr_byte = *str;
 				// Use single character routine to write display memory
 				display_char( seg_info.char_start + i, hex_nibble[(curr_byte & 0xF0) >> 4u], mode );
@@ -575,5 +575,5 @@ namespace daw {
 			auto const lcdptr = reinterpret_cast<uint8_t* const>(0x0A20);
 			fill( lcdptr, lcdptr + 12, 0x00 );
 		}
-		}
-	}	// namespace daw
+	}
+}	// namespace daw

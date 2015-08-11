@@ -122,7 +122,7 @@ namespace {
 	void ProgramState::state_process_data( ProgramState & self ) {
 		if( radio.has_data( ) ) {
 			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
-			radio.reset_rx_buffer( );
+			//radio.reset_rx_buffer( );
 			self.state_function = state_display_data;
 		} else {
 			self.state_function = state_waiting_for_interrupt;

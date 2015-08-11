@@ -133,7 +133,7 @@ namespace daw {
 					size_t rx_len = radio_read_single_reg( RXBYTES ); // For now clear buffer before proceeding and only read up to buffer len bytes
 					rx_buffer.clear( );
 					if( rx_len > 0 ) {
-						if( rf_flags.has_received_packet = (rx_len > rx_buffer.capacity( )) ) {	// Schedule another receive data if we cannot hold it all
+						if( (rf_flags.has_received_packet = rx_len > rx_buffer.capacity( )) ) {	// Schedule another receive data if we cannot hold it all
 							rx_len = rx_buffer.capacity( );
 						}
 						rx_buffer.size( rx_len );

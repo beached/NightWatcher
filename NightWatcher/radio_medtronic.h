@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include "buffer.h"
+#include "intrinsics.h"
 
 namespace daw {
 	namespace radio {
@@ -21,6 +22,7 @@ namespace daw {
 				for( size_t i = 0; i < end_of_symbols; ++i ) {
 					receive_radio_symbol( arry[i] );
 				}
+				__no_operation( );
 			}
 		} // namespace medtronic
 	} // namespace radio
