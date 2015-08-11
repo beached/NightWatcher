@@ -8,8 +8,8 @@ namespace daw {
 	namespace radio {
 		namespace medtronic {
 			namespace {
-				size_t const radio_symbol_table_size = 54;
-				uint8_t const radio_symbol_table[radio_symbol_table_size] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+				uint8_t const radio_symbol_table[] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
+				size_t const radio_symbol_table_size = sizeof( radio_symbol_table );
 			}
 
 			void radio_setup_916MHz( ) {
@@ -175,18 +175,19 @@ namespace daw {
 
 			void receive_radio_symbol( uint8_t const & value ) {
 				if( 0 == value ) {
-					if( 0 <= packets[packet_head_idx].length ) {
+					if( packets[packet_head_idx].length >= 0 ) {
 						finish_incoming_packet( );
 					}
 					return;
 				}
 
-				symbol_input_buffer = (symbol_input_buffer << 8) + value;
-				symbol_input_bit_count += 8;
+				symbol_input_buffer = (symbol_input_buffer << 8u) | value;
+				symbol_input_bit_count += 8u;
 
-				while( 6 <= symbol_input_bit_count ) {
-					uint8_t symbol = (symbol_input_buffer >> (symbol_input_bit_count - 6) & 0b111111);
-					symbol_input_bit_count -= 6;
+				while( symbol_input_bit_count >= 6 ) {
+					symbol_input_bit_count -= 6u;
+					uint8_t symbol = static_cast<uint8_t>(symbol_input_buffer >> symbol_input_bit_count) & 0b00111111u;
+
 					if( 0 == symbol ) {
 						continue;
 					}
@@ -199,12 +200,12 @@ namespace daw {
 						++symbol_error_count;
 						break;
 					}
-					symbol_output_buffer = (symbol_output_buffer << 4) + symbol;
+					symbol_output_buffer = (symbol_output_buffer << 4u) | symbol;
 					symbol_output_bit_count += 4;
 				}
-				while( 8 <= symbol_output_bit_count ) {
-					uint8_t output_sybmol = (symbol_output_buffer >> (symbol_output_bit_count - 8)) & 0b11111111;
+				while( symbol_output_bit_count >= 8 ) {
 					symbol_output_bit_count -= 8;
+					auto output_sybmol = static_cast<uint8_t>(symbol_output_buffer >> symbol_output_bit_count);
 					add_decoded_byte( output_sybmol );
 				}
 

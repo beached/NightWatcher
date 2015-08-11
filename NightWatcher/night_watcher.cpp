@@ -95,7 +95,7 @@ namespace {
 	void ProgramState::state_waiting_for_interrupt( ProgramState & self ) {
 		radio.receive_on( );
 		__enable_interrupt( );
-		low_power_mode( );
+		low_power_mode( );	// This will put MCU to sleep and wait for interrupt
 		__no_operation( );
 		if( radio.data_pending( ) ) {
 			self.current_state = state_received_data;
@@ -130,7 +130,8 @@ namespace {
 	void ProgramState::state_display_data( ProgramState & self ) {
 		// Allow radio traffic.  We are done with the radio buffer and
 		radio.receive_on( );
-		__enable_interrupt( ); // Display glucose or something
+		__enable_interrupt( );
+		// Display glucose or something
 		display_hex_chars( daw::display::defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( )), daw::display::SEG_ON );
 		display_hex_chars( daw::display::defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(daw::radio::medtronic::radio_data_buffer.data( ) + 4), daw::display::SEG_ON );
 		self.current_state = state_waiting_for_interrupt;
