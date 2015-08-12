@@ -140,6 +140,7 @@ namespace {
 			display_chars( defines::LCD_SEG_LINE1_START, "Err", SEG_ON );
 			display_value( defines::LCD_SEG_LINE2_START, daw::radio::medtronic::symbol_error_count, 5, 0, SEG_ON );
 		}
+		radio.rx_array( ).clear( );
 		self.state_function = state_waiting_for_interrupt;
 	}
 #pragma endregion

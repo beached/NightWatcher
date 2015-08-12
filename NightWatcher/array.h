@@ -17,7 +17,11 @@ namespace daw {
 	private:
 		value_type m_values[ARRAY_SIZE];
 	public:
-		Array( ): m_values( ) { }
+		Array( ): m_values( ) {
+		#ifdef DEBUG
+			daw::fill( m_values, m_values + ARRAY_SIZE, T { } );
+		#endif
+		}
 
 		explicit Array( T const& value ): m_values( ) {
 			daw::fill( m_values, m_values + ARRAY_SIZE, value );
