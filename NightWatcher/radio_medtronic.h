@@ -13,14 +13,10 @@ namespace daw {
 			extern radio_data_buffer_t radio_data_buffer;
 			extern size_t symbol_error_count;
 
-			template<typename ArrayType>
-			void receive_radio_symbols( ArrayType const & arry, size_t end_of_symbols ) {
-				if( end_of_symbols > arry.size( ) ) {
-					// TODO determine action if not cover up as is, maybe error state?
-					end_of_symbols = arry.size( );
-				}
-				for( size_t i = 0; i < end_of_symbols; ++i ) {
-					receive_radio_symbol( arry[i] );
+			template<typename BufferType>
+			void receive_radio_symbols( BufferType const & rdo_buffer ) {
+				for( auto const & item : rdo_buffer ) {
+					receive_radio_symbol( item );
 				}
 				__no_operation( );
 			}

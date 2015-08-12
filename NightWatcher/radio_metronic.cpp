@@ -9,7 +9,6 @@ namespace daw {
 		namespace medtronic {
 			namespace {
 				uint8_t const radio_symbol_table[] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
-				size_t const radio_symbol_table_size = sizeof( radio_symbol_table );
 			}
 
 			radio_data_buffer_t radio_data_buffer;
@@ -146,7 +145,7 @@ namespace daw {
 					if( 0 == symbol ) {
 						continue;
 					}
-					if( radio_symbol_table_size < symbol ) {
+					if( sizeof_array( radio_symbol_table ) < symbol ) {
 						++symbol_error_count;
 						break;
 					}

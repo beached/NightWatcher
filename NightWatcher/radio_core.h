@@ -66,11 +66,11 @@ namespace daw {
 					}
 				} rf_flags;
 
-				buffer_t rx_buffer;
+				buffer_t m_rx_buffer;
 
 			public:
 
-				RadioCore( ): rf_flags( ), rx_buffer( ) { }
+				RadioCore( ): rf_flags( ), m_rx_buffer( ) { }
 
 				void receive_on( ) {
 					RF1AIES |= BIT9; // Falling edge of RFIFG9
@@ -89,7 +89,7 @@ namespace daw {
 				typedef void( *config_fn_t )();
 				void init_radio( config_fn_t configure_radio ) {
 					rf_flags.reset( );
-					rx_buffer.clear( ); // Set the High-Power Mode Request Enable bit so LPM3 can be entered
+					m_rx_buffer.clear( ); // Set the High-Power Mode Request Enable bit so LPM3 can be entered
 					// with active radio enabled
 					PMMCTL0_H = 0xA5;
 					PMMCTL0_L |= PMMHPMRE_L;
@@ -111,7 +111,7 @@ namespace daw {
 				}
 
 				bool has_data( ) const {
-					return !rx_buffer.empty( );
+					return !m_rx_buffer.empty( );
 				}
 
 				void check_for_data( ) {
@@ -123,7 +123,7 @@ namespace daw {
 				}
 
 				void reset_rx_buffer( ) {
-					return rx_buffer.size( 0 );
+					return m_rx_buffer.size( 0 );
 				}
 
 				size_t receive_data( ) {
@@ -131,39 +131,43 @@ namespace daw {
 						return 0;
 					}
 					size_t rx_len = radio_read_single_reg( RXBYTES ); // For now clear buffer before proceeding and only read up to buffer len bytes
-					rx_buffer.clear( );
+					m_rx_buffer.clear( );
 					if( rx_len > 0 ) {
-						if( (rf_flags.has_received_packet = rx_len > rx_buffer.capacity( )) ) {	// Schedule another receive data if we cannot hold it all
-							rx_len = rx_buffer.capacity( );
+						if( (rf_flags.has_received_packet = rx_len > m_rx_buffer.capacity( )) ) {	// Schedule another receive data if we cannot hold it all
+							rx_len = m_rx_buffer.capacity( );
 						}
-						rx_buffer.size( rx_len );
-						radio_read_burst_reg( RF_RXFIFORD, rx_buffer, rx_len );
+						m_rx_buffer.size( rx_len );
+						radio_read_burst_reg( RF_RXFIFORD, m_rx_buffer, rx_len );
 					}
 					return rx_len;
 				}
 
 				size_t size( ) const {
-					return rx_buffer.size( );
+					return m_rx_buffer.size( );
 				}
 
 				size_t capacity( ) const {
-					return rx_buffer.capacity( );
+					return m_rx_buffer.capacity( );
 				}
 
 				uint8_t const & rx_data( size_t const & position ) const {
-					return rx_buffer[position];
+					return m_rx_buffer[position];
 				}
 
 				uint8_t const * rx_data( ) const {
-					return rx_buffer.data( );
+					return m_rx_buffer.data( );
 				}
 
-				buffer_t const & rx_array( ) const {
-					return rx_buffer;
+				uint8_t * rx_data( ) {
+					return m_rx_buffer.data( );
 				}
 
-				buffer_t & rx_array( ) {
-					return rx_buffer;
+				buffer_t const & rx_buffer( ) const {
+					return m_rx_buffer;
+				}
+
+				buffer_t & rx_buffer( ) {
+					return m_rx_buffer;
 				}
 			};
 		}	// namespace core

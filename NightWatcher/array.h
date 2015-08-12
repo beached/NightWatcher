@@ -38,7 +38,7 @@ namespace daw {
 			return *this;
 		}
 
-		static size_t size( ) {
+		constexpr static size_t size( ) {
 			return ARRAY_SIZE;
 		}
 
@@ -82,8 +82,8 @@ namespace daw {
 			return m_values;
 		}
 
-		static bool empty( ) {
+		constexpr static bool empty( ) {
 			return 0 == ARRAY_SIZE;
 		}
 	};
-}
+}	// namespace daw

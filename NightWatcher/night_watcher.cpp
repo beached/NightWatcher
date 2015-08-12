@@ -121,7 +121,7 @@ namespace {
 
 	void ProgramState::state_process_data( ProgramState & self ) {
 		if( radio.has_data( ) ) {
-			daw::radio::medtronic::receive_radio_symbols( radio.rx_array( ), radio.size( ) );
+			daw::radio::medtronic::receive_radio_symbols( radio.rx_buffer( ) );
 			//radio.reset_rx_buffer( );
 			self.state_function = state_display_data;
 		} else {
@@ -133,14 +133,14 @@ namespace {
 		// Allow radio traffic.  We are done with the radio buffer and
 		using namespace daw::display;
 		// Display glucose or something
-		if( !radio.rx_array( ).empty( ) ) {
-			display_hex_chars( defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(radio.rx_array( ).data( )), SEG_ON );
-			display_hex_chars( defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(radio.rx_array( ).data( ) + 4), SEG_ON );
+		if( !radio.rx_buffer( ).empty( ) ) {
+			display_hex_chars( defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(radio.rx_buffer( ).data( )), SEG_ON );
+			display_hex_chars( defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(radio.rx_buffer( ).data( ) + 4), SEG_ON );
 		} else {
 			display_chars( defines::LCD_SEG_LINE1_START, "Err", SEG_ON );
 			display_value( defines::LCD_SEG_LINE2_START, daw::radio::medtronic::symbol_error_count, 5, 0, SEG_ON );
 		}
-		radio.rx_array( ).clear( );
+		radio.rx_buffer( ).clear( );
 		self.state_function = state_waiting_for_interrupt;
 	}
 #pragma endregion

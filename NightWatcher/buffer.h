@@ -86,7 +86,7 @@ namespace daw {
 			return BUFFER_SIZE == m_current_size;
 		}
 
-		static size_t capacity( ) {
+		constexpr static size_t capacity( ) {
 			return BUFFER_SIZE;
 		}
 
