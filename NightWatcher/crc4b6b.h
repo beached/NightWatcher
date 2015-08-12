@@ -2,12 +2,13 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "array.h"
 
 namespace daw {
 	namespace radio {
 		namespace medtronic {
 			namespace crc4b6b {
-				extern uint8_t crc8( uint8_t *message, size_t nBytes );
+				extern daw::Array<uint8_t, 2> crc8( uint8_t const * const message, size_t nBytes );
 				extern void crc16_init( );
 				extern int16_t crc16( uint8_t *message, size_t length );
 				extern uint8_t get_4b6b_symbol( uint8_t const & in_symbol );

@@ -85,5 +85,13 @@ namespace daw {
 		constexpr static bool empty( ) {
 			return 0 == ARRAY_SIZE;
 		}
+
+		iterator last( ) {
+			return begin( ) + ARRAY_SIZE - 1;
+		}
+
+		const_iterator last( ) const {
+			return begin( ) + ARRAY_SIZE - 1;
+		}
 	};
 }	// namespace daw

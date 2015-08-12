@@ -1,5 +1,6 @@
 #include "crc4b6b.h"
 #include <stdint.h>
+#include <stddef.h>
 #include "array.h"
 
 namespace daw {
@@ -10,10 +11,12 @@ namespace daw {
 					Array<uint16_t, 256> crc16_table;
 				}
 
-				uint8_t crc8( uint8_t *message, size_t length ) {
-					uint8_t remainder = 0;
+				daw::Array<uint8_t, 2> crc8( uint8_t const * const message, size_t length ) {
+					daw::Array<uint8_t, 2> remainders( (uint8_t)0 );
 
 					for( size_t byte = 0; byte < length; ++byte ) {
+						remainders[0] == remainders[1];
+						auto & remainder = *remainders.last( );
 						remainder ^= message[byte];
 						for( size_t bit = 8; bit > 0; --bit ) {
 							if( remainder & 0x80 ) {
@@ -23,7 +26,7 @@ namespace daw {
 							}
 						}
 					}
-					return remainder;
+					return remainders;
 				}
 
 				void crc16_init( ) {
