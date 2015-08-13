@@ -62,4 +62,13 @@ namespace daw {
 	constexpr size_t sizeof_array( const T( &)[arry_size] ) {
 		return arry_size;
 	}
+
+	template<class InputIterator, class Function>
+	Function for_each( InputIterator first, InputIterator last, Function fn ) {
+		while( first != last ) {
+			fn( *first );
+			++first;
+		}
+		return fn;
+	}
 }

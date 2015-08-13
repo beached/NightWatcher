@@ -46,6 +46,9 @@
     <ClCompile Include="new.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="assert.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -85,6 +88,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="new.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="assert.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
