@@ -9,10 +9,24 @@ namespace daw {
 		namespace medtronic {
 			namespace crc4b6b {
 				namespace {
-					Array<uint16_t, 256> crc16_table;
-				}
+					auto s_crc16_table = []( ) {
+						Array<uint16_t, 256> result;
+						for( uint16_t i = 0; i < 256; i++ ) {
+							uint16_t crc = 0;
+							auto c = i << 8u;
+							for( size_t j = 0; j < 8; j++ ) {
+								if( (crc^c) & 0x8000 ) {
+									crc = (crc << 1) ^ 0x1021;
+								} else {
+									crc = crc << 1;
+								}
+								c = c << 1;
+							}
+							result[i] = crc;
+						}
+						return result;
+					}();
 
-				namespace {
 					void crc8_part( uint8_t const & value, uint8_t & result ) {
 						result ^= value;
 						for( size_t bit = 8; bit > 0; --bit ) {
@@ -22,11 +36,19 @@ namespace daw {
 							}
 						}
 					}
+
+					void crc16_part( uint16_t const & value, uint16_t & result ) {
+						auto const short_c = 0x00FF & static_cast<uint16_t>(value);
+						auto const tmp = (result >> 8) ^ short_c;
+						result = (result << 8) ^ s_crc16_table[tmp];
+					}
 				}
 
 				daw::Array<uint8_t, 2> crc8( uint8_t const * const msg, size_t const & msg_size ) {
+					static_assert(s_crc16_table.size( ) == 256, "CRC16 Table must have 256 items");
 					assert( msg_size >= 2, "msg must be at least two bytes long" );
 					daw::Array<uint8_t, 2> results;
+
 					for( size_t i = 0; i < msg_size - 1; ++i ) {
 						crc8_part( msg[i], results[1] );
 					}
@@ -36,16 +58,8 @@ namespace daw {
 					return results;
 				}
 
-				namespace {
-					void crc16_part( uint16_t const & value, uint16_t & result ) {
-						auto const short_c = 0x00FF & static_cast<uint16_t>(value);
-						auto const tmp = (result >> 8) ^ short_c;
-						result = (result << 8) ^ crc16_table[tmp];
-					}
-				}
-
 				daw::Array<uint16_t, 2> crc16( uint8_t const * const msg, size_t const & msg_size ) {
-					static_assert(crc16_table.size( ) == 256, "CRC16 Table must have a length of 256");
+					static_assert(s_crc16_table.size( ) == 256, "CRC16 Table must have a length of 256");
 					assert( msg_size >= 2, "msg must be at least two bytes long" );
 					daw::Array<uint16_t, 2> results;
 					results[1] = 0xFFFF;
@@ -55,23 +69,6 @@ namespace daw {
 					results[0] = results[1];
 					crc16_part( msg[msg_size - 1], results[1] );
 					return results;
-				}
-
-				void crc16_init( ) {
-					static_assert(crc16_table.size( ) == 256, "CRC16 Table must have a length of 256");
-					for( size_t i = 0; i < 256; i++ ) {
-						uint16_t crc = 0;
-						auto c = static_cast<uint16_t>(i) << 8;
-						for( size_t j = 0; j < 8; j++ ) {
-							if( (crc^c) & 0x8000 ) {
-								crc = (crc << 1) ^ 0x1021;
-							} else {
-								crc = crc << 1;
-							}
-							c = c << 1;
-						}
-						crc16_table[i] = crc;
-					}
 				}
 
 				uint8_t get_4b6b_symbol( uint8_t const & in_symbol ) {
