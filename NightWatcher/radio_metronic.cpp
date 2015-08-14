@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "buffer.h"
 #include "array.h"
+#include "crc4b6b.h"
 
 namespace daw {
 	namespace radio {
@@ -33,22 +34,6 @@ namespace daw {
 				uint8_t last_error = 0;
 				uint8_t packet_overflow_count = 0;
 				size_t buffer_write_pos = 0;
-
-				void crc_init( uint8_t * const arry, size_t const & size_of ) {
-					uint8_t const msbit = 0x80;
-					uint8_t const polynomial = 0x9b;
-
-					auto tmp = msbit;
-					arry[0] = 0;
-					for( size_t i = 1; i < size_of; i *= 2 ) {
-						auto const p2 = (tmp & msbit) ? polynomial : 0;
-						tmp = (tmp << 1) ^ p2;
-						for( size_t j = 0; j < i; ++j ) {
-							arry[i + j] = arry[j] ^ tmp;
-						}
-					}
-				}
-				Array<uint8_t, 256> crc_table { crc_init };
 
 				struct Packet {
 					size_t data_start_idx;
@@ -95,15 +80,7 @@ namespace daw {
 					packets[packet_head_idx].rssi = core::radio_read_single_reg( RSSI );
 					packets[packet_head_idx].packet_number = packet_number++;
 					{
-						uint8_t crc = 0;
-						auto crc_read_idx = packets[packet_head_idx].data_start_idx;
-						for( uint8_t crc_len = packets[packet_head_idx].length - 1; crc_len > 0; --crc_len ) {
-							crc = crc_table[(crc ^ radio_data_buffer[crc_read_idx]) & 0xff];
-							++crc_read_idx;
-							if( radio_data_buffer.size( ) >= crc_read_idx ) {
-								crc_read_idx = 0;
-							}
-						}
+						auto crc = daw::radio::medtronic::crc4b6b::crc8( radio_data_buffer.data( ), packets[packet_head_idx].length - 1 );
 						//packet_crc = data_buffer[crc_read_idx];
 					}
 					reset_symbol_processing_state( );
