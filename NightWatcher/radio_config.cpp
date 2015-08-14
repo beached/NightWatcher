@@ -10,7 +10,7 @@ namespace daw {
 				radio_write_single_reg( AGCCTRL0, 0x91 ); //AGC Control
 				radio_write_single_reg( AGCCTRL1, 0x00 ); //AGC Control
 				radio_write_single_reg( AGCCTRL2, 0x03 ); //AGC Control
-				radio_write_single_reg( CHANNR, 0x00 ); //Channel Number
+				radio_write_single_reg( CHANNR, 0x02 ); //Channel Number
 				radio_write_single_reg( DEVIATN, 0x15 ); //Modem Deviation Setting
 				radio_write_single_reg( FIFOTHR, 0x47 ); //RX FIFO and TX FIFO Thresholds
 				radio_write_single_reg( FOCCFG, 0x17 ); //Frequency Offset Compensation Configuration

@@ -9,7 +9,7 @@ namespace daw {
 		namespace medtronic {
 			extern void receive_radio_symbol( uint8_t const & value );
 
-			typedef Buffer<uint8_t, 1024> radio_data_buffer_t;
+			typedef Buffer<uint8_t, 256> radio_data_buffer_t;
 			extern radio_data_buffer_t radio_data_buffer;
 			extern size_t symbol_error_count;
 
