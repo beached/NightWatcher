@@ -230,7 +230,69 @@ namespace daw {
 					return LCD_SEG_INFO( 0, 0 );
 				}
 			}
+			namespace {
+				// LCD controller memory map
+				namespace LCDMemoryMap {
+					uint8_t volatile * const LCD_MEM_1 = reinterpret_cast<uint8_t volatile * const>(0x0A20);
+					uint8_t volatile * const LCD_MEM_2 = LCD_MEM_1 + 0x0001;
+					uint8_t volatile * const LCD_MEM_3 = LCD_MEM_1 + 0x0002;
+					uint8_t volatile * const LCD_MEM_4 = LCD_MEM_1 + 0x0003;
+					uint8_t volatile * const LCD_MEM_5 = LCD_MEM_1 + 0x0004;
+					uint8_t volatile * const LCD_MEM_6 = LCD_MEM_1 + 0x0005;
+					uint8_t volatile * const LCD_MEM_7 = LCD_MEM_1 + 0x0006;
+					uint8_t volatile * const LCD_MEM_8 = LCD_MEM_1 + 0x0007;
+					uint8_t volatile * const LCD_MEM_9 = LCD_MEM_1 + 0x0008;
+					uint8_t volatile * const LCD_MEM_10 = LCD_MEM_1 + 0x0009;
+					uint8_t volatile * const LCD_MEM_11 = LCD_MEM_1 + 0x000A;
+					uint8_t volatile * const LCD_MEM_12 = LCD_MEM_1 + 0x000B;
+				}
 
+				namespace LCDMemoryAssignment {
+					using namespace defines;
+					uint8_t volatile * const LCD_SEG_L1_0_MEM = LCDMemoryMap::LCD_MEM_6;
+					uint8_t volatile * const LCD_SEG_L1_1_MEM = LCDMemoryMap::LCD_MEM_4;
+					uint8_t volatile * const LCD_SEG_L1_2_MEM = LCDMemoryMap::LCD_MEM_3;
+					uint8_t volatile * const LCD_SEG_L1_3_MEM = LCDMemoryMap::LCD_MEM_2;
+					uint8_t volatile * const LCD_SEG_L1_COL_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SEG_L1_DP1_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SEG_L1_DP0_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_SEG_L2_0_MEM = LCDMemoryMap::LCD_MEM_8;
+					uint8_t volatile * const LCD_SEG_L2_1_MEM = LCDMemoryMap::LCD_MEM_9;
+					uint8_t volatile * const LCD_SEG_L2_2_MEM = LCDMemoryMap::LCD_MEM_10;
+					uint8_t volatile * const LCD_SEG_L2_3_MEM = LCDMemoryMap::LCD_MEM_11;
+					uint8_t volatile * const LCD_SEG_L2_4_MEM = LCDMemoryMap::LCD_MEM_12;
+					uint8_t volatile * const LCD_SEG_L2_5_MEM = LCDMemoryMap::LCD_MEM_12;
+					uint8_t volatile * const LCD_SEG_L2_COL1_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SEG_L2_COL0_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_SEG_L2_DP_MEM = LCDMemoryMap::LCD_MEM_9;
+					uint8_t volatile * const LCD_SYMB_AM_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SYMB_PM_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SYMB_ARROW_UP_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SYMB_ARROW_DOWN_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_SYMB_PERCENT_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_SYMB_TOTAL_MEM = LCDMemoryMap::LCD_MEM_11;
+					uint8_t volatile * const LCD_SYMB_AVERAGE_MEM = LCDMemoryMap::LCD_MEM_10;
+					uint8_t volatile * const LCD_SYMB_MAX_MEM = LCDMemoryMap::LCD_MEM_8;
+					uint8_t volatile * const LCD_SYMB_BATTERY_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L1_FT_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_UNIT_L1_K_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_UNIT_L1_M_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L1_I_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L1_PER_S_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_UNIT_L1_PER_H_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L1_DEGREE_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_UNIT_L2_KCAL_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L2_KM_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_UNIT_L2_MI_MEM = LCDMemoryMap::LCD_MEM_7;
+					uint8_t volatile * const LCD_ICON_HEART_MEM = LCDMemoryMap::LCD_MEM_2;
+					uint8_t volatile * const LCD_ICON_STOPWATCH_MEM = LCDMemoryMap::LCD_MEM_3;
+					uint8_t volatile * const LCD_ICON_RECORD_MEM = LCDMemoryMap::LCD_MEM_1;
+					uint8_t volatile * const LCD_ICON_ALARM_MEM = LCDMemoryMap::LCD_MEM_4;
+					uint8_t volatile * const LCD_ICON_BEEPER1_MEM = LCDMemoryMap::LCD_MEM_5;
+					uint8_t volatile * const LCD_ICON_BEEPER2_MEM = LCDMemoryMap::LCD_MEM_6;
+					uint8_t volatile * const LCD_ICON_BEEPER3_MEM = LCDMemoryMap::LCD_MEM_7;
+				}
+			}
 			// Table with memory address for each display element
 			uint8_t volatile * const segments_lcdmem[42] = {
 				LCDMemoryAssignment::LCD_SYMB_AM_MEM,
@@ -425,17 +487,14 @@ namespace daw {
 		// *************************************************************************************************
 		void display_symbol( LcdSymbols const & symbol, LcdDisplayModes const mode ) {
 			if( symbol <= LCD_SEG_L2_DP ) {
-				// Get LCD memory address for symbol from table
-				auto lcdmem = static_cast<uint8_t volatile *>(segments_lcdmem[symbol]);
-
 				// Get bits for symbol from table
-				auto bits = segments_bitmask[symbol];
+				auto & bits = segments_bitmask[symbol];
 
 				// Bitmask for symbols equals bits
-				auto bitmask = bits;
+				auto & bitmask = bits;
 
 				// Write LCD memory
-				write_lcd_mem( lcdmem, bits, bitmask, mode );
+				write_lcd_mem( segments_lcdmem[symbol], bits, bitmask, mode );
 			}
 		}
 
@@ -451,15 +510,7 @@ namespace daw {
 		void display_char( uint8_t const & segment, uint8_t chr, LcdDisplayModes const mode ) {
 			// Write to single 7-segment character
 			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
-				// Get LCD memory address for segment from table
-				auto lcdmem = static_cast<uint8_t volatile *>(segments_lcdmem[segment]); // Pointer to LCD memory
-
-																		// Get bitmask for character from table
-				auto bitmask = segments_bitmask[segment]; // Bitmask for character
-
-															 // Get bits from font set
 				chr = get_font( chr );
-
 				if( segment >= LCD_SEG_L2_5 ) {
 					if( segment == LCD_SEG_L2_5 && chr != 0 ) {
 						chr = BIT7;
@@ -471,7 +522,7 @@ namespace daw {
 				}
 
 				// Physically write to LCD memory
-				write_lcd_mem( lcdmem, chr, bitmask, mode );
+				write_lcd_mem( segments_lcdmem[segment], chr, segments_bitmask[segment], mode );
 			}
 		}
 		// *************************************************************************************************
