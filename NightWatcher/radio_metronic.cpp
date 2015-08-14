@@ -8,10 +8,6 @@
 namespace daw {
 	namespace radio {
 		namespace medtronic {
-			namespace {
-				uint8_t const radio_symbol_table[] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
-			}
-
 			radio_data_buffer_t radio_data_buffer;
 			size_t symbol_error_count = 0;
 
@@ -105,6 +101,7 @@ namespace daw {
 			}	// namespace anonymous
 
 			void receive_radio_symbol( uint8_t const & value ) {
+				static uint8_t const s_radio_symbol_table[] = { 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 11, 16, 13, 14, 16, 16, 16, 16, 16, 16, 0, 7, 16, 16, 9, 8, 16, 15, 16, 16, 16, 16, 16, 16, 3, 16, 5, 6, 16, 16, 16, 10, 16, 12, 16, 16, 16, 16, 1, 2, 16, 4 };
 				if( 0 == value ) {
 					if( packets[packet_head_idx].length >= 0 ) {
 						finish_incoming_packet( );
@@ -122,11 +119,11 @@ namespace daw {
 					if( 0 == symbol ) {
 						continue;
 					}
-					if( sizeof_array( radio_symbol_table ) < symbol ) {
+					if( symbol >= sizeof_array( s_radio_symbol_table ) ) {
 						++symbol_error_count;
 						break;
 					}
-					symbol = radio_symbol_table[symbol];
+					symbol = s_radio_symbol_table[symbol];
 					if( 16 == symbol ) {
 						++symbol_error_count;
 						break;

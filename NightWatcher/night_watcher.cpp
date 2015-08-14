@@ -188,20 +188,11 @@ void __attribute__( (interrupt( TIMER0_A1_VECTOR )) ) timer_radio_status_isr( ) 
 
 void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 	switch( RF1AIV ) {	// Prioritizing Radio Core Interrupt
-	case  0: break; // No RF core interrupt pending
-	case  2: break; // RFIFG0
 	case  4:								// RFIFG1
 		RF1AIE &= ~(BIT1 | BIT9);
 		daw::radio::core::strobe( RF_SWOR ); // Go back to sleep
 		P1OUT ^= BIT0;
 		break;
-	case  6: break; // RFIFG2
-	case  8: break; // RFIFG3
-	case 10: break; // RFIFG4
-	case 12: break; // RFIFG5
-	case 14: break; // RFIFG6
-	case 16: break; // RFIFG7
-	case 18: break; // RFIFG8
 	case 20: // RFIFG9
 		RF1AIE &= ~(BIT1 | BIT9);
 		if( radio.is_receiving( ) ) {
@@ -212,11 +203,5 @@ void __attribute__( (interrupt( CC1101_VECTOR )) ) radio_isr( ) {
 		}
 		low_power_mode_off_on_exit( );
 		break;
-	case 22: break; // RFIFG10
-	case 24: break; // RFIFG11
-	case 26: break; // RFIFG12
-	case 28: break; // RFIFG13
-	case 30: break; // RFIFG14
-	case 32: break; // RFIFG15
 	}
 }
