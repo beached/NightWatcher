@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <cc430f6137.h>
+#include <stddef.h>
 
 // *************************************************************************************************
 // Defines section
@@ -18,7 +19,7 @@ namespace daw {
 			// LCD symbols for easier access
 			//
 			// xxx_SEG_xxx 		= Seven-segment character (sequence 5-4-3-2-1-0)
-			// xxx_SYMB_xxx 	= Display symbol, e.g. "AM" for ante meridiem
+			// xxx_SYMB_xxx 	= Display symbol, e.g. "AM" for after meridian
 			// xxx_UNIT_xxx 	= Display unit, e.g. "km/h" for kilometers per hour
 			// xxx_ICON_xxx 	= Display icon, e.g. heart to indicate reception of heart rate data
 			// xxx_L1_xxx 		= Item is part of Line1 information
@@ -105,64 +106,64 @@ namespace daw {
 
 			// LCD controller memory map
 			namespace LCDMemoryMap {
-				uint8_t * const LCD_MEM_1 = reinterpret_cast<uint8_t * const>(0x0A20);
-				uint8_t * const LCD_MEM_2 = reinterpret_cast<uint8_t * const>(0x0A21);
-				uint8_t * const LCD_MEM_3 = reinterpret_cast<uint8_t * const>(0x0A22);
-				uint8_t * const LCD_MEM_4 = reinterpret_cast<uint8_t * const>(0x0A23);
-				uint8_t * const LCD_MEM_5 = reinterpret_cast<uint8_t * const>(0x0A24);
-				uint8_t * const LCD_MEM_6 = reinterpret_cast<uint8_t * const>(0x0A25);
-				uint8_t * const LCD_MEM_7 = reinterpret_cast<uint8_t * const>(0x0A26);
-				uint8_t * const LCD_MEM_8 = reinterpret_cast<uint8_t * const>(0x0A27);
-				uint8_t * const LCD_MEM_9 = reinterpret_cast<uint8_t * const>(0x0A28);
-				uint8_t * const LCD_MEM_10 = reinterpret_cast<uint8_t * const>(0x0A29);
-				uint8_t * const LCD_MEM_11 = reinterpret_cast<uint8_t * const>(0x0A2A);
-				uint8_t * const LCD_MEM_12 = reinterpret_cast<uint8_t * const>(0x0A2B);
+				uint8_t volatile * const LCD_MEM_1 = reinterpret_cast<uint8_t volatile * const>(0x0A20);
+				uint8_t volatile * const LCD_MEM_2 = LCD_MEM_1 + 0x0001;
+				uint8_t volatile * const LCD_MEM_3 = LCD_MEM_1 + 0x0002;
+				uint8_t volatile * const LCD_MEM_4 = LCD_MEM_1 + 0x0003;
+				uint8_t volatile * const LCD_MEM_5 = LCD_MEM_1 + 0x0004;
+				uint8_t volatile * const LCD_MEM_6 = LCD_MEM_1 + 0x0005;
+				uint8_t volatile * const LCD_MEM_7 = LCD_MEM_1 + 0x0006;
+				uint8_t volatile * const LCD_MEM_8 = LCD_MEM_1 + 0x0007;
+				uint8_t volatile * const LCD_MEM_9 = LCD_MEM_1 + 0x0008;
+				uint8_t volatile * const LCD_MEM_10 = LCD_MEM_1 + 0x0009;
+				uint8_t volatile * const LCD_MEM_11 = LCD_MEM_1 + 0x000A;
+				uint8_t volatile * const LCD_MEM_12 = LCD_MEM_1 + 0x000B;
 			}
 
 			namespace LCDMemoryAssignment {
 				using namespace defines;
-				uint8_t * const LCD_SEG_L1_0_MEM = LCDMemoryMap::LCD_MEM_6;
-				uint8_t * const LCD_SEG_L1_1_MEM = LCDMemoryMap::LCD_MEM_4;
-				uint8_t * const LCD_SEG_L1_2_MEM = LCDMemoryMap::LCD_MEM_3;
-				uint8_t * const LCD_SEG_L1_3_MEM = LCDMemoryMap::LCD_MEM_2;
-				uint8_t * const LCD_SEG_L1_COL_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SEG_L1_DP1_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SEG_L1_DP0_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_SEG_L2_0_MEM = LCDMemoryMap::LCD_MEM_8;
-				uint8_t * const LCD_SEG_L2_1_MEM = LCDMemoryMap::LCD_MEM_9;
-				uint8_t * const LCD_SEG_L2_2_MEM = LCDMemoryMap::LCD_MEM_10;
-				uint8_t * const LCD_SEG_L2_3_MEM = LCDMemoryMap::LCD_MEM_11;
-				uint8_t * const LCD_SEG_L2_4_MEM = LCDMemoryMap::LCD_MEM_12;
-				uint8_t * const LCD_SEG_L2_5_MEM = LCDMemoryMap::LCD_MEM_12;
-				uint8_t * const LCD_SEG_L2_COL1_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SEG_L2_COL0_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_SEG_L2_DP_MEM = LCDMemoryMap::LCD_MEM_9;
-				uint8_t * const LCD_SYMB_AM_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SYMB_PM_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SYMB_ARROW_UP_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SYMB_ARROW_DOWN_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_SYMB_PERCENT_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_SYMB_TOTAL_MEM = LCDMemoryMap::LCD_MEM_11;
-				uint8_t * const LCD_SYMB_AVERAGE_MEM = LCDMemoryMap::LCD_MEM_10;
-				uint8_t * const LCD_SYMB_MAX_MEM = LCDMemoryMap::LCD_MEM_8;
-				uint8_t * const LCD_SYMB_BATTERY_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L1_FT_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_UNIT_L1_K_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_UNIT_L1_M_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L1_I_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L1_PER_S_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_UNIT_L1_PER_H_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L1_DEGREE_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_UNIT_L2_KCAL_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L2_KM_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_UNIT_L2_MI_MEM = LCDMemoryMap::LCD_MEM_7;
-				uint8_t * const LCD_ICON_HEART_MEM = LCDMemoryMap::LCD_MEM_2;
-				uint8_t * const LCD_ICON_STOPWATCH_MEM = LCDMemoryMap::LCD_MEM_3;
-				uint8_t * const LCD_ICON_RECORD_MEM = LCDMemoryMap::LCD_MEM_1;
-				uint8_t * const LCD_ICON_ALARM_MEM = LCDMemoryMap::LCD_MEM_4;
-				uint8_t * const LCD_ICON_BEEPER1_MEM = LCDMemoryMap::LCD_MEM_5;
-				uint8_t * const LCD_ICON_BEEPER2_MEM = LCDMemoryMap::LCD_MEM_6;
-				uint8_t * const LCD_ICON_BEEPER3_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_SEG_L1_0_MEM = LCDMemoryMap::LCD_MEM_6;
+				uint8_t volatile * const LCD_SEG_L1_1_MEM = LCDMemoryMap::LCD_MEM_4;
+				uint8_t volatile * const LCD_SEG_L1_2_MEM = LCDMemoryMap::LCD_MEM_3;
+				uint8_t volatile * const LCD_SEG_L1_3_MEM = LCDMemoryMap::LCD_MEM_2;
+				uint8_t volatile * const LCD_SEG_L1_COL_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SEG_L1_DP1_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SEG_L1_DP0_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_SEG_L2_0_MEM = LCDMemoryMap::LCD_MEM_8;
+				uint8_t volatile * const LCD_SEG_L2_1_MEM = LCDMemoryMap::LCD_MEM_9;
+				uint8_t volatile * const LCD_SEG_L2_2_MEM = LCDMemoryMap::LCD_MEM_10;
+				uint8_t volatile * const LCD_SEG_L2_3_MEM = LCDMemoryMap::LCD_MEM_11;
+				uint8_t volatile * const LCD_SEG_L2_4_MEM = LCDMemoryMap::LCD_MEM_12;
+				uint8_t volatile * const LCD_SEG_L2_5_MEM = LCDMemoryMap::LCD_MEM_12;
+				uint8_t volatile * const LCD_SEG_L2_COL1_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SEG_L2_COL0_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_SEG_L2_DP_MEM = LCDMemoryMap::LCD_MEM_9;
+				uint8_t volatile * const LCD_SYMB_AM_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SYMB_PM_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SYMB_ARROW_UP_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SYMB_ARROW_DOWN_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_SYMB_PERCENT_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_SYMB_TOTAL_MEM = LCDMemoryMap::LCD_MEM_11;
+				uint8_t volatile * const LCD_SYMB_AVERAGE_MEM = LCDMemoryMap::LCD_MEM_10;
+				uint8_t volatile * const LCD_SYMB_MAX_MEM = LCDMemoryMap::LCD_MEM_8;
+				uint8_t volatile * const LCD_SYMB_BATTERY_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L1_FT_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_UNIT_L1_K_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_UNIT_L1_M_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L1_I_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L1_PER_S_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_UNIT_L1_PER_H_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L1_DEGREE_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_UNIT_L2_KCAL_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L2_KM_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_UNIT_L2_MI_MEM = LCDMemoryMap::LCD_MEM_7;
+				uint8_t volatile * const LCD_ICON_HEART_MEM = LCDMemoryMap::LCD_MEM_2;
+				uint8_t volatile * const LCD_ICON_STOPWATCH_MEM = LCDMemoryMap::LCD_MEM_3;
+				uint8_t volatile * const LCD_ICON_RECORD_MEM = LCDMemoryMap::LCD_MEM_1;
+				uint8_t volatile * const LCD_ICON_ALARM_MEM = LCDMemoryMap::LCD_MEM_4;
+				uint8_t volatile * const LCD_ICON_BEEPER1_MEM = LCDMemoryMap::LCD_MEM_5;
+				uint8_t volatile * const LCD_ICON_BEEPER2_MEM = LCDMemoryMap::LCD_MEM_6;
+				uint8_t volatile * const LCD_ICON_BEEPER3_MEM = LCDMemoryMap::LCD_MEM_7;
 			}
 		} // namespace defines
 

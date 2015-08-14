@@ -16,7 +16,7 @@ namespace daw {
 			//				mode		On, off or blink segments
 			// @return
 			// *************************************************************************************************
-			void write_lcd_mem( uint8_t * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const mode ) {
+			void write_lcd_mem( uint8_t volatile * const lcdmem, uint8_t const & bits, uint8_t const & bitmask, LcdDisplayModes const mode ) {
 				using namespace display;
 				switch( mode ) {
 				case SEG_ON:
@@ -232,7 +232,7 @@ namespace daw {
 			}
 
 			// Table with memory address for each display element
-			uint8_t * const segments_lcdmem[42] = {
+			uint8_t volatile * const segments_lcdmem[42] = {
 				LCDMemoryAssignment::LCD_SYMB_AM_MEM,
 				LCDMemoryAssignment::LCD_SYMB_PM_MEM,
 				LCDMemoryAssignment::LCD_SYMB_ARROW_UP_MEM,
@@ -426,7 +426,7 @@ namespace daw {
 		void display_symbol( LcdSymbols const & symbol, LcdDisplayModes const mode ) {
 			if( symbol <= LCD_SEG_L2_DP ) {
 				// Get LCD memory address for symbol from table
-				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[symbol]);
+				auto lcdmem = static_cast<uint8_t volatile *>(segments_lcdmem[symbol]);
 
 				// Get bits for symbol from table
 				auto bits = segments_bitmask[symbol];
@@ -452,7 +452,7 @@ namespace daw {
 			// Write to single 7-segment character
 			if( (segment >= LCD_SEG_L1_3) && (segment <= LCD_SEG_L2_DP) ) {
 				// Get LCD memory address for segment from table
-				auto lcdmem = static_cast<uint8_t *>(segments_lcdmem[segment]); // Pointer to LCD memory
+				auto lcdmem = static_cast<uint8_t volatile *>(segments_lcdmem[segment]); // Pointer to LCD memory
 
 																		// Get bitmask for character from table
 				auto bitmask = segments_bitmask[segment]; // Bitmask for character

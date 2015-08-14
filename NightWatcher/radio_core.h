@@ -53,9 +53,9 @@ namespace daw {
 			private:
 
 				struct RFFlags {
-					volatile bool is_receiving;
-					volatile bool has_received_packet;
-					volatile bool receive_loop_on;
+					bool volatile is_receiving;
+					bool volatile has_received_packet;
+					bool volatile receive_loop_on;
 
 					RFFlags( ): is_receiving( false ), has_received_packet( false ), receive_loop_on( false ) { }
 
@@ -82,7 +82,7 @@ namespace daw {
 					rf_flags.is_receiving = true;
 				}
 
-				bool is_receiving( ) const {
+				bool is_receiving( ) const volatile {
 					return rf_flags.is_receiving;
 				}
 
@@ -114,7 +114,7 @@ namespace daw {
 					return !m_rx_buffer.empty( );
 				}
 
-				void check_for_data( ) {
+				void check_for_data( ) volatile {
 					rf_flags.has_received_packet = true;
 				}
 

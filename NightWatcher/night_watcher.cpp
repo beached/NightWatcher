@@ -147,7 +147,7 @@ namespace {
 #pragma endregion
 }	// namespace anonymous
 
-static bool packet_received = false;
+static bool volatile packet_received = false;
 
 int main( ) {
 	// Setup
