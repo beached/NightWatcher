@@ -21,7 +21,7 @@ Used for Enlite Sensors
 Looks like standard CRC16-CCIT
 Polynominal = 0x1021
 Initial Value = 0xFFFF
-
+Reference:  http://www.aet.calu.edu/~jsumey/CET440/asmts/crc.pdf
 Example Code(C++):
 uint16_t crc16( uint8_t const msg[], size_t const & msg_size ) {
 	// Uses CRC16-CCIT algorithms
