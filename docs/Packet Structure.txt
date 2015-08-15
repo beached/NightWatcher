@@ -1,3 +1,5 @@
+Referenced: @jberian https://github.com/jberian/mmcommander/blob/master/src/MMsimulator/MMsimulator.c for packet structure
+
 Glucometre
 
 A5|112233|Payload|Crc8
@@ -20,4 +22,18 @@ Sensor - Warmup
 
 --------------------------------------------------------------
 Sensor - Normal
+AA|112233|V|X0|ISIGAdj|Seq|Recent|X1|X2|X3|Batt|Past|Crc16
 
+AA -> CGM Sensor in normal mode, 1 byte
+112233 ->Device ID, 3 bytes
+V -> Version, 1 byte, always(I think) 13(0x0D) version 1 revision 3
+X0 -> Unknown, 1 byte, always 0x1D
+ISIGAdj -> ISIG Adjustment value, 1 byte
+Seq -> Sequence Number, 1 byte
+Recent -> Recent ISIG Data, 4 bytes(4x1byte)
+X1 -> Unknown, 1 byte, usually 0x00, however, 0x02 when Change Sensor
+X2 -> Unknown, 1 byte, usually 0x67, however, 0x00 when Sensor Error
+X3 -> Unknown, 1 byte, usually 0x67, however, 0x00 when Sensor Error
+Batt -> Battery Level, 1 byte, maybe usually 0x9D
+Past -> More past ISIG data, 15 bytes(15x1 byte)
+Crc16 -> CRC16-CCIT Value, 2 bytes
