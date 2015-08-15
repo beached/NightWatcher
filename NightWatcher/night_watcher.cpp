@@ -163,9 +163,7 @@ int main( ) {
 void packet_handler( ) { }
 
 void __attribute__( (interrupt( TIMER0_A1_VECTOR )) ) timer_radio_status_isr( ) {
-	switch( TA0IV ) {
-	case 0:  break;
-	case 2:
+	if( 2 == TA0IV && radio.is_receiving( ) ) {
 		if( radio.is_receiving( ) ) {
 			TA0CCR1 += RX_TIMER_PERIOD;                  // 16 cycles * 1/32768 = ~500 us
 
@@ -176,13 +174,6 @@ void __attribute__( (interrupt( TIMER0_A1_VECTOR )) ) timer_radio_status_isr( ) 
 				__bic_SR_register_on_exit( LPM3_bits );
 			}
 		}
-		break;
-	case 4:  break;                         // CCR2 not used
-	case 6:  break;                         // Reserved not used
-	case 8:  break;                         // Reserved not used
-	case 10: break;                         // Reserved not used
-	case 12: break;                         // Reserved not used
-	case 14: break;                         // Overflow not used
 	}
 }
 

@@ -141,6 +141,9 @@ namespace daw {
 					finish_incoming_packet( );
 				}
 			}
+
+			PacketType determine_packet_type( BufferType const & rdo_buffer ) {
+			}
 		} // namespace medtronic
 	} // namespace radio
 }	// namespace daw

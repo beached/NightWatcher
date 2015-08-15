@@ -20,6 +20,17 @@ namespace daw {
 				}
 				__no_operation( );
 			}
+
+			namespace MedtronicPacketTypes {
+				enum MedtronicPacketType: uint8_t {
+					Pump = 0xA2,
+					Glucometre = 0xA5,
+					EnliteSensorWarmup = 0xAA,
+					EnliteSensor = 0xAB
+				};
+			}
+
+			MedtronicPacketTypes::MedtronicPacketType determine_packet_type( BufferType const & rdo_buffer );
 		} // namespace medtronic
 	} // namespace radio
 }	// namespace daw
