@@ -23,6 +23,7 @@ Sensor - Warmup
 --------------------------------------------------------------
 Sensor - Normal
 AA|112233|V|X0|ISIGAdj|Seq|Recent|X1|X2|X3|Batt|Past|Crc16
+35 bytes
 
 AA -> CGM Sensor in normal mode, 1 byte
 112233 ->Device ID, 3 bytes
@@ -37,3 +38,10 @@ X3 -> Unknown, 1 byte, usually 0x67, however, 0x00 when Sensor Error
 Batt -> Battery Level, 1 byte, maybe usually 0x9D
 Past -> More past ISIG data, 15 bytes(15x1 byte)
 Crc16 -> CRC16-CCIT Value, 2 bytes
+
+Example: 
+ID = 234BCD
+Isig Values =
+Crc =
+Packet = 
+4b6b Encoded =
