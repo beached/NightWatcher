@@ -12,6 +12,7 @@ ID = 123ABC
 Glucose = 275mg/dl
 Crc = 0E
 Packet = A5123ABC01130E
+4b6b Encoded =
 --------------------------------------------------------------
 Sensor - Warmup
 
