@@ -1,11 +1,17 @@
 Glucometre
 
 A5|112233|Payload|Crc8
-
+7 bytes
 A5 -> Packet Type, 1 byte
-112233 -> Device ID, 3 bytes
-Payload -> Glucose Value, 2 bytes
+112233 -> Device ID , 3 bytes
+Payload -> Glucose Value(I think in mg/dl), 16bit value, Payload[0] - High byte, Payload[1] - Low byte
 Crc8 -> Crc-8, unknown variant but documented in code, 1 byte
+
+Example: 
+ID = 123ABC
+Glucose = 275mg/dl
+Crc = 0E
+Packet = A5123ABC01130E
 --------------------------------------------------------------
 Sensor - Warmup
 
