@@ -47,10 +47,14 @@ namespace daw {
 			return result;
 		}
 
-		value_type pop_all( ) {
-			auto result = static_cast<value_type>(m_queue);
+		void clear( ) {
 			m_queue = 0;
 			m_size = 0;
+		}
+
+		value_type pop_all( ) {
+			auto result = static_cast<value_type>(m_queue);
+			clear( );
 			return result;
 		}
 	};
@@ -86,6 +90,10 @@ namespace daw {
 
 		value_type pop_front( size_t num_nibbles = sizeof( value_type ) * 2 ) {
 			return m_queue.pop_front( num_nibbles * 4 );
+		}
+
+		void clear( ) {
+			m_queue.clear( );
 		}
 
 		value_type pop_all( ) {

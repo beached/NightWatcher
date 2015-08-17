@@ -90,7 +90,7 @@ namespace daw {
 						if( symbol >= sizeof_array( s_radio_symbol_table ) ) {
 							return 0x00;
 						}
-						return s_radio_symbol_table[symbol];	// If sybol is wrong, crc will pick it up
+						return s_radio_symbol_table[symbol];	// If symbol is wrong, crc will pick it up
 					}
 				}
 
@@ -104,8 +104,7 @@ namespace daw {
 					for( size_t n = 0; n < message_in_sz; ++n ) {
 						bq.push_back( message_in[n] );
 						while( bq.can_pop( 6 ) ) {
-							auto symbol = bq.pop_front( 6 );
-							nq.push_back( decode_symbol( symbol ) );
+							nq.push_back( decode_symbol( bq.pop_front( 6 ) ) );
 							while( nq.can_pop( 2 ) ) {
 								message_out[message_out_sz++] = nq.pop_front( 2 );
 							}
