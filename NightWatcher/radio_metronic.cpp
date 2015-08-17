@@ -16,7 +16,7 @@ namespace daw {
 				const uint8_t ERROR_TOO_MANY_PACKETS = 0x51;
 				const uint8_t ERROR_RF_TX_OVERFLOW = 0x52;
 				const uint8_t MAX_PACKET_SIZE = 250;
-				const size_t MAX_PACKETS = 100;
+				const size_t MAX_PACKETS = 64;
 
 				size_t packet_count = 0;
 				size_t packet_head_idx = 0;
@@ -142,8 +142,8 @@ namespace daw {
 				}
 			}
 
-			PacketType determine_packet_type( BufferType const & rdo_buffer ) {
-			}
+			//PacketType determine_packet_type( BufferType const & rdo_buffer ) {
+		//}
 		} // namespace medtronic
 	} // namespace radio
 }	// namespace daw

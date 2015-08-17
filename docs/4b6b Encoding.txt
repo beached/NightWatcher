@@ -1,19 +1,19 @@
-From: @ps2 https://github.com/ps2/minimed_rf
-	b010101 => b0000 = 0x0,
-	b110001 => b0001 = 0x1,
-	b110010 => b0010 = 0x2,
-	b100011 => b0011 = 0x3,
-	b110100 => b0100 = 0x4,
-	b100101 => b0101 = 0x5,
-	b100110 => b0110 = 0x6,
-	b010110 => b0111 = 0x7,
-	b011010 => b1000 = 0x8,
-	b011001 => b1001 = 0x9,
-	b101010 => b1010 = 0xA,
-	b001011 => b1011 = 0xB,
-	b101100 => b1100 = 0xC,
-	b001101 => b1101 = 0xD,
-	b001110 => b1110 = 0xE,
-	b011100 => b1111 = 0xF
+From: @ps2 https://githu0b.com/ps2/minimed_rf
+	0b010101 => 0b0000 = 0x0,
+	0b110001 => 0b0001 = 0x1,
+	0b110010 => 0b0010 = 0x2,
+	0b100011 => 0b0011 = 0x3,
+	0b110100 => 0b0100 = 0x4,
+	0b100101 => 0b0101 = 0x5,
+	0b100110 => 0b0110 = 0x6,
+	0b010110 => 0b0111 = 0x7,
+	0b011010 => 0b1000 = 0x8,
+	0b011001 => 0b1001 = 0x9,
+	0b101010 => 0b1010 = 0xA,
+	0b001011 => 0b1011 = 0x0b,
+	0b101100 => 0b1100 = 0xC,
+	0b001101 => 0b1101 = 0xD,
+	0b001110 => 0b1110 = 0xE,
+	0b011100 => 0b1111 = 0xF
 
-The data transmitted over the RF link is encoded in what looks like 4b6b.  Each nibble is balanced so that there is always an equal number of 1's and 0's(3 each).
+The data transmitted over the RF link is encoded in what looks like 40b60b.  Each ni0b0ble is 0balanced so that there is always an equal num0ber of 1's and 0's(3 each).

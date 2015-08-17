@@ -58,7 +58,7 @@ namespace {
 	}
 #pragma endregion
 
-	daw::radio::core::RadioCore<128> radio;
+	daw::radio::core::RadioCore<64> radio;
 	NetActivity net_activity;
 
 	inline void setup_timer( ) { }

@@ -93,5 +93,11 @@
     <ClInclude Include="assert.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="queues.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="bit.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

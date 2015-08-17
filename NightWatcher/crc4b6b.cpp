@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include "assert.h"
 #include "algorithm.h"
+#include "queues.h"
 
 namespace daw {
 	namespace radio {
@@ -34,67 +35,12 @@ namespace daw {
 
 				namespace {
 					uint8_t get_4b6b_symbol( uint8_t const & in_symbol ) {
-						static uint8_t s_symbols[] = { 0x15, 0x31, 0x32, 0x23, 0x34, 0x25, 0x26, 0x16, 0x1A, 0x19, 0x2A, 0x0B, 0x2C, 0x0D, 0x0E, 0x1C };
+						//static uint8_t s_symbols[] = { 0x15, 0x31, 0x32, 0x23, 0x34, 0x25, 0x26, 0x16, 0x1A, 0x19, 0x2A, 0x0B, 0x2C, 0x0D, 0x0E, 0x1C };
+						static uint8_t s_symbols[] = { 0b010101, 0b110001, 0b110010, 0b100011, 0b110100, 0b100101, 0b100110, 0b010110, 0b011010, 0b011001, 0b101010, 0b001011, 0b101100, 0b001101, 0b001110, 0b011100 };
 						if( in_symbol <= 0x0F ) {
 							return s_symbols[in_symbol];
 						}
 						return 0x00;
-					}
-
-					uint8_t decode_4b6b_symbol( uint8_t const & in_symbol, uint8_t & out_symbol ) {
-						switch( in_symbol ) {
-						case 0x15:
-							out_symbol = 0x00;
-							return 0;
-						case 0x31:
-							out_symbol = 0x01;
-							return 0;
-						case 0x32:
-							out_symbol = 0x02;
-							return 0;
-						case 0x23:
-							out_symbol = 0x03;
-							return 0;
-						case 0x34:
-							out_symbol = 0x04;
-							return 0;
-						case 0x25:
-							out_symbol = 0x05;
-							return 0;
-						case 0x26:
-							out_symbol = 0x06;
-							return 0;
-						case 0x16:
-							out_symbol = 0x07;
-							return 0;
-						case 0x1A:
-							out_symbol = 0x08;
-							return 0;
-						case 0x19:
-							out_symbol = 0x09;
-							return 0;
-						case 0x2A:
-							out_symbol = 0x0A;
-							return 0;
-						case 0x0B:
-							out_symbol = 0x0B;
-							return 0;
-						case 0x2C:
-							out_symbol = 0x0C;
-							return 0;
-						case 0x0D:
-							out_symbol = 0x0D;
-							return 0;
-						case 0x0E:
-							out_symbol = 0x0E;
-							return 0;
-						case 0x1C:
-							out_symbol = 0x0F;
-							return 0;
-						default:
-							out_symbol = 0x00;
-							return 1;
-						}
 					}
 				}	// namespace anonymous
 
@@ -135,35 +81,36 @@ namespace daw {
 					}
 				}
 
-				void decode_4b6b( uint8_t const in_message[], size_t const & in_length, uint8_t out_message[], size_t & out_length ) {
-					uint16_t int_buffer = 0;
-					size_t int_bits_available = 0;
-					uint8_t symbol = 0;
-					uint8_t rec_byte = 0;
-					uint8_t nibble_flag = 0;
-					size_t out_bytes = 0;
+				namespace {
+					uint8_t decode_symbol( uint8_t symbol ) {
+						static uint8_t const s_radio_symbol_table[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 13, 14, 0,
+							0, 0, 0, 0, 0, 0, 7, 0, 0, 9, 8, 0, 15, 0, 0, 0, 0,
+							0, 0, 3, 0, 5, 6, 0, 0, 0, 10, 0, 12, 0, 0, 0, 0, 1,
+							2, 0, 4 };
+						if( symbol >= sizeof_array( s_radio_symbol_table ) ) {
+							return 0x00;
+						}
+						return s_radio_symbol_table[symbol];	// If sybol is wrong, crc will pick it up
+					}
+				}
 
-					for( size_t i = 0; i < in_length; i++ ) {
-						int_buffer = int_buffer << 8;
-						int_buffer |= in_message[i];
-						int_bits_available += 8;
+				void decode_4b6b( uint8_t const message_in[], size_t const & message_in_sz, uint8_t message_out[], size_t & message_out_sz ) {
+					daw::fill( message_out, message_out + message_out_sz, 0 );
 
-						while( int_bits_available >= 6 ) {
-							int_bits_available -= 6;
-							symbol = int_buffer >> int_bits_available;
-							symbol &= 0x3F;
-							decode_4b6b_symbol( symbol, symbol );
-							rec_byte = rec_byte << 4u;
-							rec_byte &= 0xF0;
-							rec_byte |= symbol;
-							nibble_flag ^= 1;
-							if( nibble_flag == 0 ) {
-								out_message[out_bytes] = rec_byte;
-								out_bytes++;
+					message_out_sz = 0;
+					nibble_queue nq;
+					bit_queue bq;
+
+					for( size_t n = 0; n < message_in_sz; ++n ) {
+						bq.push_back( message_in[n] );
+						while( bq.can_pop( 6 ) ) {
+							auto symbol = bq.pop_front( 6 );
+							nq.push_back( decode_symbol( symbol ) );
+							while( nq.can_pop( 2 ) ) {
+								message_out[message_out_sz++] = nq.pop_front( 2 );
 							}
 						}
 					}
-					out_length = out_bytes;
 				}
 			}	// namespace crc4b6b
 		} // namespace medtronic
