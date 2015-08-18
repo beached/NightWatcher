@@ -190,3 +190,6 @@ _Pvt_Extensions/
 ModelManifest.xml
 VisualGDBCache/
 *.old
+CodeDB/
+*.vgdbsettings
+NightWatcher-*.vgdbsettings
