@@ -5,6 +5,7 @@
 #include "radio_core.h"
 #include "radio_medtronic.h"
 #include "radio_config.h"
+#include "crc4b6b.h"
 
 #define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
 #define low_power_mode_off_on_exit( ) LPM3_EXIT;
@@ -59,6 +60,9 @@ namespace {
 #pragma endregion
 
 	daw::radio::core::RadioCore<64> radio;
+	daw::Array<uint8_t, 64> processed_buffer;
+	size_t out_buffer_sz = 0;
+
 	NetActivity net_activity;
 
 	inline void setup_timer( ) { }
@@ -122,8 +126,9 @@ namespace {
 
 	void ProgramState::state_process_data( ProgramState & self ) {
 		if( radio.has_data( ) ) {
-			daw::radio::medtronic::receive_radio_symbols( radio.rx_buffer( ) );
-			//radio.reset_rx_buffer( );
+			out_buffer_sz = processed_buffer.size( );
+			daw::radio::medtronic::crc4b6b::decode_4b6b( radio.rx_buffer( ).data( ), radio.size( ), processed_buffer.data( ), out_buffer_sz );
+			radio.reset_rx_buffer( );
 			self.state_function = state_display_data;
 		} else {
 			self.state_function = state_waiting_for_interrupt;
@@ -135,8 +140,8 @@ namespace {
 		using namespace daw::display;
 		// Display glucose or something
 		if( !radio.rx_buffer( ).empty( ) ) {
-			display_hex_chars( defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(radio.rx_buffer( ).data( )), SEG_ON );
-			display_hex_chars( defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(radio.rx_buffer( ).data( ) + 4), SEG_ON );
+			display_hex_chars( defines::LCD_SEG_LINE1_START, static_cast<uint8_t const *>(processed_buffer.data( )), SEG_ON );
+			display_hex_chars( defines::LCD_SEG_LINE2_START, static_cast<uint8_t const *>(processed_buffer.data( ) + 4), SEG_ON );
 		} else {
 			display_chars( defines::LCD_SEG_LINE1_START, "Err", SEG_ON );
 			display_value( defines::LCD_SEG_LINE2_START, daw::radio::medtronic::symbol_error_count, 5, 0, SEG_ON );

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 namespace daw {
-	template<typename queue_type, typename value_type>
+	template<typename queue_type, typename value_type = uint8_t>
 	class bit_queue_gen {
 		queue_type m_queue;
 		size_t m_size;
@@ -59,14 +59,14 @@ namespace daw {
 		}
 	};
 
-	typedef bit_queue_gen<uint16_t, uint8_t> bit_queue;
-	class nibble_queue {
-		typedef uint16_t queue_type;
-		typedef uint8_t value_type;
+	typedef bit_queue_gen<uint16_t> bit_queue;
+
+	template<typename queue_type, typename value_type = uint8_t>
+	class nibble_queue_gen {
 		bit_queue_gen<queue_type, value_type> m_queue;
 
 	public:
-		nibble_queue( ): m_queue( ) { }
+		nibble_queue_gen( ): m_queue( ) { }
 
 		constexpr static size_t capacity( ) {
 			return sizeof( queue_type ) / sizeof( value_type );
@@ -104,4 +104,6 @@ namespace daw {
 			return m_queue.pop_all( );
 		}
 	};
+
+	typedef nibble_queue_gen<uint8_t> nibble_queue;
 }
