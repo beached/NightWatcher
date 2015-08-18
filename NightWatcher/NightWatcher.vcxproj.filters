@@ -99,5 +99,8 @@
     <ClInclude Include="bit.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="packet_types.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
