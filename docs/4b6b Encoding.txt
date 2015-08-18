@@ -17,3 +17,55 @@ From: @ps2 https://githu0b.com/ps2/minimed_rf
 	0b011100 => 0b1111 = 0xF
 
 The data transmitted over the RF link is encoded in what looks like 40b60b.  Each ni0b0ble is 0balanced so that there is always an equal num0ber of 1's and 0's(3 each).
+
+Example code
+
+uint8_t decode_symbol( uint8_t symbol ) {
+	static uint8_t const s_radio_symbol_table[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 13, 14, 0,
+		0, 0, 0, 0, 0, 0, 7, 0, 0, 9, 8, 0, 15, 0, 0, 0, 0,
+		0, 0, 3, 0, 5, 6, 0, 0, 0, 10, 0, 12, 0, 0, 0, 0, 1,
+		2, 0, 4 };
+	if( symbol >= sizeof_array( s_radio_symbol_table ) ) {
+		return 0x00;
+	}
+	return s_radio_symbol_table[symbol];	// If symbol is wrong, crc will pick it up
+}
+
+void decode_4b6b( uint8_t const message_in[], size_t const & message_in_sz, uint8_t message_out[], size_t & message_out_sz ) {
+	message_out_sz = 0;
+	nibble_queue nq;
+	bit_queue bq;
+
+	daw::for_each( message_in, message_in + message_in_sz, [&]( uint8_t const & val ) {
+		bq.push_back( val );
+		while( bq.can_pop( 6 ) ) {
+			uint8_t symbol = bq.pop_front( 6 );
+			nq.push_back( decode_symbol( symbol ) );
+			while( nq.can_pop( 2 ) ) {
+				message_out[message_out_sz++] = nq.pop_front( 2 );
+			}
+		}
+	} );
+}
+
+void encode_4b6b( uint8_t const in_message[], size_t const & in_length, uint8_t out_message[], size_t & out_length ) {
+	static uint8_t 4b6b_symbol[] = { 0x15, 0x31, 0x32, 0x23, 0x34, 0x25, 0x26, 0x16, 0x1A, 0x19, 0x2A, 0x0B, 0x2C, 0x0D, 0x0E, 0x1C };
+	fill( out_message, out_message + out_length, 0 );
+	out_length = 0;
+
+	nibble_queue nq;
+	bit_queue bq;
+
+	for_each( in_message, in_message + in_length, [&]( uint8_t const & val ) {
+		nq.push_back( val, 2 );
+		bq.push_back( 4b6b_symbol( nq.pop_front( 1 ) ), 6 );
+		bq.push_back( 4b6b_symbol( nq.pop_front( 1 ) ), 6 );
+
+		while( bq.can_pop( 8 ) ) {
+			out_message[out_length++] = bq.pop_front( 8 );
+		}
+	} );
+	if( !bq.empty( ) ) {
+		out_message[out_length++] = bq.pop_all( );
+	}
+}
