@@ -84,6 +84,10 @@ namespace daw {
 			m_queue.push_back( value, 4 );
 		}
 
+		void push_back( value_type const &value, size_t const & num_nibbles ) {
+			m_queue.push_back( value, num_nibbles * 4 );
+		}
+
 		bool can_pop( size_t num_nibbles = sizeof( value_type ) * 2 ) const {
 			return m_queue.can_pop( num_nibbles * 4 );
 		}

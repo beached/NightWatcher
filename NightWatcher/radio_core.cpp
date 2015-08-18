@@ -245,10 +245,10 @@ namespace daw {
 				volatile size_t i = 0;
 				RF1AINSTRW = 0x7E00 + buffer[i]; // PA Table burst write
 
-				for( i = 1; i < count; ++i ) {
-					RF1ADINB = buffer[i]; // Send data
+				daw::for_each( buffer + i, buffer + count, []( uint8_t const & value ) {
+					RF1ADINB = value; // Send data
 					while( !(RFDINIFG & RF1AIFCTL1) ) { /* spin */ }	// Wait for TX to finish
-				}
+				} );
 				i = RF1ADOUTB; // Reset RFDOUTIFG flag which contains status byte
 
 				while( !(RF1AIFCTL1 & RFINSTRIFG) ) { /* spin */ }
