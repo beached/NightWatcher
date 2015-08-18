@@ -66,7 +66,7 @@ namespace daw {
 							0, 0, 3, 0, 5, 6, 0, 0, 0, 10, 0, 12, 0, 0, 0, 0, 1,
 							2, 0, 4 };
 						if( symbol >= sizeof_array( s_radio_symbol_table ) ) {
-							return 0x00;
+							return 0;
 						}
 						return s_radio_symbol_table[symbol];	// If symbol is wrong, crc will pick it up
 					}
