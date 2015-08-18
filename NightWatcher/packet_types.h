@@ -14,7 +14,7 @@ namespace daw {
 						EnliteSensor = 0xAB
 					};
 				}
-				struct glucometre {
+				struct __attribute__( (packed) ) glucometre {
 					union {
 						uint8_t raw[7];
 						struct {
@@ -22,15 +22,15 @@ namespace daw {
 							uint32_t device_id : 24;
 							struct payload {
 								uint16_t glucose_value;
-							}
+							};
 							uint8_t crc;
 						};
 					};
-				} __attribute__( (packed) );
+				};
 
-				struct sensor {
+				struct __attribute__( (packed) ) sensor {
 					union {
-						uint8_t raw[35];
+						uint8_t raw[32];
 						struct {
 							uint8_t packet_type;	// either 0xAA or 0xAB
 							uint32_t device_id : 24;
@@ -48,7 +48,7 @@ namespace daw {
 							uint16_t crc;
 						};
 					};
-				}__attribute__( (packed) );
+				};
 			}
 		} // namespace medtronic
 	} // namespace radio
