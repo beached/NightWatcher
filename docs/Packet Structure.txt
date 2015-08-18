@@ -23,7 +23,7 @@ Sensor - Warmup
 --------------------------------------------------------------
 Sensor - Normal
 AA|112233|V|X0|ISIGAdj|Seq|Recent|X1|X2|X3|Batt|Past|Crc16
-35 bytes
+32 bytes
 
 AA -> CGM Sensor in normal mode, 1 byte
 112233 ->Device ID, 3 bytes
