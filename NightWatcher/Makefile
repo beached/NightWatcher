@@ -34,7 +34,7 @@ error:
 	$(error Invalid configuration, please check your inputs)
 endif
 
-SOURCEFILES := assert.cpp crc4b6b.cpp display.cpp new.cpp night_watcher.cpp radio_config.cpp radio_core.cpp radio_metronic.cpp
+SOURCEFILES := assert.cpp crc4b6b.cpp display.cpp new.cpp night_watcher.cpp night_watcher_state.cpp radio_config.cpp radio_core.cpp radio_metronic.cpp
 EXTERNAL_LIBS := 
 EXTERNAL_LIBS_COPIED := $(foreach lib, $(EXTERNAL_LIBS),$(BINARYDIR)/$(notdir $(lib)))
 

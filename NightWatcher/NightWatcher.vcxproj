@@ -116,6 +116,7 @@
     <ClCompile Include="display.cpp" />
     <ClCompile Include="new.cpp" />
     <ClCompile Include="night_watcher.cpp" />
+    <ClCompile Include="night_watcher_state.cpp" />
     <ClCompile Include="radio_config.cpp" />
     <ClCompile Include="radio_core.cpp" />
     <ClCompile Include="radio_metronic.cpp" />
@@ -135,6 +136,7 @@
     <ClInclude Include="display.h" />
     <ClInclude Include="algorithm.h" />
     <ClInclude Include="new.h" />
+    <ClInclude Include="night_watcher_state.h" />
     <ClInclude Include="packet_types.h" />
     <ClInclude Include="queues.h" />
     <ClInclude Include="radio_config.h" />

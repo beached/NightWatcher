@@ -49,6 +49,9 @@
     <ClCompile Include="assert.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="night_watcher_state.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
@@ -100,6 +103,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="packet_types.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="night_watcher_state.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

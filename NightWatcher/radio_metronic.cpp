@@ -8,6 +8,7 @@
 namespace daw {
 	namespace radio {
 		namespace medtronic {
+			daw::radio::core::RadioCore<64> radio;
 			radio_data_buffer_t radio_data_buffer;
 			size_t radio_data_buffer_size = 0;
 		} // namespace medtronic
