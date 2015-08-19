@@ -73,13 +73,14 @@ namespace daw {
 				RadioCore( ): rf_flags( ), m_rx_buffer( ) { }
 
 				void receive_on( ) {
-					RF1AIES |= BIT9; // Falling edge of RFIFG9
-					RF1AIFG &= ~BIT9; // Clear a pending interrupt
-					RF1AIE |= BIT9; // Enable the interrupt
-
-									// Radio is in IDLE following a TX, so strobe SRX to enter Receive Mode
+					RF1AIES &= ~BIT9;
+					RF1AIFG = 0;                              // Clear pending RFIFG interrupts
+					RF1AIE |= BIT9;                          // Enable the sync word received interrupt
+				
 					strobe( RF_SRX ); // Strobe SRX
+
 					rf_flags.is_receiving = true;
+					__no_operation( );
 				}
 
 				bool is_receiving( ) const volatile {

@@ -6,9 +6,9 @@ namespace daw {
 		namespace medtronic {
 			void radio_setup_916MHz( ) {
 				using namespace core;
-				//
-				// Rf settings for CC430F6137
-				//
+//
+// Rf settings for CC430F6137
+//
 				radio_write_single_reg( IOCFG0, 0x06 );       //GDO0 Output Configuration
 				radio_write_single_reg( FIFOTHR, 0x47 );      //RX FIFO and TX FIFO Thresholds
 				radio_write_single_reg( SYNC1, 0x00 );        //Sync Word, High Byte
@@ -39,6 +39,7 @@ namespace daw {
 				radio_write_single_reg( TEST2, 0x81 );        //Various Test Settings
 				radio_write_single_reg( TEST1, 0x35 );        //Various Test Settings
 				radio_write_single_reg( TEST0, 0x09 );        //Various Test Settings
+				radio_write_single_reg( LQI, 0x7F );          //Demodulator Estimate for Link Quality
 				radio_write_single_reg( RSSI, 0x80 );         //Received Signal Strength Indication
 				radio_write_single_reg( VCO_VC_DAC, 0x94 );   //Current Setting from PLL Calibration Module
 				{

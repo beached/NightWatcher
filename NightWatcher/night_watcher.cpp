@@ -1,11 +1,13 @@
 #include <cc430f6137.h>
 #include <intrinsics.h>
 
+
 #include "display.h"
 #include "radio_core.h"
 #include "radio_medtronic.h"
 #include "radio_config.h"
 #include "crc4b6b.h"
+#include "packet_types.h"
 
 #define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
 #define low_power_mode_off_on_exit( ) LPM3_EXIT;
@@ -85,6 +87,9 @@ namespace {
 		static void state_process_data( ProgramState & );
 		static void state_display_data( ProgramState & );
 		static void state_button_pushed( ProgramState & );
+		static void state_determine_packet_type( ProgramState & );
+		static void state_process_glucometre_packet( ProgramState & );
+		static void state_process_sensor_packet( ProgramState & );
 	public:
 		ProgramState( ): state_function( state_waiting_for_interrupt ) { }
 
@@ -122,6 +127,30 @@ namespace {
 		}
 	}
 
+	void ProgramState::state_determine_packet_type( ProgramState & self ) {
+		uint8_t packet_type = 0xAA;
+		switch( packet_type ) {
+		case daw::radio::medtronic::packets::types::Glucometre: 
+			self.state_function = state_process_glucometre_packet;
+			break;
+		case daw::radio::medtronic::packets::types::EnliteSensorWarmup:
+		case daw::radio::medtronic::packets::types::EnliteSensor:
+			self.state_function = state_process_sensor_packet;
+			break;
+		default:
+			self.state_function = state_waiting_for_interrupt;
+			break;
+		}
+	}
+	
+	void ProgramState::state_process_glucometre_packet( ProgramState & ) {
+	}
+	
+	void ProgramState::state_process_sensor_packet( ProgramState & ) {
+	
+	}
+
+	
 	void ProgramState::state_process_data( ProgramState & self ) {
 		if( radio.has_data( ) ) {
 			daw::radio::medtronic::radio_data_buffer_size = daw::radio::medtronic::radio_data_buffer.size( );
