@@ -2,10 +2,12 @@
 <EmbeddedProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <ToolchainID>com.visualgdb.msp430</ToolchainID>
   <BspID>com.sysprogs.msp430.core</BspID>
+  <BspVersion>1.0</BspVersion>
   <McuID>cc430f6137</McuID>
   <MCUDefinitionFile>devices\cc430f6137.xml</MCUDefinitionFile>
   <MCUProperties>
     <Entries />
   </MCUProperties>
   <BSPSourceFolderName>Device-specific files</BSPSourceFolderName>
+  <MCUMakFile>mcu.mak</MCUMakFile>
 </EmbeddedProfile>

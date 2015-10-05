@@ -73,12 +73,23 @@ namespace daw {
 				RadioCore( ): rf_flags( ), m_rx_buffer( ) { }
 
 				void receive_on( ) {
+					strobe( RF_SIDLE );
+					strobe( RF_SRX ); 
+  
+					// P2.7 for GD02 - synchronous clock from Radio 
+					// P2.6 for GDO0 - synchronous data from Radio
+					P2DIR |= BIT6 + BIT7;            
+					P2SEL |= BIT6 + BIT7;            
+
+					PMAPPWD = 0x02D52;             // Get write-access to port mapping regs
+					P2MAP6 = PM_RFGDO0;            // Map GDO0 to P2.6
+					P2MAP7 = PM_RFGDO2;            // Map GDO2 to P2.7
+					PMAPPWD = 0x00;                // Lock Port mapping
+
 					RF1AIES &= ~BIT9;
 					RF1AIFG = 0;                              // Clear pending RFIFG interrupts
 					RF1AIE |= BIT9;                          // Enable the sync word received interrupt
-				
-					strobe( RF_SRX ); // Strobe SRX
-
+					
 					rf_flags.is_receiving = true;
 					__no_operation( );
 				}

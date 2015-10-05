@@ -116,6 +116,17 @@ void ProgramState::state_process_sensor_packet( ProgramState & ) {
 	
 }
 
+namespace {
+	void Transmit( unsigned char *buffer, unsigned char length ) {
+		RF1AIES |= BIT9;                          
+		RF1AIFG &= ~BIT9;                         // Clear pending interrupts
+		RF1AIE |= BIT9;                           // Enable TX end-of-packet interrupt
+  
+		WriteBurstReg( RF_TXFIFOWR, buffer, length );     
+  
+		Strobe( RF_STX );                         // Strobe STX   
+	}
+}
 	
 void ProgramState::state_process_data( ProgramState & self ) {
 	if( radio.has_data( ) ) {

@@ -69,7 +69,7 @@ namespace daw {
 		nibble_queue_gen( ): m_queue( ) { }
 
 		constexpr static size_t capacity( ) {
-			return sizeof( queue_type ) / sizeof( value_type );
+			return sizeof( queue_type ) / 4;
 		}
 
 		size_t size( ) const {

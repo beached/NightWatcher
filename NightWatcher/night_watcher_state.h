@@ -1,8 +1,8 @@
 #pragma once
 
 #define low_power_mode( ) _BIS_SR( LPM3_bits + GIE)
-#define low_power_mode_off_on_exit( ) LPM3_EXIT;
-#define disable_watchdog( ) WDTCTL = WDTPW | WDTHOLD;
+#define low_power_mode_off_on_exit( ) LPM3_EXIT
+#define disable_watchdog( ) WDTCTL = WDTPW | WDTHOLD
 
 class ProgramState {
 	typedef void( *state_function_ptr )( ProgramState & );
@@ -20,4 +20,5 @@ public:
 	ProgramState( );
 	void tick( );
 };
+
 

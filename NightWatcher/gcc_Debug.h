@@ -56,6 +56,9 @@
 #ifndef __DEC32_EPSILON__
 #define __DEC32_EPSILON__ 1E-6DF
 #endif
+#if !defined(__GXX_EXPERIMENTAL_CXX0X__) && defined(__SYSPROGS_CODESENSE__)
+#define __GXX_EXPERIMENTAL_CXX0X__ 1
+#endif
 #ifndef __LDBL_MAX_EXP__
 #define __LDBL_MAX_EXP__ 128
 #endif

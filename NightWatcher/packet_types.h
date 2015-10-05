@@ -28,7 +28,7 @@ namespace daw {
 
 				struct __attribute__( (packed) ) sensor {
 					union {
-						uint8_t raw[32];
+						uint8_t raw[33];
 						struct {
 							uint8_t packet_type;	// either 0xAA or 0xAB
 							uint32_t device_id : 24;
